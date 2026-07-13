@@ -29,10 +29,10 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="bg-primary-linear text-light sticky-top">
                     <tr>
-                        <th @click="$sortByField('name', 'fetchUsers')" class="cursor-pointer">Name <i :class="$getSortIcon('name')" class="ms-1"></i></th>
-                        <th @click="$sortByField('email', 'fetchUsers')" class="cursor-pointer">Email <i :class="$getSortIcon('email')" class="ms-1"></i></th>
-                        <th @click="$sortByField('status', 'fetchUsers')" class="cursor-pointer">Status <i :class="$getSortIcon('status')" class="ms-1"></i></th>
-                        <th @click="$sortByField('currency', 'fetchUsers')" class="cursor-pointer">Currency <i :class="$getSortIcon('currency')" class="ms-1"></i></th>
+                        <th @click="sortByField('name', 'fetchUsers')" class="cursor-pointer">Name <i :class="getSortIcon('name')" class="ms-1"></i></th>
+                        <th @click="sortByField('email', 'fetchUsers')" class="cursor-pointer">Email <i :class="getSortIcon('email')" class="ms-1"></i></th>
+                        <th @click="sortByField('status', 'fetchUsers')" class="cursor-pointer">Status <i :class="getSortIcon('status')" class="ms-1"></i></th>
+                        <th @click="sortByField('currency', 'fetchUsers')" class="cursor-pointer">Currency <i :class="getSortIcon('currency')" class="ms-1"></i></th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -107,6 +107,8 @@
 </template>
 
 <script>
+import { sortByField, getSortIcon } from '../utils/table'
+
 export default {
     data(){
         return {
@@ -126,7 +128,7 @@ export default {
     },
     watch: {
         'filters.search'(newSearch, oldSearch) {
-            this.fetchUsers(1); 
+            this.fetchUsers(1);
         }
     },
     mounted(){
@@ -161,7 +163,9 @@ export default {
                     }
                 })
                 .catch(err => alert('Error deleting user'))
-        }
+        },
+        sortByField,
+        getSortIcon
     }
 }
 </script>

@@ -48,15 +48,15 @@
                     <div class="d-flex align-items-center gap-3">
                       <div>
                         <h6 class="fw-bold text-light mb-0">Order #{{ (index + 1) * currentPage }}</h6>
-                        <small class="text-light">{{ $formatDate(order.created_at) }}</small>
+                        <small class="text-light">{{ formatDate(order.created_at) }}</small>
                       </div>
                     </div>
                   </div>
                   <div class="col-md-6 text-md-end pe-3">
-                    <span class="badge fw-bold rounded-3 px-3 py-2" :class="$getOrderStatusBadgeClass(order.status)">{{
+                    <span class="badge fw-bold rounded-3 px-3 py-2" :class="getOrderStatusBadgeClass(order.status)">{{
                       order.status }}</span>
                     <span class="badge fw-bold rounded-3 px-3 py-2 ms-2"
-                      :class="$getOrderStatusBadgeClass(order.payment_status)">{{ order.payment_status }}</span>
+                      :class="getOrderStatusBadgeClass(order.payment_status)">{{ order.payment_status }}</span>
                   </div>
                 </div>
               </button>
@@ -68,7 +68,7 @@
                 <div v-for="item in order.items" :key="item.product_id" class="order-item mb-3 pb-3 border-bottom">
                   <div class="row align-items-center">
                     <div class="col-md-2">
-                      <img :src="$getImageUrl(item.product_image)" class="img-fluid rounded order-item-image"
+                      <img :src="getImageUrl(item.product_image)" class="img-fluid rounded order-item-image"
                         :alt="item.product_name">
                     </div>
                     <div class="col-md-6 cursor-pointer" @click="$router.push(`/product/detail/${item.product_id}`)">
@@ -139,9 +139,17 @@
 </template>
 
 <script>
+import { mapState } from 'pinia'
+import { useAuthStore } from '../stores/auth'
+import { getImageUrl } from '../utils/ImageUrl'
+import { formatDate } from '../utils/formatDate'
+import { getOrderStatusBadgeClass } from '../utils/statusBadge'
+
 export default {
   name: 'MyOrders',
-  props: ['user'],
+  computed: {
+    ...mapState(useAuthStore, ['user']),
+  },
   data() {
     return {
       orders: [],
@@ -180,7 +188,10 @@ export default {
       } finally {
         this.loading = false;
       }
-    }
+    },
+    getImageUrl,
+    formatDate,
+    getOrderStatusBadgeClass
   }
 }
 </script>

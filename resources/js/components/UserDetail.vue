@@ -78,7 +78,7 @@
                                     <div class="col-md-6 col-sm-12">
                                         <div class="info-box p-2 bg-light rounded-3">
                                             <small class="text-muted d-block mb-1">Member Since</small>
-                                            <span class="fw-bold">{{ $formatDate(user.created_at) }}</span>
+                                            <span class="fw-bold">{{ formatDate(user.created_at) }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-12">
@@ -148,15 +148,15 @@
                                             <span class="fw-bold text-primary">{{ order.currency_sign || '$' }} {{ order.total_amount }}</span>
                                         </td>
                                         <td>
-                                            <span class="badge" :class="$getOrderStatusBadgeClass(order.status)">{{ order.status }}</span>
+                                            <span class="badge" :class="getOrderStatusBadgeClass(order.status)">{{ order.status }}</span>
                                         </td>
                                         <td>
-                                            <span class="badge" :class="$getOrderStatusBadgeClass(order.payment_status)">{{ order.payment_status }}</span>
+                                            <span class="badge" :class="getOrderStatusBadgeClass(order.payment_status)">{{ order.payment_status }}</span>
                                         </td>
                                         <td>
                                             <div class="d-flex align-items-center gap-2">
                                                 <i class="fa fa-calendar text-muted"></i>
-                                                <span>{{ $formatDate(order.created_at) }}</span>
+                                                <span>{{ formatDate(order.created_at) }}</span>
                                             </div>
                                         </td>
                                         <td>
@@ -212,6 +212,10 @@
 </template>
 
 <script>
+import { formatDate } from '../utils/formatDate'
+import { getOrderStatusBadgeClass } from '../utils/statusBadge'
+import { showToast } from '../utils/ui-toasts'
+
 export default {
     data() {
         return {
@@ -240,7 +244,7 @@ export default {
                     this.fetchOrders();
                 })
                 .catch(err => console.error('Failed to fetch user', err))
-                .finally(() => {    
+                .finally(() => {
                     this.loading = false;
                 });
         },
@@ -266,17 +270,19 @@ export default {
             this.$axios.delete('/api/users/' + id)
                 .then(res => {
                     if (res.data.success === true) {
-                        this.$toast('User deleted successfully!', 'success');
+                        showToast('User deleted successfully!', 'success');
                         this.$router.push('/users');
                     } else {
-                        this.$toast('Delete failed', 'error');
+                        showToast('Delete failed', 'error');
                     }
                 })
                 .catch(err => {
                     console.error('Error deleting user', err);
-                    this.$toast('Error deleting user', 'error');
+                    showToast('Error deleting user', 'error');
                 });
-        }
+        },
+        formatDate,
+        getOrderStatusBadgeClass
     }
 }
 </script>

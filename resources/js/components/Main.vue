@@ -81,7 +81,7 @@
                     </li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                      <button class="dropdown-item text-danger" type="button" @click="logout">
+                      <button class="dropdown-item text-danger" type="button" @click="handleLogout">
                         <i class="fas fa-sign-out-alt me-2"></i>Logout
                       </button>
                     </li>
@@ -105,58 +105,38 @@
     <!-- Main Content -->
     <main class="main-content">
       <div class="card border-0 rounded-1">
-        <router-view :user="user" />
+        <router-view />
       </div>
     </main>
   </div>
 </template>
 
 <script>
+import { mapState, mapActions } from 'pinia'
+import { useAuthStore } from '../stores/auth'
+
 export default {
   name: 'Main',
-  data() {
-    return {
-      user: null,
-      isAuthenticated: false,
-      isAdmin: false,
-      profileImage: '',
-    }
+  computed: {
+    ...mapState(useAuthStore, ['user', 'isAuthenticated', 'isAdmin']),
+    profileImage() {
+      return `https://ui-avatars.com/api/?name=${this.user?.name || 'User'}&background=0d6efd&color=fff&size=150`
+    },
   },
   mounted() {
-    this.checkAuth();
+    this.fetchUser()
   },
-  // watch: {
-  //   '$route'() {
-  //     this.checkAuth();
-  //   }
-  // },
   methods: {
-    async checkAuth() {
+    ...mapActions(useAuthStore, ['fetchUser', 'logout']),
+    async handleLogout() {
       try {
-        const response = await this.$axios.get('/user');
-        this.user = response.data;
-        this.isAdmin = response.data?.role === 'admin';
-        this.isAuthenticated = true;
+        await this.logout()
+        localStorage.removeItem('user')
+        window.location.href = '/vue-demo/public/login'
       } catch (error) {
-        this.user = null;
-        this.isAuthenticated = false;
-        this.isAdmin = false;
+        console.error('Logout error:', error)
       }
-      this.profileImage = `https://ui-avatars.com/api/?name=${this.user?.name || 'User'}&background=0d6efd&color=fff&size=150`;
     },
-    async logout() {
-      try {
-        await this.$axios.post('/logout');
-        localStorage.removeItem('user');
-        // Clear CSRF token to force refresh on next login
-        this.isAuthenticated = false;
-        this.isAdmin = false;
-        this.user = null;
-        window.location.href = '/vue-demo/public/login';
-      } catch (error) {
-        console.error('Logout error:', error);
-      }
-    }
-  }
+  },
 }
 </script>

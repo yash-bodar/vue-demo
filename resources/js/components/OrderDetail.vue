@@ -50,13 +50,13 @@
                   <div class="d-flex align-items-center gap-3">
                     <div>
                       <h6 class="fw-bold text-light mb-0">Order #{{ order.id }}</h6>
-                      <small class="text-light">{{ $formatDate(order.created_at) }}</small>
+                      <small class="text-light">{{ formatDate(order.created_at) }}</small>
                     </div>
                   </div>
                 </div>
                 <div class="col-md-6 text-md-end">
-                  <span class="badge fw-bold rounded-3 px-3 py-2" :class="$getOrderStatusBadgeClass(order.status)">{{ order.status }}</span>
-                  <span class="badge fw-bold rounded-3 px-3 py-2 ms-2" :class="$getOrderStatusBadgeClass(order.payment_status)">{{ order.payment_status }}</span>
+                  <span class="badge fw-bold rounded-3 px-3 py-2" :class="getOrderStatusBadgeClass(order.status)">{{ order.status }}</span>
+                  <span class="badge fw-bold rounded-3 px-3 py-2 ms-2" :class="getOrderStatusBadgeClass(order.payment_status)">{{ order.payment_status }}</span>
                 </div>
               </div>
             </div>
@@ -85,7 +85,7 @@
               <div v-for="item in order.items" :key="item.product_id" class="order-item mb-3 pb-3 border-bottom">
                 <div class="row align-items-center">
                   <div class="col-md-2">
-                    <img :src="$getImageUrl(item.product_image)" class="img-fluid rounded order-item-image" :alt="item.product_name">
+                    <img :src="getImageUrl(item.product_image)" class="img-fluid rounded order-item-image" :alt="item.product_name">
                   </div>
                   <div class="col-md-6">
                     <h6 class="fw-semibold mb-1 cursor-pointer" @click="$router.push('/product/detail/' + item.product_id)">{{ item.product_name }}</h6>
@@ -118,6 +118,10 @@
 </template>
 
 <script>
+import { getImageUrl } from '../utils/ImageUrl'
+import { formatDate } from '../utils/formatDate'
+import { getOrderStatusBadgeClass } from '../utils/statusBadge'
+
 export default {
   name: 'OrderDetail',
   data() {
@@ -145,7 +149,10 @@ export default {
       } finally {
         this.loading = false;
       }
-    }
+    },
+    getImageUrl,
+    formatDate,
+    getOrderStatusBadgeClass
   }
 }
 </script>

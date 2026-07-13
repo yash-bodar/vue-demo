@@ -62,7 +62,7 @@
           <div class="card h-100 product-card border-0 rounded-3 overflow-hidden shadow-sm">
             <div class="product-image-container position-relative">
               <div class="image-placeholder d-flex align-items-center justify-content-center bg-light">
-                <img :src="this.$getImageUrl(product.image)" class="product-image" :alt="product.name">
+                <img :src="getImageUrl(product.image)" class="product-image" :alt="product.name">
                 <button type="button" class="position-absolute bottom-0 mb-2 end-0 me-2 fs-4 wishlist-btn" :disabled="loadingProductId == product.id" @click="updateWishlist(product.id, product.wishlist ? 'remove' : 'add')"><i class="fas fa-heart wish-icon" :class="product.wishlist ? 'active' : ''"></i></button>
               </div>
             </div>
@@ -147,9 +147,15 @@
 </template>
 
 <script>
+import { mapState } from 'pinia'
+import { useAuthStore } from '../stores/auth'
+import { getImageUrl } from '../utils/ImageUrl'
+
 export default {
   name: 'Product',
-  props: ['user'],
+  computed: {
+    ...mapState(useAuthStore, ['user']),
+  },
   data() {
     return {
       products: [],
@@ -300,7 +306,8 @@ export default {
     getCartQuantity(productId) {
       const item = this.cart.find(p => p.product_id === productId);
       return item ? item.quantity : 0;
-    }
+    },
+    getImageUrl
   }
 }
 </script>

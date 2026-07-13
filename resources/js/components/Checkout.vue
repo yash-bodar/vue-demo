@@ -22,7 +22,7 @@
                 <div v-for="item in orderItems" :key="item.id" class="order-item mb-3 pb-3 border-bottom">
                   <div class="row align-items-center">
                     <div class="col-md-2">
-                      <img :src="$getImageUrl(item.product.image)" class="img-fluid rounded" :alt="item.product.name">
+                      <img :src="getImageUrl(item.product.image)" class="img-fluid rounded" :alt="item.product.name">
                     </div>
                     <div class="col-md-6">
                       <h6 class="fw-semibold mb-1">{{ item.product.name }}</h6>
@@ -123,11 +123,16 @@
 </template>
 
 <script>
+import { mapState } from 'pinia'
+import { useAuthStore } from '../stores/auth'
 import { loadStripe } from '@stripe/stripe-js';
+import { getImageUrl } from '../utils/ImageUrl'
 
 export default {
   name: 'Checkout',
-  props: ['user'],
+  computed: {
+    ...mapState(useAuthStore, ['user']),
+  },
   data() {
     return {
       orderItems: [],
@@ -258,7 +263,8 @@ export default {
         console.error('Error placing order:', error);
         alert('Failed to place order. Please try again.');
       }
-    }
+    },
+    getImageUrl
   }
 }
 </script>

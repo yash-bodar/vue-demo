@@ -53,13 +53,13 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="text-light bg-primary-linear sticky-top">
                     <tr>
-                        <th @click="$sortByField('name', 'fetchProducts')" class="cursor-pointer">Name <i :class="$getSortIcon('name')" class="ms-1"></i></th>
-                        <th @click="$sortByField('price', 'fetchProducts')" class="cursor-pointer">Price <i :class="$getSortIcon('price')" class="ms-1"></i></th>
-                        <th @click="$sortByField('stock', 'fetchProducts')" class="cursor-pointer">Qty Available <i :class="$getSortIcon('stock')" class="ms-1"></i></th>
-                        <th @click="$sortByField('category_id', 'fetchProducts')" class="cursor-pointer">Category <i :class="$getSortIcon('category_id')" class="ms-1"></i></th>
-                        <th @click="$sortByField('currency', 'fetchProducts')" class="cursor-pointer">Currency <i :class="$getSortIcon('currency')" class="ms-1"></i></th>
-                        <th @click="$sortByField('status', 'fetchProducts')" class="cursor-pointer">Status <i :class="$getSortIcon('status')" class="ms-1"></i></th>
-                        <th @click="$sortByField('created_at','fetchProducts')" class="cursor-pointer">Created At <i :class="$getSortIcon('created_at')" class="ms-1"></i></th>
+                        <th @click="sortByField('name', 'fetchProducts')" class="cursor-pointer">Name <i :class="getSortIcon('name')" class="ms-1"></i></th>
+                        <th @click="sortByField('price', 'fetchProducts')" class="cursor-pointer">Price <i :class="getSortIcon('price')" class="ms-1"></i></th>
+                        <th @click="sortByField('stock', 'fetchProducts')" class="cursor-pointer">Qty Available <i :class="getSortIcon('stock')" class="ms-1"></i></th>
+                        <th @click="sortByField('category_id', 'fetchProducts')" class="cursor-pointer">Category <i :class="getSortIcon('category_id')" class="ms-1"></i></th>
+                        <th @click="sortByField('currency', 'fetchProducts')" class="cursor-pointer">Currency <i :class="getSortIcon('currency')" class="ms-1"></i></th>
+                        <th @click="sortByField('status', 'fetchProducts')" class="cursor-pointer">Status <i :class="getSortIcon('status')" class="ms-1"></i></th>
+                        <th @click="sortByField('created_at','fetchProducts')" class="cursor-pointer">Created At <i :class="getSortIcon('created_at')" class="ms-1"></i></th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -67,7 +67,7 @@
                     <tr v-if="productsList.length > 0" v-for="product in productsList" :key="product.id" class="hover-row">
                         <td class="cursor-pointer" @click="$router.push(`/product/detail/${product.id}`)">
                             <div class="d-flex align-items-center gap-3">
-                                <img class="rounded shadow-sm border" width="40" height="40" :src="this.$getImageUrl(product.image)" :alt="product.name">
+                                <img class="rounded shadow-sm border" width="40" height="40" :src="getImageUrl(product.image)" :alt="product.name">
                                 <div>
                                     <div class="fw-semibold text-primary">{{ product.name }}</div>
                                     <small class="text-muted">ID: #{{ product.id }}</small>
@@ -91,7 +91,7 @@
                         </td>
                         <td>
                             <div class="d-flex align-items-center gap-2">
-                                <i class="fa fa-calendar text-muted"></i><span>{{ $formatDate(product.created_at) }}</span>
+                                <i class="fa fa-calendar text-muted"></i><span>{{ formatDate(product.created_at) }}</span>
                             </div>
                         </td>
                         <td>
@@ -137,7 +137,11 @@
 </template>
 
 <script>
-import Swal from 'sweetalert2';
+import Swal from 'sweetalert2'
+import { sortByField, getSortIcon } from '../utils/table'
+import { getImageUrl } from '../utils/ImageUrl'
+import { formatDate } from '../utils/formatDate'
+import { showSwalMessage, confirmAction } from '../utils/showMessage'
 
 export default {
     data() {
@@ -160,7 +164,7 @@ export default {
     },
     watch: {
         'filters.search'(newSearch, oldSearch) {
-            this.fetchProducts(1); 
+            this.fetchProducts(1);
         }
     },
     mounted() {
@@ -208,24 +212,28 @@ export default {
 
         },
         deleteProduct(id) {
-            this.$confirmAction(
+            confirmAction(
                 'Are you sure you want to delete this product?',
                 '',
                 (productId) => {
                     this.$axios.delete(`/api/products/${productId}`)
                         .then(res => {
                             if (res.data.success === true) {
-                                this.$showSwalMessage('Success', 'Product Deleted')
+                                showSwalMessage('Success', 'Product Deleted')
                                 this.fetchProducts(this.currentPage)
                             } else {
-                                this.$showSwalMessage('Error', 'Delete failed')
+                                showSwalMessage('Error', 'Delete failed')
                             }
                         })
-                        .catch(err => this.$showSwalMessage('Error', 'Error deleting product'))
+                        .catch(err => showSwalMessage('Error', 'Error deleting product'))
                 },
                 id
             );
-        }
+        },
+        sortByField,
+        getSortIcon,
+        getImageUrl,
+        formatDate
     }
 }
 </script>

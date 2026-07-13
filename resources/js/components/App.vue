@@ -1,9 +1,7 @@
 <template>
-    <router-view />
+  <router-view />
 </template>
 
-<script>
-export default {
-  name: 'App'
-}
+<script setup>
+// Modern Composition API with script setup syntax
 </script>

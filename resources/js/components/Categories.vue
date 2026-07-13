@@ -29,10 +29,10 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="bg-primary-linear text-light sticky-top">
                     <tr>
-                        <th @click="$sortByField('name', 'fetchCategories')" class="cursor-pointer">Name <i :class="$getSortIcon('name')" class="ms-1"></i></th>
-                        <th @click="$sortByField('status', 'fetchCategories')" class="cursor-pointer">Status <i :class="$getSortIcon('status')" class="ms-1"></i></th>
-                        <th @click="$sortByField('products_count', 'fetchCategories')" class="cursor-pointer">No. of Products <i :class="$getSortIcon('products_count')" class="ms-1"></i></th>
-                        <th @click="$sortByField('created_at', 'fetchCategories')" class="cursor-pointer">Created At <i :class="$getSortIcon('created_at')" class="ms-1"></i></th>
+                        <th @click="sortByField('name', 'fetchCategories')" class="cursor-pointer">Name <i :class="getSortIcon('name')" class="ms-1"></i></th>
+                        <th @click="sortByField('status', 'fetchCategories')" class="cursor-pointer">Status <i :class="getSortIcon('status')" class="ms-1"></i></th>
+                        <th @click="sortByField('products_count', 'fetchCategories')" class="cursor-pointer">No. of Products <i :class="getSortIcon('products_count')" class="ms-1"></i></th>
+                        <th @click="sortByField('created_at', 'fetchCategories')" class="cursor-pointer">Created At <i :class="getSortIcon('created_at')" class="ms-1"></i></th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -57,7 +57,7 @@
                         </td>
                         <td>
                             <div class="d-flex align-items-center gap-2">
-                                <i class="fa fa-calendar text-muted"></i><span>{{ $formatDate(category.created_at) }}</span>
+                                <i class="fa fa-calendar text-muted"></i><span>{{ formatDate(category.created_at) }}</span>
                             </div>
                         </td>
                         <td>
@@ -103,6 +103,8 @@
 </template>
 
 <script>
+import { sortByField, getSortIcon } from '../utils/table'
+import { formatDate } from '../utils/formatDate'
     export default {
         data() {
             return {
@@ -156,9 +158,9 @@
                 })
                 .catch(err => alert('Error deleting category'))
             },
-            getImageUrl(image){
-                return `${import.meta.env.VITE_STORAGE_URL}/${image}`;
-            }
+            sortByField,
+            getSortIcon,
+            formatDate
         }
     }
 </script>
