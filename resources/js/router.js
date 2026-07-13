@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Main from './components/Main.vue'
+import { useAuthStore } from './stores/auth'
 
 const routes = [
   {
@@ -147,46 +148,28 @@ const router = createRouter({
     routes,
 })
 
-// Route guards
-router.beforeEach(async (to, from, next) => {
-  try {
-    const axios = (await import('axios')).default;
+router.beforeEach(async (to) => {
+  const authStore = useAuthStore()
+  await authStore.fetchUser()
 
-    const response = await axios.get('/user');
-    const user = response.data;
-    
-    if (to.matched.some(record => record.meta.requiresGuest)) {
-      next({ path: '/' });
-      return;
+  if (to.matched.some(record => record.meta.requiresGuest)) {
+    if (authStore.isAuthenticated) {
+      return { path: '/' }
     }
-    
-    if (to.matched.some(record => record.meta.requiresAuth)) {
-      if (to.matched.some(record => record.meta.requiresAdmin)) {
-        if (user.role !== 'admin') {
-          next({ path: '/' });
-          return;
-        }
-      }
-      
-      next();
-      return;
-    }
-    
-    next();
-    
-  } catch (error) {
-    if (to.matched.some(record => record.meta.requiresGuest)) {
-      next();
-      return;
-    }
-    
-    if (to.matched.some(record => record.meta.requiresAuth)) {
-      next({ name: 'login', query: { redirect: to.fullPath } });
-      return;
-    }
-    
-    next();
+    return true
   }
+
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (!authStore.isAuthenticated) {
+      return { name: 'login', query: { redirect: to.fullPath } }
+    }
+    if (to.matched.some(record => record.meta.requiresAdmin) && !authStore.isAdmin) {
+      return { path: '/' }
+    }
+    return true
+  }
+
+  return true
 })
 
 export default router

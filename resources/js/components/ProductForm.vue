@@ -56,7 +56,7 @@
                 <input class="form-control" type="file" @change="handleFileUpload" :required="!isEdit" accept="image/*" />
                 <div v-if="form.image && typeof form.image === 'string'" class="mt-3">
                   <small class="text-muted">Current image:</small>
-                  <img :src="$getImageUrl(form.image)" class="img-thumbnail mt-2" style="max-height: 100px;">
+                  <img :src="getImageUrl(form.image)" class="img-thumbnail mt-2" style="max-height: 100px;">
                 </div>
               </div>
             </div>
@@ -125,6 +125,7 @@
 </template>
 
 <script>
+import { getImageUrl } from '../utils/ImageUrl'
 
 export default {
     data(){
@@ -186,6 +187,7 @@ export default {
             this.categories = data.data;
           }
         },
+        getImageUrl
     }
 }
 

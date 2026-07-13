@@ -61,7 +61,7 @@
                   <div class="col-md-3 col-lg-2">
                     <div class="cart-item-image position-relative">
                       <div class="image-placeholder d-flex align-items-center justify-content-center bg-light h-100">
-                        <img :src="$getImageUrl(cartProduct.product.image)" class="cart-product-image" :alt="cartProduct.product.name">
+                        <img :src="getImageUrl(cartProduct.product.image)" class="cart-product-image" :alt="cartProduct.product.name">
                       </div>
                     </div>
                   </div>
@@ -243,9 +243,15 @@
 </template>
 
 <script>
+import { mapState } from 'pinia'
+import { useAuthStore } from '../stores/auth'
+import { getImageUrl } from '../utils/ImageUrl'
+
 export default {
   name: 'MyCart',
-  props: ['user'],
+  computed: {
+    ...mapState(useAuthStore, ['user']),
+  },
   data() {
     return {
       cartProducts: [],
@@ -411,7 +417,8 @@ export default {
       } else {
         alert(data.message || 'Checkout failed');
       }
-    }
+    },
+    getImageUrl
   }
 }
 </script>

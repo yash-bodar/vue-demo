@@ -163,9 +163,15 @@
 </template>
 
 <script>
+import { mapState } from 'pinia'
+import { useAuthStore } from '../stores/auth'
+import { showToast } from '../utils/ui-toasts'
+
 export default {
   name: 'Profile',
-  props: ['user'],
+  computed: {
+    ...mapState(useAuthStore, ['user']),
+  },
   data() {
     return {
       loading: false,
@@ -202,13 +208,13 @@ export default {
         const response = await this.$axios.put('/api/profile', this.form);
 
         if (response.data.success) {
-          this.$emit('user-updated', response.data.user);
-          this.$toast('Profile updated successfully!', 'success');
+          useAuthStore().setUser(response.data.user)
+          showToast('Profile updated successfully!', 'success');
         } else {
-          this.$toast(response.data.message || 'Failed to update profile', 'error');
+          showToast(response.data.message || 'Failed to update profile', 'error');
         }
       } catch (error) {
-        this.$toast('Failed to update profile', 'error');
+        showToast('Failed to update profile', 'error');
       } finally {
         this.loading = false;
       }
@@ -227,12 +233,12 @@ export default {
             new_password: '',
             password_confirmation: ''
           };
-          this.$toast('Password changed successfully!', 'success');
+          showToast('Password changed successfully!', 'success');
         } else {
-          this.$toast(response.data.message || 'Failed to change password', 'error');
+          showToast(response.data.message || 'Failed to change password', 'error');
         }
       } catch (error) {
-        this.$toast('Failed to change password', 'error');
+        showToast('Failed to change password', 'error');
       } finally {
         this.passwordLoading = false;
       }
@@ -249,7 +255,7 @@ export default {
 
     confirmDeleteAccount() {
       if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-        this.$toast('Account deletion feature coming soon!', 'error');
+        showToast('Account deletion feature coming soon!', 'error');
       }
     },
 

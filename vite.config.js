@@ -19,7 +19,7 @@ export default defineConfig({
         watch: {
             ignored: ['**/storage/framework/views/**'],
         },
-        host: '192.168.1.180', // allow access from all devices on your LAN
+        host: process.env.VITE_DEV_HOST || 'localhost',
         port: 5173,
         cors: true,
         strictPort: true,

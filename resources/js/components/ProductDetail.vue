@@ -41,7 +41,7 @@
             <!-- Product Image -->
             <div class="col-md-5 mb-4 mb-md-0">
               <div class="product-image-container">
-                <img :src="$getImageUrl(product.image)" class="img-fluid rounded-3" :alt="product.name">
+                <img :src="getImageUrl(product.image)" class="img-fluid rounded-3" :alt="product.name">
                 <button type="button" class="position-absolute bottom-0 mb-2 end-0 me-2 fs-4 wishlist-btn" :disabled="loadingProductId == product.id" @click="updateWishlist(product.id, product.wishlist ? 'remove' : 'add')"><i class="fas fa-heart wish-icon" :class="product.wishlist ? 'active' : ''"></i></button>
               </div>
             </div>
@@ -178,7 +178,7 @@
                     </template>
                   </div>
                 </div>
-                <small class="text-muted">{{ $formatDate(rating.created_at) }}</small>
+                <small class="text-muted">{{ formatDate(rating.created_at) }}</small>
               </div>
               <div class="d-flex justify-content-between align-items-start mb-2">
                 <p class="text-muted mb-0">{{ rating.review || 'No review text' }}</p>
@@ -236,9 +236,16 @@
 </template>
 
 <script>
+import { mapState } from 'pinia'
+import { useAuthStore } from '../stores/auth'
+import { getImageUrl } from '../utils/ImageUrl'
+import { formatDate } from '../utils/formatDate'
+
 export default {
   name: 'ProductDetail',
-  props: ['user'],
+  computed: {
+    ...mapState(useAuthStore, ['user']),
+  },
   data() {
     return {
       product: null,
@@ -398,7 +405,9 @@ export default {
       } finally {
         this.loadingRatingId = null;
       }
-    }
+    },
+    getImageUrl,
+    formatDate
   }
 }
 </script>

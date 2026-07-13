@@ -55,14 +55,14 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="text-light bg-primary-linear sticky-top">
                     <tr>
-                        <th @click="$sortByField('user_id', 'fetchOrders')" class="cursor-pointer">User <i :class="$getSortIcon('user_id')" class="ms-1"></i></th>
-                        <!-- <th @click="$sortByField('product_count', 'fetchOrders')" class="cursor-pointer">No. of Products <i :class="$getSortIcon('product_count')" class="ms-1"></i></th> -->
+                        <th @click="sortByField('user_id', 'fetchOrders')" class="cursor-pointer">User <i :class="getSortIcon('user_id')" class="ms-1"></i></th>
+                        <!-- <th @click="sortByField('product_count', 'fetchOrders')" class="cursor-pointer">No. of Products <i :class="getSortIcon('product_count')" class="ms-1"></i></th> -->
                         <th>No. of Products</th>
-                        <th @click="$sortByField('currency', 'fetchOrders')" class="cursor-pointer">Currency <i :class="$getSortIcon('currency')" class="ms-1"></i></th>
-                        <th @click="$sortByField('total_amount', 'fetchOrders')" class="cursor-pointer">Total <i :class="$getSortIcon('total_amount')" class="ms-1"></i></th>
-                        <th @click="$sortByField('status', 'fetchOrders')" class="cursor-pointer">Status <i :class="$getSortIcon('status')" class="ms-1"></i></th>
-                        <th @click="$sortByField('payment_status', 'fetchOrders')" class="cursor-pointer">Payment Status <i :class="$getSortIcon('payment_status')" class="ms-1"></i></th>
-                        <th @click="$sortByField('created_at','fetchOrders')" class="cursor-pointer">Created At <i :class="$getSortIcon('created_at')" class="ms-1"></i></th>
+                        <th @click="sortByField('currency', 'fetchOrders')" class="cursor-pointer">Currency <i :class="getSortIcon('currency')" class="ms-1"></i></th>
+                        <th @click="sortByField('total_amount', 'fetchOrders')" class="cursor-pointer">Total <i :class="getSortIcon('total_amount')" class="ms-1"></i></th>
+                        <th @click="sortByField('status', 'fetchOrders')" class="cursor-pointer">Status <i :class="getSortIcon('status')" class="ms-1"></i></th>
+                        <th @click="sortByField('payment_status', 'fetchOrders')" class="cursor-pointer">Payment Status <i :class="getSortIcon('payment_status')" class="ms-1"></i></th>
+                        <th @click="sortByField('created_at','fetchOrders')" class="cursor-pointer">Created At <i :class="getSortIcon('created_at')" class="ms-1"></i></th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -88,11 +88,11 @@
                         </td>
                         <td>
                             <div class="position-relative">
-                                <span class="badge cursor-pointer" @click="toggleStatusDropdown(order.id)" :class="$getOrderStatusBadgeClass(order.status)">{{ order.status }}</span>
+                                <span class="badge cursor-pointer" @click="toggleStatusDropdown(order.id)" :class="getOrderStatusBadgeClass(order.status)">{{ order.status }}</span>
                                 <div v-if="openStatusDropdown === order.id" class="status-dropdown position-absolute bg-white shadow rounded p-2 mt-1" style="z-index: 1000; min-width: 150px;">
                                     <div v-for="status in statusOptions" :key="status.value" class="dropdown-item py-1 px-2 cursor-pointer rounded"
                                          :class="{'bg-light': status.value === order.status}" @click="updateOrderStatus(order.id, status.value)">
-                                        <span class="badge me-2" :class="$getOrderStatusBadgeClass(status.value)">{{ status.value }}</span>
+                                        <span class="badge me-2" :class="getOrderStatusBadgeClass(status.value)">{{ status.value }}</span>
                                         {{ status.label }}
                                     </div>
                                 </div>
@@ -100,11 +100,11 @@
                         </td>
                         <td>
                             <div class="position-relative">
-                                <span class="badge cursor-pointer" @click="togglePaymentStatusDropdown(order.id)" :class="$getOrderStatusBadgeClass(order.payment_status)">{{ order.payment_status }}</span>
+                                <span class="badge cursor-pointer" @click="togglePaymentStatusDropdown(order.id)" :class="getOrderStatusBadgeClass(order.payment_status)">{{ order.payment_status }}</span>
                                 <div v-if="openPaymentStatusDropdown === order.id" class="status-dropdown position-absolute bg-white shadow rounded p-2 mt-1" style="z-index: 1000; min-width: 150px;">
                                     <div v-for="status in paymentStatusOptions" :key="status.value" class="dropdown-item py-1 px-2 cursor-pointer rounded"
                                          :class="{'bg-light': status.value === order.payment_status}" @click="updatePaymentStatus(order.id, status.value)">
-                                        <span class="badge me-2" :class="$getOrderStatusBadgeClass(status.value)">{{ status.value }}</span>
+                                        <span class="badge me-2" :class="getOrderStatusBadgeClass(status.value)">{{ status.value }}</span>
                                         {{ status.label }}
                                     </div>
                                 </div>
@@ -113,7 +113,7 @@
                         <td>
                             <div class="d-flex align-items-center gap-2">
                                 <i class="fa fa-calendar text-muted"></i>
-                                <span>{{ $formatDate(order.created_at) }}</span>
+                                <span>{{ formatDate(order.created_at) }}</span>
                             </div>
                         </td>
                         <td>
@@ -158,6 +158,10 @@
 </template>
 
 <script>
+import { sortByField, getSortIcon } from '../utils/table'
+import { formatDate } from '../utils/formatDate'
+import { getOrderStatusBadgeClass } from '../utils/statusBadge'
+import { showToast } from '../utils/ui-toasts'
 export default {
     data() {
         return {
@@ -282,11 +286,11 @@ export default {
                         this.ordersList[orderIndex].status = newStatus;
                     }
                     this.openStatusDropdown = null;
-                    this.$toast(response.data.message ?? 'Order status updated successfully!', 'success');
+                    showToast(response.data.message ?? 'Order status updated successfully!', 'success');
                 }
             } catch (error) {
                 console.error('Failed to update order status:', error);
-                this.$toast('Failed to update order status', 'error');
+                showToast('Failed to update order status', 'error');
             }
         },
         async updatePaymentStatus(orderId, newStatus) {
@@ -300,13 +304,17 @@ export default {
                         this.ordersList[orderIndex].payment_status = newStatus;
                     }
                     this.openPaymentStatusDropdown = null;
-                    this.$toast(response.data.message ?? 'Payment status updated successfully!', 'success');
+                    showToast(response.data.message ?? 'Payment status updated successfully!', 'success');
                 }
             } catch (error) {
                 console.error('Failed to update payment status:', error);
-                this.$toast('Failed to update payment status', 'error');
+                showToast('Failed to update payment status', 'error');
             }
-        }
+        },
+        sortByField,
+        getSortIcon,
+        formatDate,
+        getOrderStatusBadgeClass
     }
 }
 </script>

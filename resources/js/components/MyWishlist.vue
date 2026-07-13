@@ -39,7 +39,7 @@
           <div class="card h-100 product-card border-0 rounded-3 overflow-hidden shadow-sm">
             <div class="product-image-container position-relative">
               <div class="image-placeholder d-flex align-items-center justify-content-center bg-light">
-                <img :src="this.$getImageUrl(product.image)" class="product-image" :alt="product.name">
+                <img :src="getImageUrl(product.image)" class="product-image" :alt="product.name">
                 <button type="button" class="position-absolute bottom-0 mb-2 end-0 me-2 fs-4 wishlist-btn" :disabled="loadingProductId == product.id" @click="updateWishlist(product.id, 'remove')"><i class="fas fa-heart wish-icon active"></i></button>
               </div>
             </div>
@@ -89,6 +89,8 @@
 </template>
 
 <script>
+import { getImageUrl } from '../utils/ImageUrl'
+
 export default {
   name: 'WishList',
   data() {
@@ -151,6 +153,7 @@ export default {
         this.loadingProductId = null;
       }
     },
+    getImageUrl
   }
 }
 </script>
