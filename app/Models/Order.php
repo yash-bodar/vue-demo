@@ -14,11 +14,15 @@ class Order extends Model
         'user_id',
         'address_id',
         'total_amount',
+        'shipping',
+        'discount_amount',
+        'final_amount',
         'payment_status',
         'payment_intent_id',
         'status',
         'items',
         'currency',
+        'coupon_id',
     ];
 
     protected $casts = [
@@ -67,5 +71,10 @@ class Order extends Model
     public function address()
     {
         return $this->belongsTo(Address::class);
+    }
+
+    public function coupon()
+    {
+        return $this->belongsTo(Coupon::class);
     }
 }

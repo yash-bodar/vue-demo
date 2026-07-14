@@ -29,7 +29,7 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="bg-primary-linear text-light sticky-top">
                     <tr>
-                        <th @click="sortByField('name', 'fetchUsers')" class="cursor-pointer">Name <i :class="getSortIcon('name')" class="ms-1"></i></th>
+                        <th @click="sortByField('name', 'fetchUsers')" class="cursor-pointer ps-4">Name <i :class="getSortIcon('name')" class="ms-1"></i></th>
                         <th @click="sortByField('email', 'fetchUsers')" class="cursor-pointer">Email <i :class="getSortIcon('email')" class="ms-1"></i></th>
                         <th @click="sortByField('status', 'fetchUsers')" class="cursor-pointer">Status <i :class="getSortIcon('status')" class="ms-1"></i></th>
                         <th @click="sortByField('currency', 'fetchUsers')" class="cursor-pointer">Currency <i :class="getSortIcon('currency')" class="ms-1"></i></th>
@@ -38,7 +38,7 @@
                 </thead>
                 <tbody>
                     <tr v-if="usersList.length > 0" v-for="user in usersList" :key="user.id" class="hover-row">
-                        <td>
+                        <td class="ps-4">
                             <div class="d-flex align-items-center gap-3">
                                 <img :src="`https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=0d6efd&color=fff&size=40`" class="rounded-circle">
                                 <div>

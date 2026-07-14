@@ -56,4 +56,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/place-order',[\App\Http\Controllers\Api\CheckoutController::class,'placeOrder']);
 
     Route::get('/get-dashboard-data',[\App\Http\Controllers\Api\DashboardController::class,'getDashboardData']);
+
+    // Coupon Routes
+    Route::get('/coupons', [\App\Http\Controllers\Api\CouponController::class, 'index']); // Admin
+    Route::post('/coupons', [\App\Http\Controllers\Api\CouponController::class, 'store']); // Admin
+    Route::get('/coupons/{id}', [\App\Http\Controllers\Api\CouponController::class, 'show']); // Admin
+    Route::put('/coupons/{id}', [\App\Http\Controllers\Api\CouponController::class, 'update']); // Admin
+    Route::delete('/coupons/{id}', [\App\Http\Controllers\Api\CouponController::class, 'destroy']); // Admin
+    Route::post('/coupons/validate', [\App\Http\Controllers\Api\CouponController::class, 'validate']); // User
 });

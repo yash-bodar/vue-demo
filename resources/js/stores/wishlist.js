@@ -39,7 +39,7 @@ export const useWishlistStore = defineStore('wishlist', () => {
     try {
       const axios = (await import('axios')).default
       await axios.delete(`/api/wishlist/${wishlistItemId}`)
-      items.value = items.value.filter(item => item.id !== wishlistItemId)
+      items.value = items.value.filter((item) => item.id !== wishlistItemId)
       return { success: true }
     } catch (error) {
       return { success: false, error: 'Failed to remove from wishlist' }
@@ -49,7 +49,7 @@ export const useWishlistStore = defineStore('wishlist', () => {
   }
 
   function isInWishlist(productId) {
-    return items.value.some(item => item.product_id === productId)
+    return items.value.some((item) => item.product_id === productId)
   }
 
   function clearWishlist() {

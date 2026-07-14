@@ -1,14 +1,16 @@
 <template>
   <div class="orders-container bg-light">
     <!-- Orders Header -->
-    <div class="cart-header bg-white m-2 border-bottom shadow-sm p-3 mx-4 my-3 rounded-2">
+    <div class="cart-header bg-white m-2 border-bottom shadow-sm p-3 mx-0 mx-md-4 my-3 rounded-2">
       <div class="row align-items-center g-3">
         <div class="col-12 col-md-6">
           <div class="d-flex align-items-center">
             <div class="me-3"><i class="fas fa-box fa-2x text-primary"></i></div>
             <div>
               <h5 class="mb-0 fw-bold text-dark">My Orders</h5>
-              <p class="mb-0 text-muted small">{{ orderCount ?? 0 }} order{{ (orderCount ?? 0) !== 1 ? 's' : '' }}</p>
+              <p class="mb-0 text-muted small">
+                {{ orderCount ?? 0 }} order{{ (orderCount ?? 0) !== 1 ? 's' : '' }}
+              </p>
             </div>
           </div>
         </div>
@@ -16,7 +18,8 @@
     </div>
 
     <!-- Orders Body -->
-    <div class="orders-body p-4">
+    <div class="orders-body p-3 p-md-4">
+
       <!-- Loading State -->
       <div v-if="loading" class="text-center py-5">
         <div class="spinner-border text-primary" role="status">
@@ -47,7 +50,7 @@
                   <div class="col-md-6">
                     <div class="d-flex align-items-center gap-3">
                       <div>
-                        <h6 class="fw-bold text-light mb-0">Order #{{ (index + 1) * currentPage }}</h6>
+                        <h6 class="fw-bold text-light mb-0">Order #{{ (index + 1) * currentPage }} ({{ order.items.length }} item{{ order.items.length !== 1 ? 's' : ''}})</h6>
                         <small class="text-light">{{ formatDate(order.created_at) }}</small>
                       </div>
                     </div>
@@ -64,38 +67,40 @@
 
             <!-- Order Items -->
             <div :id="'collapse' + order.id" class="accordion-collapse collapse" :data-bs-parent="'#ordersAccordion'">
-              <div class="accordion-body p-4">
+              <div class="accordion-body p-3 p-md-4">
                 <div v-for="item in order.items" :key="item.product_id" class="order-item mb-3 pb-3 border-bottom">
                   <div class="row align-items-center">
-                    <div class="col-md-2">
+                    <div class="col-4 col-sm-3 col-md-2">
                       <img :src="getImageUrl(item.product_image)" class="img-fluid rounded order-item-image"
                         :alt="item.product_name">
                     </div>
-                    <div class="col-md-6 cursor-pointer" @click="$router.push(`/product/detail/${item.product_id}`)">
+                    <div class="col-8 col-sm-9 col-md-6 cursor-pointer" @click="$router.push(`/product/detail/${item.product_id}`)">
                       <h6 class="fw-semibold mb-1">{{ item.product_name }}</h6>
                       <p class="text-muted small mb-0">
                         <span class="fw-bold">{{ user?.currency_sign || '$' }}{{ item.price }}</span><span
                           class="ms-2">x {{ item.quantity }}</span>
                       </p>
                     </div>
-                    <div class="col-md-4 text-end">
-                      <span class="fw-bold text-primary fs-5">{{ user?.currency_sign || '$' }}{{ item.total }}</span>
+                    <div class="col-12 col-md-4 text-end mt-2 mt-md-0">
+                      <span class="fw-bold text-primary fs-5 d-inline-block">{{ user?.currency_sign || '$' }}{{ item.total }}</span>
                     </div>
                   </div>
                 </div>
 
                 <!-- Order Total -->
                 <div class="order-total mt-4 p-3 border-top bg-light rounded-2">
-                  <div class="row align-items-center">
-                    <div class="col-md-6">
-                      <span class="text-muted">{{ order.items.length }} item{{ order.items.length !== 1 ? 's' : ''
-                        }}</span>
+                    <div class="text-end">
+                      <span class="text-muted me-2">SubTotal: </span><span class="fw-bold text-primary fs-5">{{user?.currency_sign || '$' }}{{ order.total_amount }}</span>
                     </div>
-                    <div class="col-md-6 text-end">
-                      <span class="text-muted me-2">Total:</span><span class="fw-bold text-primary fs-4">{{
-                        user?.currency_sign || '$' }}{{ order.total_amount }}</span>
+                    <div class="text-end">
+                      <span class="text-muted me-2">Shipping:</span><span class="fw-bold text-primary fs-5">{{user?.currency_sign || '$' }}{{ order.shipping }}</span>
                     </div>
-                  </div>
+                    <div class="text-end">
+                      <span class="text-muted me-2">Discount:</span><span class="fw-bold text-danger fs-5">-{{user?.currency_sign || '$' }}{{ order.discount_amount }}</span>
+                    </div>
+                    <div class="text-end">
+                      <span class="text-muted me-2 fw-bold">Total:</span><span class="fw-bold text-primary fs-4">{{user?.currency_sign || '$' }}{{ order.final_amount }}</span>
+                    </div>
                 </div>
               </div>
             </div>

@@ -29,7 +29,7 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="bg-primary-linear text-light sticky-top">
                     <tr>
-                        <th @click="sortByField('name', 'fetchCategories')" class="cursor-pointer">Name <i :class="getSortIcon('name')" class="ms-1"></i></th>
+                        <th @click="sortByField('name', 'fetchCategories')" class="cursor-pointer ps-4">Name <i :class="getSortIcon('name')" class="ms-1"></i></th>
                         <th @click="sortByField('status', 'fetchCategories')" class="cursor-pointer">Status <i :class="getSortIcon('status')" class="ms-1"></i></th>
                         <th @click="sortByField('products_count', 'fetchCategories')" class="cursor-pointer">No. of Products <i :class="getSortIcon('products_count')" class="ms-1"></i></th>
                         <th @click="sortByField('created_at', 'fetchCategories')" class="cursor-pointer">Created At <i :class="getSortIcon('created_at')" class="ms-1"></i></th>
@@ -38,7 +38,7 @@
                 </thead>
                 <tbody>
                     <tr v-if="categoriesList.length > 0" v-for="category in categoriesList" :key="category.id" class="hover-row">
-                        <td>
+                        <td class="ps-4">
                             <div class="d-flex align-items-center gap-3">
                                 
                                 <div>

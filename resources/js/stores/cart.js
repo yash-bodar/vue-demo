@@ -8,7 +8,7 @@ export const useCartStore = defineStore('cart', () => {
   const cartCount = computed(() => items.value.length)
   const cartTotal = computed(() => {
     return items.value.reduce((total, item) => {
-      return total + (item.price * item.quantity)
+      return total + item.price * item.quantity
     }, 0)
   })
 
@@ -47,7 +47,7 @@ export const useCartStore = defineStore('cart', () => {
     try {
       const axios = (await import('axios')).default
       await axios.delete(`/api/cart/${cartItemId}`)
-      items.value = items.value.filter(item => item.id !== cartItemId)
+      items.value = items.value.filter((item) => item.id !== cartItemId)
       return { success: true }
     } catch (error) {
       return { success: false, error: 'Failed to remove from cart' }
@@ -61,7 +61,7 @@ export const useCartStore = defineStore('cart', () => {
     try {
       const axios = (await import('axios')).default
       await axios.put(`/api/cart/${cartItemId}`, { quantity })
-      const item = items.value.find(item => item.id === cartItemId)
+      const item = items.value.find((item) => item.id === cartItemId)
       if (item) {
         item.quantity = quantity
       }

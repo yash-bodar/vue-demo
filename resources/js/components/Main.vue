@@ -43,6 +43,11 @@
                   <i class="fas fa-box-open me-1"></i>Orders
                 </router-link>
               </li>
+              <li v-if="isAuthenticated && isAdmin" class="nav-item">
+                <router-link class="nav-link text-white" to="/coupons" active-class="active">
+                  <i class="fas fa-ticket-alt me-1"></i>Coupons
+                </router-link>
+              </li>
               <li v-if="isAuthenticated && !isAdmin" class="nav-item">
                 <router-link class="nav-link text-white" to="/product" active-class="active">
                   <i class="fas fa-shopping-bag me-1"></i>Products
