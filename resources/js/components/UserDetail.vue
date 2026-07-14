@@ -123,7 +123,7 @@
                             <table class="table table-hover align-middle mb-0">
                                 <thead class="text-light bg-primary-linear sticky-top">
                                     <tr>
-                                        <th>Order ID</th>
+                                        <th class="ps-4">Order ID</th>
                                         <th>No. of Products</th>
                                         <th>Currency</th>
                                         <th>Total</th>
@@ -135,7 +135,7 @@
                                 </thead>
                                 <tbody>
                                     <tr v-if="ordersList.length > 0" v-for="order in ordersList" :key="order.id" class="hover-row">
-                                        <td>
+                                        <td class="ps-4">
                                             <div class="fw-semibold text-primary">#{{ order.id }}</div>
                                         </td>
                                         <td>

@@ -55,11 +55,14 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="text-light bg-primary-linear sticky-top">
                     <tr>
-                        <th @click="sortByField('user_id', 'fetchOrders')" class="cursor-pointer">User <i :class="getSortIcon('user_id')" class="ms-1"></i></th>
+                        <th @click="sortByField('user_id', 'fetchOrders')" class="cursor-pointer ps-4">User <i :class="getSortIcon('user_id')" class="ms-1"></i></th>
                         <!-- <th @click="sortByField('product_count', 'fetchOrders')" class="cursor-pointer">No. of Products <i :class="getSortIcon('product_count')" class="ms-1"></i></th> -->
                         <th>No. of Products</th>
                         <th @click="sortByField('currency', 'fetchOrders')" class="cursor-pointer">Currency <i :class="getSortIcon('currency')" class="ms-1"></i></th>
                         <th @click="sortByField('total_amount', 'fetchOrders')" class="cursor-pointer">Total <i :class="getSortIcon('total_amount')" class="ms-1"></i></th>
+                        <th @click="sortByField('shipping', 'fetchOrders')" class="cursor-pointer">Shipping <i :class="getSortIcon('shipping')" class="ms-1"></i></th>
+                        <th @click="sortByField('discount_amount', 'fetchOrders')" class="cursor-pointer">Discount <i :class="getSortIcon('discount_amount')" class="ms-1"></i></th>
+                        <th @click="sortByField('final_amount', 'fetchOrders')" class="cursor-pointer">Final Amount <i :class="getSortIcon('final_amount')" class="ms-1"></i></th>
                         <th @click="sortByField('status', 'fetchOrders')" class="cursor-pointer">Status <i :class="getSortIcon('status')" class="ms-1"></i></th>
                         <th @click="sortByField('payment_status', 'fetchOrders')" class="cursor-pointer">Payment Status <i :class="getSortIcon('payment_status')" class="ms-1"></i></th>
                         <th @click="sortByField('created_at','fetchOrders')" class="cursor-pointer">Created At <i :class="getSortIcon('created_at')" class="ms-1"></i></th>
@@ -69,7 +72,7 @@
                 <tbody>
                     <tr v-if="ordersList.length > 0" v-for="order in ordersList" :key="order.id"
                         class="hover-row">
-                        <td>
+                        <td class="ps-4">
                             <div class="d-flex align-items-center gap-3">
                                 <div>
                                     <div class="fw-semibold text-primary">{{ order.user?.name || 'N/A' }}</div>
@@ -85,6 +88,16 @@
                         </td>
                         <td>
                             <span class="fw-bold text-primary">{{ order.currency_sign }} {{ order.total_amount }}</span>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-muted">{{ order.currency_sign }} {{ order.shipping || 0 }}</span>
+                        </td>
+                        <td>
+                            <span v-if="order.discount_amount > 0" class="badge bg-success">{{ order.currency_sign }} {{ order.discount_amount }}</span>
+                            <span v-else class="text-muted">-</span>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-primary">{{ order.currency_sign }} {{ order.final_amount }}</span>
                         </td>
                         <td>
                             <div class="position-relative">

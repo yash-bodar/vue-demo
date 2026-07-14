@@ -53,7 +53,7 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="text-light bg-primary-linear sticky-top">
                     <tr>
-                        <th @click="sortByField('name', 'fetchProducts')" class="cursor-pointer">Name <i :class="getSortIcon('name')" class="ms-1"></i></th>
+                        <th @click="sortByField('name', 'fetchProducts')" class="cursor-pointer ps-4">Name <i :class="getSortIcon('name')" class="ms-1"></i></th>
                         <th @click="sortByField('price', 'fetchProducts')" class="cursor-pointer">Price <i :class="getSortIcon('price')" class="ms-1"></i></th>
                         <th @click="sortByField('stock', 'fetchProducts')" class="cursor-pointer">Qty Available <i :class="getSortIcon('stock')" class="ms-1"></i></th>
                         <th @click="sortByField('category_id', 'fetchProducts')" class="cursor-pointer">Category <i :class="getSortIcon('category_id')" class="ms-1"></i></th>
@@ -65,7 +65,7 @@
                 </thead>
                 <tbody>
                     <tr v-if="productsList.length > 0" v-for="product in productsList" :key="product.id" class="hover-row">
-                        <td class="cursor-pointer" @click="$router.push(`/product/detail/${product.id}`)">
+                        <td class="cursor-pointer ps-4" @click="$router.push(`/product/detail/${product.id}`)">
                             <div class="d-flex align-items-center gap-3">
                                 <img class="rounded shadow-sm border" width="40" height="40" :src="getImageUrl(product.image)" :alt="product.name">
                                 <div>
