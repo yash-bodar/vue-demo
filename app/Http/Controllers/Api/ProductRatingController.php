@@ -55,10 +55,19 @@ class ProductRatingController extends Controller
     public function deleteRating($id){
         try{
             $rating = ProductRating::find($id);
+            if (!$rating) {
+                return response()->json(['success' => false, 'message' => 'Rating not found'], 404);
+            }
+
+            $user = Auth::user();
+            if ($rating->user_id !== $user->id && $user->role !== 'admin') {
+                return response()->json(['success' => false, 'message' => 'Access denied. You do not own this rating.'], 403);
+            }
+
             $rating->delete();
             return response()->json(['success' => true, 'message' => 'Rating deleted successfully']);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Failed to delete rating: ' . $e->getMessage()], 500);
         }
     }
 }
