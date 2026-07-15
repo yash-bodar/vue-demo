@@ -111,9 +111,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-.coupon-section {
-  border-left: 4px solid #ffc107;
-}
-</style>

@@ -127,29 +127,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-.cart-summary {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.summary-details {
-  margin-top: 1rem;
-}
-
-.summary-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.75rem 0;
-  font-size: 0.95rem;
-  border-bottom: 1px solid #eee;
-}
-
-.summary-row.total {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #0d6efd;
-  border: none;
-  margin-top: 0.5rem;
-}
-</style>

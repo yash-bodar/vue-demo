@@ -1,7 +1,7 @@
 <template>
-    <div class="dashboard">
-        <div class="dashboard-header">
-            <h1>Dashboard</h1>
+    <div class="dashboard p-3">
+        <div class="dashboard-header mb-4">
+            <h3 class="fw-bold mb-1">Dashboard</h3>
             <p class="text-muted">Welcome to your admin dashboard</p>
         </div>
 
@@ -14,10 +14,10 @@
             <!-- Statistics Cards -->
             <div class="row mb-4">
                 <div class="col-md-3 col-sm-6 mb-3">
-                    <div class="card bg-primary text-white">
+                    <div class="card shadow border-0 rounded-2 bg-primary text-white">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
-                                <div><h4 class="card-title">{{ stats.total_users }}</h4><p class="card-text">Total Users</p></div>
+                                <div><h4 class="card-title fw-bold m-0">{{ stats.total_users }}</h4><p class="card-text m-0">Total Users</p></div>
                                 <div class="align-self-center"><i class="fas fa-users fa-2x"></i></div>
                             </div>
                         </div>
@@ -25,10 +25,10 @@
                 </div>
 
                 <div class="col-md-3 col-sm-6 mb-3">
-                    <div class="card bg-success text-white">
+                    <div class="card shadow border-0 rounded-2 bg-success text-white">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
-                                <div><h4 class="card-title">{{ stats.total_products }}</h4><p class="card-text">Total Products</p></div>
+                                <div><h4 class="card-title fw-bold m-0">{{ stats.total_products }}</h4><p class="card-text m-0">Total Products</p></div>
                                 <div class="align-self-center"><i class="fas fa-box fa-2x"></i></div>
                             </div>
                         </div>
@@ -36,10 +36,10 @@
                 </div>
 
                 <div class="col-md-3 col-sm-6 mb-3">
-                    <div class="card bg-info text-white">
+                    <div class="card shadow border-0 rounded-2 bg-info text-white">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
-                                <div><h4 class="card-title">{{ stats.total_orders }}</h4><p class="card-text">Total Orders</p></div>
+                                <div><h4 class="card-title fw-bold m-0">{{ stats.total_orders }}</h4><p class="card-text m-0">Total Orders</p></div>
                                 <div class="align-self-center"><i class="fas fa-shopping-cart fa-2x"></i></div>
                             </div>
                         </div>
@@ -47,10 +47,10 @@
                 </div>
 
                 <div class="col-md-3 col-sm-6 mb-3">
-                    <div class="card bg-warning text-white">
+                    <div class="card shadow border-0 rounded-2 bg-warning text-white">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
-                                <div><h4 class="card-title">{{ formatCurrency(stats.total_revenue) }}</h4><p class="card-text">Total Revenue</p></div>
+                                <div><h4 class="card-title fw-bold m-0">{{ formatCurrency(stats.total_revenue) }}</h4><p class="card-text m-0">Total Revenue</p></div>
                                 <div class="align-self-center"><i class="fas fa-dollar-sign fa-2x"></i></div>
                             </div>
                         </div>
@@ -61,10 +61,10 @@
             <!-- Additional Stats Row -->
             <div class="row mb-4">
                 <div class="col-md-3 col-sm-6 mb-3">
-                    <div class="card bg-secondary text-white">
+                    <div class="card shadow border-0 rounded-2 bg-secondary text-white">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
-                                <div><h4 class="card-title">{{ stats.total_categories }}</h4><p class="card-text">Categories</p></div>
+                                <div><h4 class="card-title fw-bold m-0">{{ stats.total_categories }}</h4><p class="card-text m-0">Categories</p></div>
                                 <div class="align-self-center"><i class="fas fa-tags fa-2x"></i></div>
                             </div>
                         </div>
@@ -72,10 +72,10 @@
                 </div>
 
                 <div class="col-md-3 col-sm-6 mb-3">
-                    <div class="card bg-danger text-white">
+                    <div class="card shadow border-0 rounded-2 bg-danger text-white">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
-                                <div><h4 class="card-title">{{ stats.pending_orders }}</h4><p class="card-text">Pending Orders</p></div>
+                                <div><h4 class="card-title fw-bold m-0">{{ stats.pending_orders }}</h4><p class="card-text m-0">Pending Orders</p></div>
                                 <div class="align-self-center"><i class="fas fa-clock fa-2x"></i></div>
                             </div>
                         </div>
@@ -83,10 +83,10 @@
                 </div>
 
                 <div class="col-md-3 col-sm-6 mb-3">
-                    <div class="card bg-dark text-white">
+                    <div class="card shadow border-0 rounded-2 bg-dark text-white">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
-                                <div><h4 class="card-title">{{ stats.completed_orders }}</h4><p class="card-text">Completed Orders</p></div>
+                                <div><h4 class="card-title fw-bold m-0">{{ stats.completed_orders }}</h4><p class="card-text m-0">Completed Orders</p></div>
                                 <div class="align-self-center"><i class="fas fa-check-circle fa-2x"></i></div>
                             </div>
                         </div>
@@ -94,10 +94,10 @@
                 </div>
 
                 <div class="col-md-3 col-sm-6 mb-3">
-                    <div class="card bg-light text-dark">
+                    <div class="card shadow border-0 rounded-2 bg-light text-dark">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
-                                <div><h4 class="card-title">{{ stats.active_products }}</h4><p class="card-text">Active Products</p></div>
+                                <div><h4 class="card-title fw-bold m-0">{{ stats.active_products }}</h4><p class="card-text m-0">Active Products</p></div>
                                 <div class="align-self-center"><i class="fas fa-check fa-2x"></i></div>
                             </div>
                         </div>
@@ -108,9 +108,9 @@
             <!-- Charts Section -->
             <div class="row mb-4">
                 <div class="col-md-6 mb-3">
-                    <div class="card">
+                    <div class="card shadow border-0 rounded-2">
                         <div class="card-header">
-                            <h5 class="card-title mb-0">Monthly Revenue</h5>
+                            <h5 class="card-title fw-bold m-0 mb-0">Monthly Revenue</h5>
                         </div>
                         <div class="card-body">
                             <canvas ref="revenueChart" width="400" height="200"></canvas>
@@ -119,9 +119,9 @@
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <div class="card">
+                    <div class="card shadow border-0 rounded-2">
                         <div class="card-header">
-                            <h5 class="card-title mb-0">Monthly Orders</h5>
+                            <h5 class="card-title fw-bold m-0 mb-0">Monthly Orders</h5>
                         </div>
                         <div class="card-body">
                             <canvas ref="ordersChart" width="400" height="200"></canvas>
@@ -133,9 +133,9 @@
             <!-- Recent Orders and Top Products -->
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <div class="card">
+                    <div class="card shadow border-0 rounded-2">
                         <div class="card-header">
-                            <h5 class="card-title mb-0">Recent Orders</h5>
+                            <h5 class="card-title fw-bold m-0 mb-0">Recent Orders</h5>
                         </div>
                         <div class="card-body">
                             <div v-if="recentOrders.length === 0" class="text-muted">
@@ -161,9 +161,9 @@
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <div class="card">
+                    <div class="card shadow border-0 rounded-2">
                         <div class="card-header">
-                            <h5 class="card-title mb-0">Latest Products</h5>
+                            <h5 class="card-title fw-bold m-0 mb-0">Latest Products</h5>
                         </div>
                         <div class="card-body">
                             <div v-if="topProducts.length === 0" class="text-muted">No products found</div>
@@ -347,65 +347,3 @@ export default {
     }
 }
 </script>
-
-<style scoped>
-.dashboard {
-    padding: 20px;
-}
-
-.dashboard-header {
-    margin-bottom: 30px;
-}
-
-.dashboard-header h1 {
-    color: #333;
-    margin-bottom: 5px;
-}
-
-.card {
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s;
-}
-
-.card:hover {
-    transform: translateY(-2px);
-}
-
-.card-body {
-    padding: 20px;
-}
-
-.card-title {
-    margin: 0;
-    font-weight: bold;
-}
-
-.card-text {
-    margin: 0;
-    font-size: 0.9rem;
-}
-
-.spinner-border {
-    width: 3rem;
-    height: 3rem;
-}
-
-.badge {
-    font-size: 0.75rem;
-}
-
-.border-bottom {
-    border-color: #dee2e6 !important;
-}
-
-.border-bottom:last-child {
-    border-bottom: none !important;
-}
-
-canvas {
-    max-width: 100%;
-    height: auto;
-}
-</style>

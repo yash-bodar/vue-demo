@@ -8,6 +8,11 @@ const routes = [
     component: Main,
     children: [
       {
+        path: '',
+        component: () => import('./components/Home.vue'),
+        name: 'home',
+      },
+      {
         path: 'login',
         component: () => import('./components/Login.vue'),
         name: 'login',
@@ -169,6 +174,11 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   const authStore = useAuthStore()
   await authStore.fetchUser()
+
+  // Redirect admin users to dashboard when accessing home
+  if (to.name === 'home' && authStore.isAuthenticated && authStore.isAdmin) {
+    return { name: 'dashboard' }
+  }
 
   if (to.matched.some((record) => record.meta.requiresGuest)) {
     if (authStore.isAuthenticated) {
