@@ -64,7 +64,13 @@ export default {
           password: this.form.password
         });
         localStorage.setItem('user', JSON.stringify(response.data));
-        window.location.href = '/vue-demo/public';
+        
+        // Redirect admin users to dashboard, others to home
+        if (response.data.is_admin) {
+          window.location.href = '/vue-demo/public/dashboard';
+        } else {
+          window.location.href = '/vue-demo/public';
+        }
       } catch (error) {
         this.error = error.response?.data?.message || 'Login failed';
         console.error('Login error:', error);

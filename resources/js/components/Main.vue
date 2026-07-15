@@ -18,9 +18,9 @@
           <!-- Navigation Links -->
           <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
-              <li class="nav-item">
-                <router-link class="nav-link text-white" to="/" exact-active-class="active">
-                  <i class="fas fa-home me-1"></i>Home
+              <li v-if="isAuthenticated && isAdmin" class="nav-item">
+                <router-link class="nav-link text-white" to="/dashboard" active-class="active">
+                  <i class="fas fa-chart-line me-1"></i>Dashboard
                 </router-link>
               </li>
               <li v-if="isAuthenticated && isAdmin" class="nav-item">
