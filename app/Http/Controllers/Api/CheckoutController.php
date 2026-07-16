@@ -76,7 +76,7 @@ class CheckoutController extends Controller
     {
         $user = Auth::user();
         if (!$user) {
-            return response()->json(['success' => false, 'message' => 'User not authenticated']);
+            return response()->json(['success' => false, 'message' => 'User not authenticated'], 401);
         }
 
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
@@ -86,27 +86,104 @@ class CheckoutController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['success' => false, 'message' => $validator->errors()->first()]);
+            return response()->json(['success' => false, 'message' => $validator->errors()->first()], 400);
+        }
+
+        // Get cart items and calculate total first (for validation before transaction)
+        $cartItems = $user->cart()->with('product')->get();
+        if ($cartItems->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Cart is empty'], 400);
+        }
+
+        $totalAmount = 0;
+        foreach ($cartItems as $cartItem) {
+            $totalAmount += $cartItem->product->converted_price * $cartItem->quantity;
+        }
+
+        // Validate coupon
+        $couponId = null;
+        $discountAmount = 0;
+        $subtotalWithDiscount = $totalAmount;
+
+        if ($request->coupon_code) {
+            $coupon = Coupon::where('code', strtoupper($request->coupon_code))->first();
+            if (!$coupon) {
+                return response()->json(['success' => false, 'message' => 'Coupon code not found'], 404);
+            }
+            if (!$coupon->canUserUse($user)) {
+                return response()->json(['success' => false, 'message' => 'This coupon is not available for you'], 403);
+            }
+            if ($coupon->min_purchase_amount && $totalAmount < $coupon->min_purchase_amount) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Minimum purchase amount of {$coupon->min_purchase_amount} {$user->currency} required"
+                ], 400);
+            }
+            $discountAmount = $coupon->calculateDiscount($totalAmount);
+            $subtotalWithDiscount = $totalAmount - $discountAmount;
+            $couponId = $coupon->id;
+        }
+
+        $shippingAmount = $this->calculateShipping($totalAmount);
+        $finalAmount = $subtotalWithDiscount + $shippingAmount;
+
+        // Retrieve and Validate Stripe Payment Intent
+        try {
+            Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
+            $paymentIntent = PaymentIntent::retrieve($request->payment_intent_id);
+            
+            if ($paymentIntent->status !== 'succeeded') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Payment was not successful. Stripe status: ' . $paymentIntent->status
+                ], 400);
+            }
+
+            if (strtoupper($paymentIntent->currency) !== strtoupper($user->currency)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Payment currency mismatch.'
+                ], 400);
+            }
+
+            $expectedCents = (int) round($finalAmount * 100);
+            if (abs($paymentIntent->amount - $expectedCents) > 1) { // 1 cent buffer for rounding
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Payment amount mismatch. Expected: ' . $finalAmount . ' ' . $user->currency . ', Paid: ' . ($paymentIntent->amount / 100)
+                ], 400);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Stripe transaction validation failed: ' . $e->getMessage()
+            ], 400);
         }
 
         try {
             DB::beginTransaction();
 
-            // Get cart items
-            $cartItems = $user->cart()->with('product')->get();
-            
+            // Re-fetch cart items locked for update to prevent race conditions / overselling
+            $cartItems = $user->cart()->with('product')->lockForUpdate()->get();
             if ($cartItems->isEmpty()) {
-                return response()->json(['success' => false, 'message' => 'Cart is empty']);
+                DB::rollBack();
+                return response()->json(['success' => false, 'message' => 'Cart is empty'], 400);
             }
 
-            // Calculate total and prepare items array
-            $totalAmount = 0;
-            $itemsArray = [];
+            // Verify stock again before decrementing
+            foreach ($cartItems as $cartItem) {
+                if ($cartItem->product->stock < $cartItem->quantity) {
+                    DB::rollBack();
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Product ' . $cartItem->product->name . ' is out of stock'
+                    ], 400);
+                }
+            }
 
+            $itemsArray = [];
             foreach ($cartItems as $cartItem) {
                 $itemTotal = $cartItem->product->converted_price * $cartItem->quantity;
-                $totalAmount += $itemTotal;
-
                 $itemsArray[] = [
                     'product_id' => $cartItem->product_id,
                     'product_name' => $cartItem->product->name,
@@ -120,43 +197,7 @@ class CheckoutController extends Controller
                 $cartItem->product->decrement('stock', $cartItem->quantity);
             }
 
-            // Apply coupon if provided
-            $couponId = null;
-            $discountAmount = 0;
-            $subtotalWithDiscount = $totalAmount;
-
-            if ($request->coupon_code) {
-                $coupon = Coupon::where('code', strtoupper($request->coupon_code))->first();
-                
-                if (!$coupon) {
-                    DB::rollBack();
-                    return response()->json(['success' => false, 'message' => 'Coupon code not found'], 404);
-                }
-
-                if (!$coupon->canUserUse($user)) {
-                    DB::rollBack();
-                    return response()->json(['success' => false, 'message' => 'This coupon is not available for you'], 403);
-                }
-
-                // Check minimum purchase amount (in user's currency)
-                if ($coupon->min_purchase_amount && $totalAmount < $coupon->min_purchase_amount) {
-                    DB::rollBack();
-                    return response()->json([
-                        'success' => false,
-                        'message' => "Minimum purchase amount of {$coupon->min_purchase_amount} {$user->currency} required"
-                    ], 400);
-                }
-
-                // Calculate discount (works with any currency)
-                $discountAmount = $coupon->calculateDiscount($totalAmount);
-                $subtotalWithDiscount = $totalAmount - $discountAmount;
-                $couponId = $coupon->id;
-            }
-
-            $shippingAmount = $this->calculateShipping($totalAmount);
-            $finalAmount = $subtotalWithDiscount + $shippingAmount;
-
-            // Create order with items as JSON
+            // Create order
             $order = Order::create([
                 'user_id' => $user->id,
                 'address_id' => $request->address_id,
@@ -199,8 +240,8 @@ class CheckoutController extends Controller
             Log::error('Failed to place order: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
-            ]);
+                'message' => 'Failed to place order: ' . $e->getMessage()
+            ], 500);
         }
     }
 }
