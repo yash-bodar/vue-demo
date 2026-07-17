@@ -17,7 +17,7 @@
 </head>
 
 <body>
-    <div class="container-fluid">
+    <div class="layout-wrapper layout-content-navbar ">
         @yield('content')
     </div>
 </body>

@@ -85,7 +85,7 @@
                 </div>
                 <div class="col-md-12">
                   <label for="currency" class="form-label fw-semibold">Preferred Currency</label>
-                  <select class="form-select" id="currency" v-model="form.currency"
+                  <select class="form-select" id="currency" v-model="form.currency" v-select2="{ placeholder: 'Select currency', allowClear: false }"
                     :class="{ 'is-invalid': errors.currency }">
                     <option value="USD">USD - US Dollar ($)</option>
                     <option value="EUR">EUR - Euro (€)</option>

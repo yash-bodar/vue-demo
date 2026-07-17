@@ -28,7 +28,7 @@
       
       <div class="col-lg-5 text-center d-none d-lg-block position-relative">
         <!-- Floating graphic item representation -->
-        <div class="hero-image-wrapper p-4 bg-white bg-opacity-5 rounded-4 border border-white border-opacity-10 shadow-lg" style="backdrop-filter: blur(10px); animation: float 6s ease-in-out infinite;">
+        <div class="hero-image-wrapper p-4 bg-primary bg-opacity-5 rounded-4 border border-white border-opacity-10 shadow-lg" style="backdrop-filter: blur(10px); animation: float 6s ease-in-out infinite;">
           <i class="fas fa-store-alt fa-10x text-white opacity-85"></i>
           <div class="mt-3 text-center">
             <span class="text-white-50 small">Premium Partners & Curated Inventory</span>

@@ -1,13 +1,14 @@
 <template>
   <div class="main-container">
     <!-- Modern Navigation Header -->
-    <header class="main-header shadow-sm rounded-1">
+    <header class="main-header shadow-sm">
       <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
           <!-- Brand/Logo -->
           <router-link class="navbar-brand fw-bold text-white" to="/">
             <i class="fas fa-store me-2 text-light"></i>
-            <span class="brand-text">VueShop</span>
+            <!-- <span class="brand-text">VueShop</span> -->
+            <img :src="appLogo" alt="Vue Shop" width="77" height="33" style="object-fit:cover">
           </router-link>
           
           <!-- Mobile Toggle Button -->
@@ -109,7 +110,7 @@
     
     <!-- Main Content -->
     <main class="main-content">
-      <div class="card border-0 rounded-1">
+      <div class="card border-0 rounded-0">
         <router-view />
       </div>
     </main>
@@ -127,6 +128,9 @@ export default {
     profileImage() {
       return `https://ui-avatars.com/api/?name=${this.user?.name || 'User'}&background=0d6efd&color=fff&size=150`
     },
+    appLogo() {
+      return import.meta.env.VITE_APP_LOGO
+    }
   },
   mounted() {
     this.fetchUser()

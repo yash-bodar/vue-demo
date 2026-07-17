@@ -23,13 +23,13 @@
               </div>
             </div>
             <div class="col-12 col-md-5">
-              <select class="form-select" v-model="selectedSort">
+              <select class="form-select" v-model="selectedSort" v-select2="{ placeholder: 'Sort', allowClear: false  }">
                 <option value="">Sort</option>
                 <option v-for="sort in sortingList" :key="sort.value" :value="sort.value">{{ sort.label }}</option>
               </select>
             </div>
             <div class="col-12 col-md-3">
-              <select class="form-select" v-model="filters.selectedCategory">
+              <select class="form-select" v-model="filters.selectedCategory" v-select2="{ placeholder: 'All Categories', allowClear: false  }">
                 <option value="">All Categories</option>
                 <option v-if="categories.length === 0" disabled>Loading categories...</option>
                 <option v-else v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>
