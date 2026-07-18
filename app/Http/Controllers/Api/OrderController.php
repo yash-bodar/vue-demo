@@ -46,7 +46,12 @@ class OrderController extends Controller
     }
 
     public function getOrders(Request $request){
-        $query = Order::where('user_id', $request->user_id ?? Auth::user()->id);
+        $userId = Auth::id();
+        if ($request->has('user_id') && Auth::user()->role === 'admin') {
+            $userId = $request->user_id;
+        }
+
+        $query = Order::where('user_id', $userId);
         $sortBy = $request->get('sort_by', 'id');
         $sortOrder = $request->get('sort_order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
@@ -60,6 +65,11 @@ class OrderController extends Controller
         if (!$order) {
             return response()->json(['success' => false, 'message' => 'Order not found'], 404);
         }
+
+        if ($order->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
+            return response()->json(['success' => false, 'message' => 'Access denied.'], 403);
+        }
+
         return response()->json(['success' => true, 'data' => $order]);
     }
 
@@ -108,9 +118,13 @@ class OrderController extends Controller
         if (!$order) {
             return response()->json(['success' => false, 'message' => 'Order not found'], 404);
         }
+
+        if ($order->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
+            return response()->json(['success' => false, 'message' => 'Access denied.'], 403);
+        }
+
         $pdf = Pdf::loadView('pdf.invoice', compact('order'));
         return $pdf->download('invoice.pdf');
-
     }
 
     public function updateStatus(Request $request, $id)

@@ -13,7 +13,7 @@
                 </div>
             </div>
             <div class="col-12 col-md-auto mt-1">
-                <select class="form-select form-select-sm py-1 pe-5 w-auto" v-model="filters.status" @change="fetchOrders(1)">
+                <select class="form-select form-select-sm py-1 pe-5 w-auto" v-model="filters.status" @change="fetchOrders(1)" v-select2="{ placeholder: 'All Status', allowClear: false, width: '170px' }">
                     <option value="">All Status</option>
                     <option value="completed">Completed</option>
                     <option value="delivered">Delivered</option>
@@ -25,7 +25,7 @@
                 </select>
             </div>
             <div class="col-12 col-md-auto mt-1">
-                <select class="form-select form-select-sm py-1 pe-5 w-auto" v-model="filters.payment_status" @change="fetchOrders(1)">
+                <select class="form-select form-select-sm py-1 pe-5 w-auto" v-model="filters.payment_status" @change="fetchOrders(1)" v-select2="{ placeholder: 'All Payment Status', allowClear: false, width: '170px'  }">
                     <option value="">All Payment Status</option>
                     <option value="paid">Paid</option>
                     <option value="pending">Pending</option>
@@ -33,7 +33,7 @@
                 </select>
             </div>
             <div class="col-12 col-md-auto mt-1">
-                <select class="form-select form-select-sm py-1 pe-5 w-auto" v-model="filters.currency" @change="fetchOrders(1)">
+                <select class="form-select form-select-sm py-1 pe-5 w-auto" v-model="filters.currency" @change="fetchOrders(1)" v-select2="{ placeholder: 'All Currency', allowClear: false, width: '250px'  }">
                     <option value="">All Currency</option>
                     <option value="USD">USD - US Dollar ($)</option>
                     <option value="EUR">EUR - Euro (€)</option>

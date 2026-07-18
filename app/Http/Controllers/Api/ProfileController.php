@@ -78,7 +78,14 @@ class ProfileController extends Controller
         }
         $user = Auth::user();
         if(!$user) {
-            return response()->json(['success' => false,'message' => 'User not authenticated']);
+            return response()->json(['success' => false,'message' => 'User not authenticated'], 401);
+        }
+
+        if ($request->id) {
+            $address = Address::find($request->id);
+            if ($address && $address->user_id !== $user->id) {
+                return response()->json(['success' => false, 'message' => 'Access denied. You do not own this address.'], 403);
+            }
         }
 
         try{
@@ -88,7 +95,7 @@ class ProfileController extends Controller
             }
             
             Address::updateOrCreate(
-                ['id' => $request->id],
+                ['id' => $request->id, 'user_id' => $user->id],
                 [
                     'full_name' => $request->full_name,
                     'phone_number' => $request->phone,
@@ -98,14 +105,13 @@ class ProfileController extends Controller
                     'state' => $request->state,
                     'country' => $request->country,
                     'postal_code' => $request->postal_code,
-                    'user_id' => $user->id,
                     'is_default' => $request->is_default ? 1 : 0,
                 ]
             );
             DB::commit();
         }catch(\Exception $e) {
             DB::rollBack();
-            return response()->json(['success' => false,'message' => $e->getMessage()]);
+            return response()->json(['success' => false,'message' => $e->getMessage()], 500);
         }
         return response()->json(['success' => true,'message' => 'Address updated successfully']);
     }
