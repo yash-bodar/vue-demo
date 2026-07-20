@@ -26,7 +26,11 @@ class ProfileController extends Controller
             return response()->json(['success' => false,'message' => 'User not authenticated']);
         }
         $user->update($request->all());
-        return response()->json(['success' => true,'message' => 'Profile updated successfully']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Profile updated successfully',
+            'user' => $user
+        ]);
     }
 
     public function changePassword(Request $request)

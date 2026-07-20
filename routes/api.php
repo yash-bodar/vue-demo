@@ -112,4 +112,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('throttle:100,1')->group(function () {
         Route::post('/coupons/validate', [\App\Http\Controllers\Api\CouponController::class, 'validate']); // User
     });
+
+    // Size & Color Management (Admin only)
+    Route::middleware(['throttle:60,1', 'admin'])->group(function () {
+        Route::apiResource('/sizes', \App\Http\Controllers\Api\SizeController::class);
+        Route::apiResource('/colors', \App\Http\Controllers\Api\ColorController::class);
+    });
+
+    // Public lookup attributes
+    Route::middleware('throttle:120,1')->group(function () {
+        Route::get('/get-sizes', [\App\Http\Controllers\Api\SizeController::class, 'getSizes']);
+        Route::get('/get-colors', [\App\Http\Controllers\Api\ColorController::class, 'getColors']);
+    });
 });

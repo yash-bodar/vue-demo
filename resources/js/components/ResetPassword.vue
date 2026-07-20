@@ -4,66 +4,40 @@
     <div class="auth-bg-blob auth-bg-blob-1"></div>
     <div class="auth-bg-blob auth-bg-blob-2"></div>
 
-    <div class="auth-card-container">
+    <div class="auth-card-container" style="max-width: 900px;">
       <div class="auth-glass-card">
         <div class="row g-0">
           <!-- Left Side - Brand Banner -->
           <div class="col-lg-6 d-none d-lg-flex auth-left-banner text-center text-white">
             <div class="auth-logo-badge">
-              <i class="fas fa-store"></i>
+              <i class="fas fa-user-shield"></i>
             </div>
-            <h2 class="fw-bold mb-3">Join Us!</h2>
+            <h2 class="fw-bold mb-3">Reset Password</h2>
             <p class="text-white-50 px-4 mb-4">
-              Create an account today to get access to exclusive offers, discount coupons, and early product updates.
+              Enter your new credentials below to secure your account and recover login access.
             </p>
             <img :src="'images/login-page-bg-image.png'" class="card-img-login" alt="Background Graphic">
           </div>
           
-          <!-- Right Side - Register Form -->
+          <!-- Right Side - Reset Password Form -->
           <div class="col-lg-6 auth-right-form">
             <div class="d-flex flex-column h-100 justify-content-center">
               <div class="mb-4">
-                <h3 class="auth-title-gradient mb-2">Create Account</h3>
-                <p class="text-muted">Enter your credentials to create an account</p>
+                <h3 class="auth-title-gradient mb-2">New Password</h3>
+                <p class="text-muted">Enter your new password details below</p>
               </div>
 
               <div v-if="error" class="alert-premium-error mb-4">
                 <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
               </div>
 
+              <div v-if="successMessage" class="alert-premium-success mb-4">
+                <i class="fas fa-check-circle me-2"></i>{{ successMessage }}
+              </div>
+
               <form @submit.prevent="submitForm">
                 <div class="mb-3">
-                  <label for="name" class="premium-label">Full Name</label>
-                  <div class="premium-input-group">
-                    <input 
-                      v-model="form.name" 
-                      type="text" 
-                      class="premium-input" 
-                      id="name" 
-                      placeholder="John Doe" 
-                      required
-                    >
-                    <i class="fas fa-user input-icon"></i>
-                  </div>
-                </div>
-
-                <div class="mb-3">
-                  <label for="email" class="premium-label">Email Address</label>
-                  <div class="premium-input-group">
-                    <input 
-                      v-model="form.email" 
-                      type="email" 
-                      class="premium-input" 
-                      id="email" 
-                      placeholder="name@example.com" 
-                      required
-                    >
-                    <i class="fas fa-envelope input-icon"></i>
-                  </div>
-                </div>
-
-                <div class="mb-3">
-                  <label for="password" class="premium-label">Password</label>
+                  <label for="password" class="premium-label">New Password</label>
                   <div class="premium-input-group">
                     <input 
                       v-model="form.password" 
@@ -109,17 +83,17 @@
                 <button 
                   type="submit" 
                   class="btn auth-btn-glow w-100 mb-3" 
-                  :disabled="loading"
+                  :disabled="loading || !!error"
                 >
-                  <span v-if="loading"><i class="fas fa-circle-notch fa-spin me-2"></i>Creating account...</span>
-                  <span v-else><i class="fas fa-user-plus me-2"></i>Register</span>
+                  <span v-if="loading"><i class="fas fa-circle-notch fa-spin me-2"></i>Resetting...</span>
+                  <span v-else><i class="fas fa-key me-2"></i>Update Password</span>
                 </button>
               </form>
 
               <div class="text-center mt-3">
                 <p class="mb-0 text-muted">
-                  Already have an account? 
-                  <router-link to="/login" class="text-link-premium">Login</router-link>
+                  Remembered your password? 
+                  <router-link to="/login" class="text-link-premium">Back to Login</router-link>
                 </p>
               </div>
             </div>
@@ -132,11 +106,11 @@
 
 <script>
 export default {
-  name: 'Register',
+  name: 'ResetPassword',
   data() {
     return {
       form: {
-        name: '',
+        token: '',
         email: '',
         password: '',
         password_confirmation: '',
@@ -145,24 +119,39 @@ export default {
       showConfirmPassword: false,
       loading: false,
       error: '',
+      successMessage: ''
+    }
+  },
+  created() {
+    this.form.token = this.$route.query.token || '';
+    this.form.email = this.$route.query.email || '';
+    
+    if (!this.form.token || !this.form.email) {
+      this.error = 'Invalid reset password link. Please request a new one.';
     }
   },
   methods: {
     async submitForm() {
-      this.loading = true;
-      this.error = '';
       if (this.form.password !== this.form.password_confirmation) {
         this.error = 'Passwords do not match';
-        this.loading = false;
         return;
       }
+      
+      this.loading = true;
+      this.error = '';
+      this.successMessage = '';
       try {
-        const response = await this.$axios.post('/register', this.form);
-        localStorage.setItem('user', JSON.stringify(response.data));
-        window.location.href = '/vue-demo/public';
+        const response = await this.$axios.post('/reset-password', this.form);
+        this.successMessage = response.data.message;
+        this.form.password = '';
+        this.form.password_confirmation = '';
+        
+        setTimeout(() => {
+          this.$router.push('/login');
+        }, 3000);
       } catch (error) {
-        console.error('Registration failed:', error);
-        this.error = error.response?.data?.message || 'Registration failed';
+        this.error = error.response?.data?.message || 'Failed to reset password';
+        console.error('Reset password error:', error);
       } finally {
         this.loading = false;
       }

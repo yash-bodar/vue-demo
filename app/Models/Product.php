@@ -65,6 +65,11 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class);
+    }
+
     function wishlist()
     {
         return $this->hasOne(Wishlist::class)->where('user_id', Auth::id());

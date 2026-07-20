@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 class OrderController extends Controller
 {
     public function index(Request $request){
-        $query = Order::with('user');
+        $query = Order::with(['user', 'orderItems.product', 'orderItems.variant']);
         $query = $this->filterQuery($query, $request);
         $data = $query->paginate($request->per_page ?? 10);
         return response()->json(['success' => true,'data' => $data]);
@@ -51,7 +51,7 @@ class OrderController extends Controller
             $userId = $request->user_id;
         }
 
-        $query = Order::where('user_id', $userId);
+        $query = Order::where('user_id', $userId)->with(['orderItems.product', 'orderItems.variant']);
         $sortBy = $request->get('sort_by', 'id');
         $sortOrder = $request->get('sort_order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
@@ -60,7 +60,7 @@ class OrderController extends Controller
     }
 
     public function getOrderDetail($id){
-        $order = Order::where('id', $id)->with('user', 'address')->first();
+        $order = Order::where('id', $id)->with(['user', 'address', 'orderItems.product', 'orderItems.variant'])->first();
         
         if (!$order) {
             return response()->json(['success' => false, 'message' => 'Order not found'], 404);
@@ -114,7 +114,7 @@ class OrderController extends Controller
 
     public function downloadInvoice($id)
     {
-        $order = Order::where('id', $id)->with('user', 'address')->first();
+        $order = Order::where('id', $id)->with(['user', 'address', 'orderItems.product', 'orderItems.variant'])->first();
         if (!$order) {
             return response()->json(['success' => false, 'message' => 'Order not found'], 404);
         }

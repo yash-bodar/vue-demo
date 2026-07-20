@@ -22,13 +22,14 @@ class CartController extends Controller
         if(!$user) {
             return response()->json(['success' => false,'message' => 'User not authenticated'], 401);
         }
-        $cart = Cart::with('product')->where('user_id', $user->id)->get();
+        $cart = Cart::with(['product', 'variant'])->where('user_id', $user->id)->get();
         return response()->json(['success' => true,'data' => $cart]);
     }
     
     public function updateCart(Request $request)
     {
         $productId = $request->input('product_id');
+        $variantId = $request->input('product_variant_id');
         $userId = Auth::id();
 
         if(!$userId) {
@@ -42,30 +43,49 @@ class CartController extends Controller
         if(!$product) {
             return response()->json(['success' => false,'message' => 'Product not found'], 404);
         }
+
+        $variant = null;
+        if ($variantId) {
+            $variant = \App\Models\ProductVariant::where('product_id', $productId)->where('id', $variantId)->first();
+            if (!$variant) {
+                return response()->json(['success' => false,'message' => 'Variant not found'], 404);
+            }
+        }
+
+        $maxStock = $variant ? $variant->stock : $product->stock;
+
         try{
             DB::beginTransaction();
-            $cart = Cart::where('user_id', $userId)->where('product_id', $productId)->lockForUpdate()->first();
+            $cart = Cart::where('user_id', $userId)
+                ->where('product_id', $productId)
+                ->where('product_variant_id', $variantId)
+                ->lockForUpdate()
+                ->first();
+
             if($request->action && $request->action === 'decrease') {
                 if($cart && $cart->quantity > 1) {
                     $cart->quantity--;
                     $cart->save();
                 } else {
-                    $cart->delete();
+                    if ($cart) {
+                        $cart->delete();
+                    }
                 }
             } else {
                 if($cart) {
-                    if($cart->quantity >= $product->stock) {
+                    if($cart->quantity >= $maxStock) {
                         return response()->json(['success' => false,'message' => 'Product out of stock'], 400);
                     }
                     $cart->quantity++;
                     $cart->save();
                 } else {
-                    if($product->stock < 1) {
+                    if($maxStock < 1) {
                         return response()->json(['success' => false,'message' => 'Product out of stock'], 400);
                     }
                     $cart = New Cart();
                     $cart->user_id = $userId;
                     $cart->product_id = $productId;
+                    $cart->product_variant_id = $variantId;
                     $cart->quantity = 1;
                     $cart->save();
                 }

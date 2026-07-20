@@ -10,6 +10,8 @@ Route::middleware('web')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user'])->middleware('auth');
+    Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail']);
+    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
     
     // SPA catch-all route must be in web middleware for CSRF to work
     Route::get('/{any}', function () {
