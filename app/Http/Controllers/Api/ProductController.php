@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -104,8 +105,37 @@ class ProductController extends Controller
         $product->status = $request->status;
         $product->currency = $request->currency;
         $product->category_id = $request->category_id;
+        // Pre-validate SKUs across other products and check duplicate merging
+        if ($request->has('variants')) {
+            $variantsData = $request->variants;
+            if (is_string($variantsData)) {
+                $variantsData = json_decode($variantsData, true);
+            }
+
+            if (is_array($variantsData)) {
+                $productId = $request->id ?? null;
+                foreach ($variantsData as $variantItem) {
+                    $sku = trim($variantItem['sku'] ?? '');
+                    if ($sku !== '') {
+                        $existingOtherProductVariant = ProductVariant::where('sku', $sku)
+                            ->when($productId, function ($q) use ($productId) {
+                                return $q->where('product_id', '!=', $productId);
+                            })
+                            ->first();
+
+                        if ($existingOtherProductVariant) {
+                            return response()->json([
+                                'success' => false,
+                                'message' => "The SKU '{$sku}' already exists in another product."
+                            ], 422);
+                        }
+                    }
+                }
+            }
+        }
+
         if($product->save()){
-            // Handle variants saving
+            // Handle variants saving with stock merge
             if ($request->has('variants')) {
                 $variantsData = $request->variants;
                 if (is_string($variantsData)) {
@@ -120,23 +150,45 @@ class ProductController extends Controller
                         }
                         
                         $vPrice = (isset($variantItem['price']) && $variantItem['price'] !== null && $variantItem['price'] !== '') ? $variantItem['price'] : null;
+                        $sku = trim($variantItem['sku'] ?? '');
 
-                        $variant = $product->variants()->updateOrCreate(
-                            ['id' => $variantItem['id'] ?? null],
-                            [
-                                'size_id' => $variantItem['size_id'] ?? null,
-                                'color_id' => $variantItem['color_id'] ?? null,
-                                'name' => $variantItem['name'],
-                                'price' => $vPrice,
-                                'stock' => $variantItem['stock'] ?? 0,
-                                'sku' => $variantItem['sku'] ?? null,
-                            ]
-                        );
-                        $keepVariantIds[] = $variant->id;
+                        // Check if variant with same SKU exists under current product
+                        $existingSameProductVariant = null;
+                        if ($sku !== '') {
+                            $existingSameProductVariant = $product->variants()
+                                ->where('sku', $sku)
+                                ->when(!empty($variantItem['id']), function ($q) use ($variantItem) {
+                                    return $q->where('id', '!=', $variantItem['id']);
+                                })
+                                ->first();
+                        }
+
+                        if ($existingSameProductVariant) {
+                            // Merge stock into existing variant
+                            $existingSameProductVariant->stock += ($variantItem['stock'] ?? 0);
+                            if ($vPrice !== null) {
+                                $existingSameProductVariant->price = $vPrice;
+                            }
+                            $existingSameProductVariant->save();
+                            $keepVariantIds[] = $existingSameProductVariant->id;
+                        } else {
+                            $variant = $product->variants()->updateOrCreate(
+                                ['id' => $variantItem['id'] ?? null],
+                                [
+                                    'size_id' => $variantItem['size_id'] ?? null,
+                                    'color_id' => $variantItem['color_id'] ?? null,
+                                    'name' => $variantItem['name'],
+                                    'price' => $vPrice,
+                                    'stock' => $variantItem['stock'] ?? 0,
+                                    'sku' => $sku !== '' ? $sku : null,
+                                ]
+                            );
+                            $keepVariantIds[] = $variant->id;
+                        }
                     }
                     
                     // Delete variants not sent in request
-                    $product->variants()->whereNotIn('id', $keepVariantIds)->delete();
+                    $product->variants()->whereNotIn('id', array_filter($keepVariantIds))->delete();
                 }
             }
             return response()->json(['success' => true]);
