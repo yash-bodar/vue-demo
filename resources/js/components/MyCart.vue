@@ -1,112 +1,107 @@
 <template>
-    <div class="cart-container">
-      <!-- Cart Header -->
-      <div class="cart-header bg-white m-2 border-bottom shadow-sm p-3 mx-4 my-3 rounded-2">
-        <div class="row align-items-center g-3">
-          <div class="col-12 col-md-6">
-            <div class="d-flex align-items-center">
-              <div class="me-3">
-                <i class="fas fa-shopping-cart fa-2x text-primary p-1"></i>
-              </div>
-              <div>
-                <h5 class="mb-0 fw-bold text-dark">My Cart</h5>
-                <p class="mb-0 text-muted small">{{ cartProducts.length }} items</p>
-              </div>
-            </div>
+  <div class="container py-5">
+    <!-- Header Section -->
+    <div class="card card-premium mb-4 p-4">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="d-flex align-items-center">
+          <div class="me-3 d-inline-flex align-items-center justify-content-center rounded-3 bg-primary text-white" style="width: 48px; height: 48px;">
+            <i class="fas fa-shopping-cart fs-4"></i>
           </div>
-          <div class="col-12 col-md-6">
-            <div class="row g-2 justify-content-end align-items-center">
-              <div class="col-auto">
-                <div class="total-amount">
-                  <span class="text-muted small">Total</span>
-                  <div class="fs-4 fw-bold text-primary">{{ user?.currency_sign || '$' }}{{ totalAmount }}</div>
+          <div>
+            <h5 class="mb-0 fw-bold text-dark">My Shopping Cart</h5>
+            <p class="mb-0 text-muted small">Review your items and select shipping details</p>
+          </div>
+        </div>
+        <router-link to="/product" class="btn btn-outline-primary btn-sm">
+          <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+        </router-link>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div v-if="loading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3 text-muted">Loading your cart items...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div v-else-if="cartProducts.length === 0" class="text-center py-5 bg-white rounded-4 shadow-sm border border-light">
+      <i class="fas fa-shopping-basket fa-4x text-muted mb-3 opacity-60"></i>
+      <h5 class="text-muted fw-bold">Your cart is empty</h5>
+      <p class="text-muted small mb-4">You have no items in your shopping cart. Add some products to start buying!</p>
+      <router-link to="/product" class="btn btn-primary px-4 py-2">
+        <i class="fas fa-shopping-bag me-2"></i>Start Shopping
+      </router-link>
+    </div>
+
+    <!-- Cart Layout Grid -->
+    <div v-else class="row g-4">
+      <!-- Left Column: Items & Delivery Addresses -->
+      <div class="col-lg-8">
+        <!-- Cart Items List -->
+        <h5 class="fw-bold mb-3 text-dark d-flex align-items-center">
+          <i class="fas fa-list me-2 text-primary"></i>Items in Cart ({{ cartProducts.length }})
+        </h5>
+        
+        <div v-for="(cartProduct, index) in cartProducts" :key="index" class="card card-premium mb-3">
+          <div class="p-3">
+            <div class="row align-items-center g-3">
+              <!-- Image Thumbnail -->
+              <div class="col-3 col-sm-2 col-md-2">
+                <div class="premium-product-img-wrapper" style="border-radius: 0.75rem;">
+                  <img :src="getImageUrl(cartProduct.product.image)" class="premium-product-img" :alt="cartProduct.product.name">
                 </div>
               </div>
-              <div class="col-auto ms-1">
-                <button class="btn btn-primary checkout-btn" type="button" @click="checkout" :disabled="cartProducts.length === 0">
-                  <i class="fas fa-credit-card me-2"></i>Checkout
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- Cart Body -->
-      <div class="cart-body p-4">
-        <!-- Loading State -->
-        <div v-if="loading" class="text-center py-5">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <p class="mt-3 text-muted">Loading your cart...</p>
-        </div>
-        
-        <!-- Empty State -->
-        <div v-else-if="cartProducts.length === 0" class="text-center py-5">
-          <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
-          <h5 class="text-muted">Your cart is empty</h5>
-          <p class="text-muted mb-4">Add some products to get started!</p>
-          <button class="btn btn-primary bg-primary" @click="$router.push('/product')">
-            <i class="fas fa-shopping-bag me-2"></i>Browse Products
-          </button>
-        </div>
-        
-        <!-- Cart Items -->
-        <div v-else class="cart-items">
-          <div v-for="(cartProduct,index) in cartProducts" :key="index" class="cart-item mb-4">
-            <div class="card h-100 shadow-sm border-0 rounded-3 overflow-hidden">
-              <div class="card-body p-0">
-                <div class="row g-0 align-items-center">
-                  <!-- Product Image -->
-                  <div class="col-md-3 col-lg-2">
-                    <div class="cart-item-image position-relative">
-                      <div class="image-placeholder d-flex align-items-center justify-content-center bg-light h-100">
-                        <img :src="getImageUrl(cartProduct.product.image)" class="cart-product-image" :alt="cartProduct.product.name">
-                      </div>
-                    </div>
+              
+              <!-- Content -->
+              <div class="col-9 col-sm-10 col-md-10">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                  <!-- Name & Description -->
+                  <div>
+                    <h6 class="fw-bold mb-1 cursor-pointer" @click="$router.push(`/product/detail/${cartProduct.product.id}`)">
+                      {{ cartProduct.product.name }}
+                    </h6>
+                    <!-- Variant details badge -->
+                    <span v-if="cartProduct.variant" class="badge bg-light text-secondary border border-light small mb-2 d-inline-block" style="font-size: 0.7rem; font-weight: 600;">
+                      Option: {{ cartProduct.variant.name }}
+                    </span>
+                    <p class="text-muted small mb-2 text-truncate" style="max-width: 320px;">
+                      {{ cartProduct.product.description || 'No description available' }}
+                    </p>
+                    <span class="fw-bold text-primary">
+                      {{ user?.currency_sign }}{{ (cartProduct.variant ? cartProduct.variant.converted_price : cartProduct.product.converted_price).toFixed(2) }}
+                    </span>
                   </div>
-                  
-                  <!-- Product Details -->
-                  <div class="col-md-9 col-lg-10">
-                    <div class="p-3">
-                      <div class="row align-items-center">
-                        <div class="col-md-6">
-                          <div class="product-info cursor-pointer" @click="$router.push(`/product/detail/${cartProduct.product.id}`)">
-                            <h5 class="cart-product-title fw-semibold mb-2">{{ cartProduct.product.name }}</h5>
-                            <p class="cart-product-description text-muted small mb-3">
-                              {{ cartProduct.product.description || 'No description available' }}
-                            </p>
-                            <div class="cart-product-price">
-                              <span class="fs-5 fw-bold text-primary">{{ user?.currency_sign }}{{ cartProduct.product.converted_price.toFixed(2) }}</span>
-                              <span class="text-muted ms-2">x {{ cartProduct.quantity }}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-md-6">
-                          <div class="d-flex flex-column align-items-md-end">
-                            <!-- Item Total -->
-                            <div class="item-total mb-3">
-                              <span class="text-muted small">Item Total</span>
-                              <div class="fs-5 fw-bold text-primary">
-                                {{ user?.currency_sign }}{{ (cartProduct.product.converted_price * cartProduct.quantity).toFixed(2) }}
-                              </div>
-                            </div>
-                            
-                            <!-- Quantity Controls -->
-                            <div class="quantity-controls-wrapper">
-                              <div v-if="getCartQuantity(cartProduct.product.id) > 0" class="quantity-controls d-flex align-items-center gap-2">
-                                <button class="btn btn-sm btn-primary quantity-btn" :disabled="loadingProductId === cartProduct.product.id" @click="updateCart(cartProduct.product.id,'decrease')">
-                                  <i class="fas fa-minus"></i>
-                                </button>
-                                <span class="quantity-display fw-semibold px-3">{{ getCartQuantity(cartProduct.product.id) }}</span>
-                                <button class="btn btn-sm btn-primary quantity-btn" :disabled="loadingProductId === cartProduct.product.id || getCartQuantity(cartProduct.product.id) >= cartProduct.product.stock" @click="updateCart(cartProduct.product.id,'increase')">
-                                  <i class="fas fa-plus"></i>
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+
+                  <!-- Qty Controls & Subtotal -->
+                  <div class="d-flex align-items-center justify-content-between justify-content-md-end gap-4 flex-wrap">
+                    <!-- Qty Controls -->
+                    <div class="premium-qty-controls">
+                      <button 
+                        class="qty-btn" 
+                        :disabled="loadingProductId === (cartProduct.product.id + '_' + (cartProduct.product_variant_id || ''))" 
+                        @click="updateCart(cartProduct.product.id, cartProduct.product_variant_id, 'decrease')"
+                      >
+                        <i class="fas fa-minus small"></i>
+                      </button>
+                      <span class="qty-display small">{{ getCartQuantity(cartProduct.product.id, cartProduct.product_variant_id) }}</span>
+                      <button 
+                        class="qty-btn" 
+                        :disabled="loadingProductId === (cartProduct.product.id + '_' + (cartProduct.product_variant_id || '')) || getCartQuantity(cartProduct.product.id, cartProduct.product_variant_id) >= (cartProduct.variant ? cartProduct.variant.stock : cartProduct.product.stock)" 
+                        @click="updateCart(cartProduct.product.id, cartProduct.product_variant_id, 'increase')"
+                      >
+                        <i class="fas fa-plus small"></i>
+                      </button>
+                    </div>
+
+                    <!-- Total Cost -->
+                    <div class="text-end" style="min-width: 100px;">
+                      <span class="text-muted small d-block">Subtotal</span>
+                      <span class="fw-bold text-dark">
+                        {{ user?.currency_sign }}{{ ((cartProduct.variant ? cartProduct.variant.converted_price : cartProduct.product.converted_price) * cartProduct.quantity).toFixed(2) }}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -115,38 +110,61 @@
           </div>
         </div>
 
-        <!-- Addresses Section -->
-        <div class="addresses-section mt-4 ">
-          <div class="d-flex justify-content-between align-items-center gap-2">
-            <h5 class="fw-bold mb-0">Delivery Addresses</h5>
-            <button type="button" @click="addAddress" class="btn btn-primary btn-sm text-primary fw-bold">+ Add Address</button>
+        <!-- Delivery Addresses Section -->
+        <div class="mt-5">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0 text-dark">
+              <i class="fas fa-map-marker-alt me-2 text-primary"></i>Delivery Address
+            </h5>
+            <button type="button" @click="addAddress" class="btn btn-outline-primary btn-sm">
+              <i class="fas fa-plus me-1"></i>Add Address
+            </button>
           </div>
+
           <div v-if="loadingAddr" class="text-center py-3">
-            <div class="spinner-border spinner-border-sm" role="status">
+            <div class="spinner-border spinner-border-sm text-primary" role="status">
               <span class="visually-hidden">Loading...</span>
             </div>
           </div>
+
           <div v-else class="row g-3">
             <div v-for="address in addresses" :key="address.id" class="col-12">
-              <div class="card address-card" :class="{ 'bg-primary text-light shadow': selectedAddressId === address.id, }" @click="selectAddress(address)" style="cursor: pointer;">
-                <div class="card-body">
-                  <div class="d-flex justify-content-between align-items-start">
-                    <div class="flex-grow-1">
-                      <div class="d-flex align-items-center mb-2">
-                        <div class="form-check me-3" style="display: none;">
-                          <input class="form-check-input" type="radio" :name="'address'" :id="'address_' + address.id" :checked="selectedAddressId === address.id" @change="selectAddress(address)">
-                        </div>
-                        <h6 class="fw-bold mb-0">{{ address.full_name }} - {{ address.phone_number }}</h6>
-                        <span v-if="address.is_default" class="badge bg-warning text-dark ms-2">Default</span>
+              <div 
+                class="card card-premium" 
+                :style="selectedAddressId === address.id ? 'border-color: var(--primary-color) !important; background-color: rgba(99, 102, 241, 0.02);' : ''"
+                @click="selectAddress(address)"
+                style="cursor: pointer;"
+              >
+                <div class="p-3">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="form-check m-0">
+                        <input 
+                          class="form-check-input" 
+                          type="radio" 
+                          :checked="selectedAddressId === address.id"
+                          @change="selectAddress(address)"
+                        >
                       </div>
-                      <p class="mb-1">{{ address.address_line1 }}<span v-if="address.address_line2">, {{ address.address_line2 }}</span></p>
-                      <p class="mb-1">{{ address.city }}, {{ address.state }}, {{ address.country }} - {{ address.postal_code }}</p>
+                      <div>
+                        <h6 class="fw-bold mb-1">
+                          {{ address.full_name }}
+                          <span class="badge bg-primary ms-2 small" style="font-size: 0.65rem;">{{ address.phone_number }}</span>
+                          <span v-if="address.is_default" class="badge badge-primary-soft ms-2 small" style="font-size: 0.65rem;">Default</span>
+                        </h6>
+                        <p class="mb-0 text-muted small">
+                          {{ address.address_line1 }}<span v-if="address.address_line2">, {{ address.address_line2 }}</span>, 
+                          {{ address.city }}, {{ address.state }}, {{ address.country }} - {{ address.postal_code }}
+                        </p>
+                      </div>
                     </div>
-                    <div class="ms-3">
-                      <button class="btn btn-sm p-2 rounded-2 " :class="{ 'color-primary bg-white': selectedAddressId === address.id, 'bg-primary text-white': selectedAddressId !== address.id }" @click.stop="editAddress(address)">
-                        <i class="fas fa-edit"></i>
-                      </button>
-                    </div>
+                    <button 
+                      class="btn btn-light btn-sm" 
+                      style="border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; padding: 0;"
+                      @click.stop="editAddress(address)"
+                    >
+                      <i class="fas fa-edit text-muted"></i>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -154,14 +172,55 @@
           </div>
         </div>
       </div>
+
+      <!-- Right Column: Sticky Summary & Payments -->
+      <div class="col-lg-4">
+        <div class="position-sticky" style="top: 90px; z-index: 5;">
+          <h5 class="fw-bold mb-3 text-dark">
+            <i class="fas fa-file-invoice-dollar me-2 text-primary"></i>Order Summary
+          </h5>
+          
+          <div class="card card-premium p-4">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Total Items</span>
+              <span class="fw-bold text-dark">{{ cartProducts.reduce((sum, item) => sum + item.quantity, 0) }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-4">
+              <span class="text-muted">Payment Type</span>
+              <span class="badge bg-success-soft text-success fw-bold">Card (Stripe)</span>
+            </div>
+            
+            <hr class="border-light mb-4">
+
+            <div class="d-flex justify-content-between align-items-baseline mb-4">
+              <span class="fs-5 fw-bold text-dark">Estimated Total:</span>
+              <span class="fs-3 fw-extrabold text-primary">
+                {{ user?.currency_sign || '$' }}{{ totalAmount }}
+              </span>
+            </div>
+
+            <button 
+              class="btn btn-primary btn-lg w-100 py-3 mb-2" 
+              type="button" 
+              @click="checkout" 
+              :disabled="cartProducts.length === 0"
+            >
+              <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
+            </button>
+            <p class="text-center text-muted small mb-0 mt-3">
+              <i class="fas fa-shield-alt me-1 text-success"></i>Safe and encrypted Transactions
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
-    
+
     <!-- Add Address Modal -->
     <div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="addAddressModalLabel">Add Delivery Address</h5>
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 1.25rem;">
+          <div class="modal-header border-light">
+            <h5 class="modal-title fw-bold" id="addAddressModalLabel">Add Delivery Address</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body p-4">
@@ -169,39 +228,39 @@
               <div class="row">
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="fullName" class="form-label fw-semibold"><i class="fas fa-user me-2 text-primary pt-1"></i>Full Name *</label>
-                    <input type="text" class="form-control form-control-lg" id="fullName" name="full_name" required placeholder="John Doe" v-model="addrForm.full_name">
+                    <label for="fullName" class="form-label fw-bold text-muted small">Full Name *</label>
+                    <input type="text" class="form-control" id="fullName" required placeholder="John Doe" v-model="addrForm.full_name">
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="phoneNumber" class="form-label fw-semibold"><i class="fas fa-phone me-2 text-primary pt-1"></i>Phone Number *</label>
-                    <input type="tel" class="form-control form-control-lg" id="phoneNumber" name="phone_number" required placeholder="+1 234 567 8900" v-model="addrForm.phone">
+                    <label for="phoneNumber" class="form-label fw-bold text-muted small">Phone Number *</label>
+                    <input type="tel" class="form-control" id="phoneNumber" required placeholder="+1 234 567 8900" v-model="addrForm.phone">
                   </div>
                 </div>
               </div>
               
               <div class="mb-3">
-                <label for="addressLine1" class="form-label fw-semibold"><i class="fas fa-home me-2 text-primary pt-1"></i>Address Line 1 *</label>
-                <input type="text" class="form-control form-control-lg" id="addressLine1" name="address_line1" required placeholder="123 Main Street" v-model="addrForm.address_line1">
+                <label for="addressLine1" class="form-label fw-bold text-muted small">Address Line 1 *</label>
+                <input type="text" class="form-control" id="addressLine1" required placeholder="123 Main Street" v-model="addrForm.address_line1">
               </div>
               
               <div class="mb-3">
-                <label for="addressLine2" class="form-label fw-semibold"><i class="fas fa-building me-2 text-primary pt-1"></i>Address Line 2</label>
-                <input type="text" class="form-control form-control-lg" id="addressLine2" name="address_line2" placeholder="Apartment, suite, unit, building, floor, etc." v-model="addrForm.address_line2">
+                <label for="addressLine2" class="form-label fw-bold text-muted small">Address Line 2 (Optional)</label>
+                <input type="text" class="form-control" id="addressLine2" placeholder="Apartment, suite, unit, etc." v-model="addrForm.address_line2">
               </div>
               
               <div class="row">
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="city" class="form-label fw-semibold"><i class="fas fa-city me-2 text-primary pt-1"></i>City *</label>
-                    <input type="text" class="form-control form-control-lg" id="city" name="city" required placeholder="New York" v-model="addrForm.city">
+                    <label for="city" class="form-label fw-bold text-muted small">City *</label>
+                    <input type="text" class="form-control" id="city" required placeholder="New York" v-model="addrForm.city">
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="state" class="form-label fw-semibold"><i class="fas fa-map-marker-alt me-2 text-primary pt-1"></i>State *</label>
-                    <input type="text" class="form-control form-control-lg" id="state" name="state" required placeholder="NY" v-model="addrForm.state">
+                    <label for="state" class="form-label fw-bold text-muted small">State *</label>
+                    <input type="text" class="form-control" id="state" required placeholder="NY" v-model="addrForm.state">
                   </div>
                 </div>
               </div>
@@ -209,37 +268,38 @@
               <div class="row">
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="postalCode" class="form-label fw-semibold"><i class="fas fa-envelope me-2 text-primary pt-1"></i>Postal Code *</label>
-                    <input type="text" class="form-control form-control-lg" id="postalCode" name="postal_code" required placeholder="10001" v-model="addrForm.postal_code">
+                    <label for="postalCode" class="form-label fw-bold text-muted small">Postal Code *</label>
+                    <input type="text" class="form-control" id="postalCode" required placeholder="10001" v-model="addrForm.postal_code">
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="country" class="form-label fw-semibold"><i class="fas fa-globe me-2 text-primary pt-1"></i>Country *</label>
-                    <input type="text" class="form-control form-control-lg" id="country" name="country" required placeholder="United States" v-model="addrForm.country">
+                    <label for="country" class="form-label fw-bold text-muted small">Country *</label>
+                    <input type="text" class="form-control" id="country" required placeholder="United States" v-model="addrForm.country">
                   </div>
                 </div>
               </div>
               
-              <div class="mb-4">
+              <div class="mt-3">
                 <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="isDefault" name="is_default" value="1" :checked="addrForm.is_default" v-model="addrForm.is_default">
-                  <label class="form-check-label" for="isDefault">
-                    <i class="fas fa-star me-2 text-warning"></i>Set as default address
+                  <input class="form-check-input" type="checkbox" id="isDefault" :checked="addrForm.is_default" v-model="addrForm.is_default">
+                  <label class="form-check-label fw-semibold text-dark small" for="isDefault">
+                    Set as default delivery address
                   </label>
                 </div>
               </div>
             </form>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-primary bg-primary" @click="saveAddress">
+          <div class="modal-footer border-light">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" @click="saveAddress">
               <i class="fas fa-save me-2"></i>Save Address
             </button>
           </div>
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script>
@@ -249,9 +309,6 @@ import { getImageUrl } from '../utils/ImageUrl'
 
 export default {
   name: 'MyCart',
-  computed: {
-    ...mapState(useAuthStore, ['user']),
-  },
   data() {
     return {
       cartProducts: [],
@@ -275,9 +332,11 @@ export default {
     }
   },
   computed: {
+    ...mapState(useAuthStore, ['user']),
     totalAmount() {
       let total =  this.cartProducts.reduce((total, cartProduct) => {
-        return total + (cartProduct.product.converted_price * cartProduct.quantity);
+        const price = cartProduct.variant ? cartProduct.variant.converted_price : cartProduct.product.converted_price;
+        return total + (price * cartProduct.quantity);
       }, 0);
       return total.toFixed(2);
     }
@@ -287,21 +346,25 @@ export default {
     this.loadAddresses();
   },
   methods: {
-    async updateCart(productId, action='increase') {
-      this.loadingProductId = productId;
+    getImageUrl,
+    async updateCart(productId, variantId, action='increase') {
+      const loadingKey = productId + '_' + (variantId || '');
+      this.loadingProductId = loadingKey;
+      
       const response = await this.$axios.post('/api/update-cart', {
         product_id: productId,
+        product_variant_id: variantId,
         action: action
       });
       const data = response.data;
       if(data.success) {
-        const existing = this.cartProducts.find(p => p.product_id === productId);
+        const existing = this.cartProducts.find(p => p.product_id === productId && p.product_variant_id === variantId);
 
         if (action === 'increase') {
           if (existing) {
             existing.quantity++;
           } else {
-            this.cartProducts.push({ product_id: productId, quantity: 1 });
+            this.cartProducts.push({ product_id: productId, product_variant_id: variantId, quantity: 1 });
           }
         }
         if (action === 'decrease') {
@@ -309,7 +372,7 @@ export default {
             if (existing.quantity > 1) {
               existing.quantity--;
             } else {
-              this.cartProducts = this.cartProducts.filter(p => p.product_id !== productId);
+              this.cartProducts = this.cartProducts.filter(p => !(p.product_id === productId && p.product_variant_id === variantId));
             }
           }
         }
@@ -330,8 +393,8 @@ export default {
         this.loading = false;
       }
     },  
-    getCartQuantity(productId) {
-      const item = this.cartProducts.find(p => p.product_id === productId);
+    getCartQuantity(productId, variantId) {
+      const item = this.cartProducts.find(p => p.product_id === productId && p.product_variant_id === variantId);
       return item ? item.quantity : 0;
     },
     async loadAddresses() {
@@ -341,14 +404,12 @@ export default {
         const data = response.data;
         if (data.success) {
           this.addresses = data.data;
-          // Auto-select default address if no address is currently selected
           if (!this.selectedAddressId) {
             const defaultAddress = this.addresses.find(addr => addr.is_default === 1);
             if (defaultAddress) {
               this.selectedAddressId = defaultAddress.id;
             }
           }
-          // If selected address no longer exists, select default
           else if (!this.addresses.find(addr => addr.id === this.selectedAddressId)) {
             const defaultAddress = this.addresses.find(addr => addr.is_default === 1);
             this.selectedAddressId = defaultAddress ? defaultAddress.id : null;
@@ -361,8 +422,19 @@ export default {
       }
     },
     addAddress(){
+      this.addrForm = {
+        id: null,
+        full_name: '',
+        phone: '',
+        address_line1: '',
+        address_line2: '',
+        city: '',
+        state: '',
+        postal_code: '',
+        country: '',
+        is_default: false
+      };
       $('#addAddressModal').modal('show');
-      $('#addAddressForm')[0].reset();
     },
     async saveAddress(){
       const response = await this.$axios.post('/api/update-address', this.addrForm);
@@ -386,28 +458,27 @@ export default {
         state: address.state,
         postal_code: address.postal_code,
         country: address.country,
-        is_default: address.is_default
+        is_default: address.is_default === 1
       };
       $('#addAddressModal').modal('show');
     },
     async checkout(){
-      // Validation: Check if address is selected
       if(!this.selectedAddressId) {
         alert('Please select a delivery address');
         return;
       }
-      // Validation: Check if cart has items
       if(this.cartProducts.length === 0) {
         alert('Your cart is empty');
         return;
       }
-      // Validation: Check if any items are out of stock
-      const outOfStockItems = this.cartProducts.filter(cp => cp.quantity > cp.product.stock);
+      const outOfStockItems = this.cartProducts.filter(cp => {
+        const maxStock = cp.variant ? cp.variant.stock : cp.product.stock;
+        return cp.quantity > maxStock;
+      });
       if(outOfStockItems.length > 0) {
         alert('Some items in your cart are out of stock');
         return;
       }
-      // Pass selected address to checkout
       const response = await this.$axios.post('/api/checkout', {
         address_id: this.selectedAddressId
       });
@@ -417,8 +488,7 @@ export default {
       } else {
         alert(data.message || 'Checkout failed');
       }
-    },
-    getImageUrl
+    }
   }
 }
 </script>

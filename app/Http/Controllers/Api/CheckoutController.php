@@ -43,7 +43,7 @@ class CheckoutController extends Controller
         if (!$user) {
             return response()->json(['success' => false, 'message' => 'User not authenticated']);
         }
-        $cartItems = $user->cart()->with('product')->get();
+        $cartItems = $user->cart()->with(['product', 'variant'])->get();
         $addressId = $request->session()->get('selected_address_id');
         if (!$addressId) {
             $defaultAddress = $user->addresses()->where('is_default', 1)->first();
@@ -90,14 +90,15 @@ class CheckoutController extends Controller
         }
 
         // Get cart items and calculate total first (for validation before transaction)
-        $cartItems = $user->cart()->with('product')->get();
+        $cartItems = $user->cart()->with(['product', 'variant'])->get();
         if ($cartItems->isEmpty()) {
             return response()->json(['success' => false, 'message' => 'Cart is empty'], 400);
         }
 
         $totalAmount = 0;
         foreach ($cartItems as $cartItem) {
-            $totalAmount += $cartItem->product->converted_price * $cartItem->quantity;
+            $itemPrice = $cartItem->variant ? $cartItem->variant->converted_price : $cartItem->product->converted_price;
+            $totalAmount += $itemPrice * $cartItem->quantity;
         }
 
         // Validate coupon
@@ -164,7 +165,7 @@ class CheckoutController extends Controller
             DB::beginTransaction();
 
             // Re-fetch cart items locked for update to prevent race conditions / overselling
-            $cartItems = $user->cart()->with('product')->lockForUpdate()->get();
+            $cartItems = $user->cart()->with(['product', 'variant'])->lockForUpdate()->get();
             if ($cartItems->isEmpty()) {
                 DB::rollBack();
                 return response()->json(['success' => false, 'message' => 'Cart is empty'], 400);
@@ -172,29 +173,29 @@ class CheckoutController extends Controller
 
             // Verify stock again before decrementing
             foreach ($cartItems as $cartItem) {
-                if ($cartItem->product->stock < $cartItem->quantity) {
+                $maxStock = $cartItem->variant ? $cartItem->variant->stock : $cartItem->product->stock;
+                if ($maxStock < $cartItem->quantity) {
                     DB::rollBack();
                     return response()->json([
                         'success' => false,
-                        'message' => 'Product ' . $cartItem->product->name . ' is out of stock'
+                        'message' => 'Product ' . $cartItem->product->name . ($cartItem->variant ? ' (' . $cartItem->variant->name . ')' : '') . ' is out of stock'
                     ], 400);
                 }
             }
 
             $itemsArray = [];
             foreach ($cartItems as $cartItem) {
-                $itemTotal = $cartItem->product->converted_price * $cartItem->quantity;
+                $itemPrice = $cartItem->variant ? $cartItem->variant->converted_price : $cartItem->product->converted_price;
+                $itemTotal = $itemPrice * $cartItem->quantity;
                 $itemsArray[] = [
                     'product_id' => $cartItem->product_id,
-                    'product_name' => $cartItem->product->name,
+                    'product_variant_id' => $cartItem->product_variant_id,
+                    'product_name' => $cartItem->product->name . ($cartItem->variant ? ' (' . $cartItem->variant->name . ')' : ''),
                     'product_image' => $cartItem->product->image,
                     'quantity' => $cartItem->quantity,
-                    'price' => $cartItem->product->converted_price,
+                    'price' => $itemPrice,
                     'total' => $itemTotal
                 ];
-
-                // Update product stock
-                $cartItem->product->decrement('stock', $cartItem->quantity);
             }
 
             // Create order
@@ -212,6 +213,25 @@ class CheckoutController extends Controller
                 'items' => $itemsArray,
                 'coupon_id' => $couponId,
             ]);
+
+            // Save items inside relation table and update stock levels
+            foreach ($cartItems as $cartItem) {
+                $itemPrice = $cartItem->variant ? $cartItem->variant->converted_price : $cartItem->product->converted_price;
+                
+                \App\Models\OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $cartItem->product_id,
+                    'product_variant_id' => $cartItem->product_variant_id,
+                    'quantity' => $cartItem->quantity,
+                    'price' => $itemPrice
+                ]);
+
+                if ($cartItem->product_variant_id) {
+                    $cartItem->variant->decrement('stock', $cartItem->quantity);
+                } else {
+                    $cartItem->product->decrement('stock', $cartItem->quantity);
+                }
+            }
 
             // Increment coupon usage if applied
             if ($couponId) {

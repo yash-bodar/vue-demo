@@ -40,7 +40,7 @@
           <div class="row">
             <!-- Product Image -->
             <div class="col-md-5 mb-4 mb-md-0">
-              <div class="product-image-container">
+              <div class="product-image-container position-relative">
                 <img :src="getImageUrl(product.image)" class="img-fluid rounded-3" :alt="product.name">
                 <button type="button" class="position-absolute bottom-0 mb-2 end-0 me-2 fs-4 wishlist-btn" :disabled="loadingProductId == product.id" @click="updateWishlist(product.id, product.wishlist ? 'remove' : 'add')"><i class="fas fa-heart wish-icon" :class="product.wishlist ? 'active' : ''"></i></button>
               </div>
@@ -59,14 +59,14 @@
 
               <div class="price-section mb-2">
                 <h4 class="fw-bold text-primary mb-0" v-if="user?.role == 'user'">
-                  {{ user?.currency_sign || '$' }}{{ product.converted_price }}
+                  {{ user?.currency_sign || '$' }}{{ currentPrice.toFixed(2) }}
                 </h4>
                 <h4 class="fw-bold text-primary mb-0" v-else>
-                  {{ product.currency_sign || '$' }}{{ product.price }}
+                  {{ product.currency_sign || '$' }}{{ (selectedVariant && selectedVariant.price !== null ? selectedVariant.price : product.price) }}
                 </h4>
               </div>
 
-              <div class="d-flex align-items-center gap-2">
+              <div class="d-flex align-items-center gap-2 mb-3">
                 <div class="">
                   <template v-for="i in 5" :key="i">
                     <i class="fas fa-star text-warning" v-if="i <= avgRating"></i>
@@ -74,6 +74,26 @@
                   </template>
                 </div>
                 <span class="text-primary fw-bold me-1">{{ avgRating || 0 }}/5</span>
+              </div>
+
+              <!-- Variant Selector Chips -->
+              <div class="mb-4" v-if="product.variants && product.variants.length > 0">
+                <h6 class="fw-semibold mb-2">Select Options</h6>
+                <div class="d-flex flex-wrap gap-2">
+                  <button 
+                    v-for="variant in product.variants" 
+                    :key="variant.id" 
+                    type="button" 
+                    class="category-chip" 
+                    :class="selectedVariantId === variant.id ? 'active' : ''"
+                    @click="selectedVariantId = variant.id"
+                  >
+                    {{ variant.name }}
+                    <span class="small opacity-75 ms-1" v-if="variant.price !== null">
+                      ({{ user?.currency_sign }}{{ variant.converted_price.toFixed(2) }})
+                    </span>
+                  </button>
+                </div>
               </div>
 
               <div class="mb-4">
@@ -85,7 +105,7 @@
                 <div class="col-md-6 mt-1">
                   <div class="info-box p-3 bg-light rounded-3">
                     <small class="text-muted d-block mb-1">Available Quantity</small>
-                    <span class="fw-bold fs-5">{{ product.stock }}</span>
+                    <span class="fw-bold fs-5">{{ currentStock }}</span>
                   </div>
                 </div>
                 <div class="col-md-6 mt-1">
@@ -104,12 +124,12 @@
                     </button>
                     <span class="quantity-display fw-semibold px-2">{{ getCartQuantity(product.id) }}</span>
                     <button type="button" class="btn btn-sm btn-primary quantity-btn"
-                      :disabled="getCartQuantity(product.id) >= product.stock || loadingProductId === product.id"
+                      :disabled="getCartQuantity(product.id) >= currentStock || loadingProductId === product.id"
                       @click="updateCart(product.id, 'increase')">
                       <i class="fas fa-plus"></i>
                     </button>
                   </div>
-                  <button v-else-if="product.stock > 0" class="btn btn-primary bg-primary-linear rounded-2 px-4"
+                  <button v-else-if="currentStock > 0" class="btn btn-primary bg-primary-linear rounded-2 px-4"
                     @click="updateCart(product.id, 'increase')">
                     <i class="fas fa-shopping-cart me-2"></i>Add to Cart
                   </button>
@@ -245,6 +265,22 @@ export default {
   name: 'ProductDetail',
   computed: {
     ...mapState(useAuthStore, ['user']),
+    selectedVariant() {
+      if (!this.product || !this.product.variants) return null;
+      return this.product.variants.find(v => v.id === this.selectedVariantId) || null;
+    },
+    currentPrice() {
+      if (this.selectedVariant) {
+        return this.selectedVariant.converted_price;
+      }
+      return this.product ? this.product.converted_price : 0;
+    },
+    currentStock() {
+      if (this.selectedVariant) {
+        return this.selectedVariant.stock;
+      }
+      return this.product ? this.product.stock : 0;
+    }
   },
   data() {
     return {
@@ -257,13 +293,14 @@ export default {
       ratingsCount: 0,
       ratingsPerPage: 5,
       ratingsLastPage: 1,
+      selectedVariantId: null,
       newRating: {
         rating: 0,
         review: ''
       },
       loadingProductId: null,
       loadingRatingId: null,
-      avgRating: this.product?.average_rating || 0,
+      avgRating: 0,
       submitting: false
     }
   },
@@ -280,6 +317,10 @@ export default {
         const data = response.data;
         if (data.success) {
           this.product = data.data;
+          this.avgRating = this.product.average_rating || 0;
+          if (this.product.variants && this.product.variants.length > 0) {
+            this.selectedVariantId = this.product.variants[0].id;
+          }
           this.loadRatings(1);
         }
       } catch (error) {
@@ -297,19 +338,22 @@ export default {
     },
     async updateCart(productId, action = 'increase') {
       this.loadingProductId = productId;
+      const variantId = this.selectedVariantId;
+      
       const response = await this.$axios.post('/api/update-cart', {
         product_id: productId,
+        product_variant_id: variantId,
         action: action
       });
       const data = response.data;
       if (data.success) {
-        const existing = this.cart.find(p => p.product_id === productId);
+        const existing = this.cart.find(p => p.product_id === productId && p.product_variant_id === variantId);
 
         if (action === 'increase') {
           if (existing) {
             existing.quantity++;
           } else {
-            this.cart.push({ product_id: productId, quantity: 1 });
+            this.cart.push({ product_id: productId, product_variant_id: variantId, quantity: 1 });
           }
         }
         if (action === 'decrease') {
@@ -317,7 +361,7 @@ export default {
             if (existing.quantity > 1) {
               existing.quantity--;
             } else {
-              this.cart = this.cart.filter(p => p.product_id !== productId);
+              this.cart = this.cart.filter(p => !(p.product_id === productId && p.product_variant_id === variantId));
             }
           }
         }
@@ -325,7 +369,8 @@ export default {
       this.loadingProductId = null;
     },
     getCartQuantity(productId) {
-      const item = this.cart.find(p => p.product_id === productId);
+      const variantId = this.selectedVariantId;
+      const item = this.cart.find(p => p.product_id === productId && p.product_variant_id === variantId);
       return item ? item.quantity : 0;
     },
     async loadRatings(page = 1) {
@@ -411,3 +456,30 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.category-chip {
+  background-color: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.category-chip:hover {
+  background-color: #cbd5e1;
+  color: #334155;
+  border-color: #cbd5e1;
+}
+
+.category-chip.active {
+  background-color: var(--primary-color) !important;
+  color: #ffffff !important;
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.25);
+}
+</style>

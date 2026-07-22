@@ -48,6 +48,78 @@
               </div>
             </div>
             
+            <!-- Variants Section -->
+            <div class="card bg-light border-0 mb-4">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h6 class="fw-bold mb-0">
+                    <i class="fas fa-tags me-2 text-primary"></i> Product Variants
+                  </h6>
+                  <button type="button" class="btn btn-outline-primary btn-sm" @click="addVariant">
+                    <i class="fas fa-plus me-1"></i> Add Variant
+                  </button>
+                </div>
+
+                <div v-if="form.variants && form.variants.length === 0" class="text-center py-3 text-muted small">
+                  No variants added. The product will be sold as a single item with base pricing and stock.
+                </div>
+
+                <div v-else class="table-responsive">
+                  <table class="table table-sm table-borderless align-middle mb-0">
+                    <thead>
+                      <tr class="text-muted small">
+                        <th>Size</th>
+                        <th>Color</th>
+                        <th>Variant Name</th>
+                        <th>SKU (Optional)</th>
+                        <th>Price Override (Optional)</th>
+                        <th>Stock Qty</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(variant, index) in form.variants" :key="index">
+                        <td>
+                          <select v-model="variant.size_id" class="form-select form-select-sm" @change="updateVariantName(variant)">
+                            <option value="">No Size</option>
+                            <option v-for="size in sizes" :key="size.id" :value="size.id">{{ size.name }}</option>
+                          </select>
+                        </td>
+                        <td>
+                          <select v-model="variant.color_id" class="form-select form-select-sm" @change="updateVariantName(variant)">
+                            <option value="">No Color</option>
+                            <option v-for="color in colors" :key="color.id" :value="color.id">
+                              {{ color.name }}
+                            </option>
+                          </select>
+                        </td>
+                        <td>
+                          <input v-model="variant.name" class="form-control form-control-sm" placeholder="Name" required>
+                        </td>
+                        <td>
+                          <input v-model="variant.sku" class="form-control form-control-sm" placeholder="SKU">
+                        </td>
+                        <td>
+                          <div class="input-group input-group-sm">
+                            <span class="input-group-text">{{ form.currency }}</span>
+                            <input v-model="variant.price" class="form-control form-control-sm" type="number" step="0.01" min="0" placeholder="Inherited">
+                          </div>
+                        </td>
+                        <td>
+                          <input v-model.number="variant.stock" class="form-control form-control-sm" type="number" min="0" required style="width: 80px;">
+                        </td>
+                        <td class="text-end">
+                          <button type="button" class="btn btn-sm btn-link text-danger p-0" @click="removeVariant(index)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
             <div class="mb-4">
               <label class="form-label fw-semibold">
                 <i class="fas fa-image me-2 text-primary"></i> Product Image
@@ -139,10 +211,13 @@ export default {
                 image: null,
                 status: 'Active',
                 currency: 'USD',
-                category_id: ''
+                category_id: '',
+                variants: []
             },
             isEdit : false,
-            categories: []
+            categories: [],
+            sizes: [],
+            colors: []
         }
     },
     mounted(){
@@ -150,11 +225,17 @@ export default {
       if(id) {
         this.isEdit = true
         this.$axios.get(`/api/products/${id}`).then(res => {
-          this.form = res.data.data
-          this.form.image = null
+          const productData = res.data.data;
+          this.form = productData;
+          this.form.image = null;
+          if (!this.form.variants) {
+            this.form.variants = [];
+          }
         })
       }
       this.getCategories();
+      this.getSizes();
+      this.getColors();
     },
     methods: {
         submitForm() {
@@ -172,6 +253,7 @@ export default {
             formData.append('status', this.form.status)
             formData.append('currency', this.form.currency)
             formData.append('category_id', this.form.category_id)
+            formData.append('variants', JSON.stringify(this.form.variants))
 
             this.$axios.post('/api/products', formData).then(
                 () => this.$router.push('/products')
@@ -180,6 +262,31 @@ export default {
         handleFileUpload(event) {
             this.form.image = event.target.files[0]
         },
+        addVariant() {
+            this.form.variants.push({
+                id: null,
+                size_id: '',
+                color_id: '',
+                name: '',
+                price: '',
+                stock: 0,
+                sku: ''
+            });
+        },
+        removeVariant(index) {
+            this.form.variants.splice(index, 1);
+        },
+        updateVariantName(variant) {
+          const sizeName = this.sizes.find(s => s.id == variant.size_id)?.name || '';
+          const colorName = this.colors.find(c => c.id == variant.color_id)?.name || '';
+          if (colorName && sizeName) {
+            variant.name = `${colorName} / ${sizeName}`;
+          } else if (colorName) {
+            variant.name = colorName;
+          } else if (sizeName) {
+            variant.name = sizeName;
+          }
+        },
         async getCategories() {
           const response = await this.$axios.get('/api/get-categories');
           const data = response.data;
@@ -187,8 +294,21 @@ export default {
             this.categories = data.data;
           }
         },
+        async getSizes() {
+          const response = await this.$axios.get('/api/get-sizes');
+          const data = response.data;
+          if(data.success) {
+            this.sizes = data.data;
+          }
+        },
+        async getColors() {
+          const response = await this.$axios.get('/api/get-colors');
+          const data = response.data;
+          if(data.success) {
+            this.colors = data.data;
+          }
+        },
         getImageUrl
     }
 }
-
 </script>

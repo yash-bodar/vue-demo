@@ -8,6 +8,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
@@ -52,7 +53,7 @@ class ProductController extends Controller
 
     public function show($id)
     {
-        $product = Product::with('category', 'wishlist')->where('id', $id)->first();
+        $product = Product::with(['category', 'wishlist', 'variants.size', 'variants.color'])->where('id', $id)->first();
         if (!$product) {
             return response()->json(['success' => false, 'message' => 'Product not found'], 404);
         }
@@ -104,6 +105,40 @@ class ProductController extends Controller
         $product->currency = $request->currency;
         $product->category_id = $request->category_id;
         if($product->save()){
+            // Handle variants saving
+            if ($request->has('variants')) {
+                $variantsData = $request->variants;
+                if (is_string($variantsData)) {
+                    $variantsData = json_decode($variantsData, true);
+                }
+
+                if (is_array($variantsData)) {
+                    $keepVariantIds = [];
+                    foreach ($variantsData as $variantItem) {
+                        if (empty($variantItem['name'])) {
+                            continue;
+                        }
+                        
+                        $vPrice = (isset($variantItem['price']) && $variantItem['price'] !== null && $variantItem['price'] !== '') ? $variantItem['price'] : null;
+
+                        $variant = $product->variants()->updateOrCreate(
+                            ['id' => $variantItem['id'] ?? null],
+                            [
+                                'size_id' => $variantItem['size_id'] ?? null,
+                                'color_id' => $variantItem['color_id'] ?? null,
+                                'name' => $variantItem['name'],
+                                'price' => $vPrice,
+                                'stock' => $variantItem['stock'] ?? 0,
+                                'sku' => $variantItem['sku'] ?? null,
+                            ]
+                        );
+                        $keepVariantIds[] = $variant->id;
+                    }
+                    
+                    // Delete variants not sent in request
+                    $product->variants()->whereNotIn('id', $keepVariantIds)->delete();
+                }
+            }
             return response()->json(['success' => true]);
         }else{
             return response()->json(['success' => false]);
@@ -115,7 +150,7 @@ class ProductController extends Controller
      */
     public function edit($id)
     {
-        $product = Product::select('id', 'name', 'price', 'stock', 'description','image','status','currency','category_id')->where('id', $id)->first();
+        $product = Product::with(['variants.size', 'variants.color'])->select('id', 'name', 'price', 'stock', 'description','image','status','currency','category_id')->where('id', $id)->first();
         if(!$product) {
             return response()->json(['success' => false, 'message' => 'Product not found'], 404);
         } else {
@@ -138,7 +173,7 @@ class ProductController extends Controller
     
     public function getProducts(Request $request)
     {
-        $query = Product::with('wishlist')->where('status', 'Active');
+        $query = Product::with(['wishlist', 'variants.size', 'variants.color'])->where('status', 'Active');
         if($request->has('selectedCategory') && $request->selectedCategory){
             $query->where('category_id', $request->selectedCategory);
         }
@@ -147,6 +182,21 @@ class ProductController extends Controller
             $query->where(function($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->searchQuery . '%');
                 $q->orWhere('description', 'like', '%' . $request->searchQuery . '%');
+            });
+        }
+
+        // Convert user currency filter value to base currency dynamically inside DB query
+        $userCurrency = Auth::user() ? Auth::user()->currency : 'USD';
+        $userRate = \App\Models\CurrencyRate::getRateToINR($userCurrency);
+
+        if($request->has('minPrice') && $request->minPrice !== null && $request->minPrice !== ''){
+            $query->where(function($q) use ($request, $userRate) {
+                $q->whereRaw("(price * (select rate_to_inr from currency_rates where currency_code = products.currency limit 1) / ?) >= ?", [$userRate, $request->minPrice]);
+            });
+        }
+        if($request->has('maxPrice') && $request->maxPrice !== null && $request->maxPrice !== ''){
+            $query->where(function($q) use ($request, $userRate) {
+                $q->whereRaw("(price * (select rate_to_inr from currency_rates where currency_code = products.currency limit 1) / ?) <= ?", [$userRate, $request->maxPrice]);
             });
         }
 

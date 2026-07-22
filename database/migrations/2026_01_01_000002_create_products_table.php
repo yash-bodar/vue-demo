@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('products', function (Blueprint $table) {
@@ -18,15 +15,17 @@ return new class extends Migration
             $table->integer('stock');
             $table->decimal('price', 10, 2);
             $table->string('status')->default('Active');
+            $table->string('currency')->default('USD');
             $table->string('image')->nullable();
-            $table->foreignId('category_id')->nullable()->constrained('category')->onDelete('set null');
+            $table->foreignId('category_id')
+                ->nullable()
+                ->constrained('category')
+                ->nullOnDelete()
+                ->restrictOnUpdate();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('products');

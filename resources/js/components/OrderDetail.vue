@@ -76,7 +76,7 @@
             <div class="card shadow-sm border-0 text-center">
               <div class="card-body">
                 <small class="text-muted">Products</small>
-                <h3 class="mt-2 fw-bold">{{ order.items.length }}</h3>
+                <h3 class="mt-2 fw-bold">{{ order.order_items?.length || 0 }}</h3>
               </div>
             </div>
           </div>
@@ -105,25 +105,28 @@
             <h5 class="fw-bold mb-0">Ordered Items</h5>
           </div>
           <div class="card-body pt-4">
-            <div v-for="item in order.items" :key="item.product_id" class="row align-items-center review-item mx-0 mb-3 p-3 bg-light rounded-3">
+            <div v-for="item in order.order_items" :key="item.id" class="row align-items-center review-item mx-0 mb-3 p-3 bg-light rounded-3">
               <div class="col-3 col-md-2 text-center">
-                <img :src="getImageUrl(item.product_image)" class="img-fluid rounded" style="width:60px;height:60px;object-fit:cover;">
+                <img :src="getImageUrl(item.product?.image)" class="img-fluid rounded" style="width:60px;height:60px;object-fit:cover;">
               </div>
               <div class="col-9 col-md-7">
                 <h5 class="fw-semibold cursor-pointer mb-1" @click="$router.push('/product/detail/' + item.product_id)">
-                  {{ item.product_name }}
+                  {{ item.product?.name }}
+                  <span v-if="item.variant" class="badge bg-secondary-soft text-muted small ms-2" style="font-size: 0.65rem;">
+                    {{ item.variant.name }}
+                  </span>
                 </h5>
                 <div class="text-muted">
                   {{ order.currency_sign }}{{ item.price }} × {{ item.quantity }}
                 </div>
                 <div class="d-md-none fw-bold text-primary mt-1 fs-5">
-                  {{ order.currency_sign }}{{ item.total }}
+                  {{ order.currency_sign }}{{ (item.price * item.quantity).toFixed(2) }}
                 </div>
               </div>
 
               <div class="col-md-3 text-end d-none d-md-block">
                 <div class="fw-bold fs-4 text-primary">
-                  {{ order.currency_sign }}{{ item.total }}
+                  {{ order.currency_sign }}{{ (item.price * item.quantity).toFixed(2) }}
                 </div>
               </div>
             </div>

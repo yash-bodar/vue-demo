@@ -20,37 +20,47 @@
           <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
               <li v-if="isAuthenticated && isAdmin" class="nav-item">
-                <router-link class="nav-link text-white" to="/dashboard" active-class="active">
+                <router-link class="nav-link text-white" to="/dashboard" :class="{ active: $route.path === '/dashboard' }">
                   <i class="fas fa-chart-line me-1"></i>Dashboard
                 </router-link>
               </li>
               <li v-if="isAuthenticated && isAdmin" class="nav-item">
-                <router-link class="nav-link text-white" to="/users" active-class="active">
+                <router-link class="nav-link text-white" to="/users" :class="{ active: $route.path.startsWith('/users') }">
                   <i class="fas fa-users me-1"></i>Users
                 </router-link>
               </li>
               <li v-if="isAuthenticated && isAdmin" class="nav-item">
-                <router-link class="nav-link text-white" to="/products" active-class="active">
+                <router-link class="nav-link text-white" to="/products" :class="{ active: $route.path.startsWith('/products') }">
                   <i class="fas fa-box me-1"></i>Products
                 </router-link>
               </li>
               <li v-if="isAuthenticated && isAdmin" class="nav-item">
-                <router-link class="nav-link text-white" to="/categories" active-class="active">
+                <router-link class="nav-link text-white" to="/categories" :class="{ active: $route.path.startsWith('/categories') }">
                   <i class="fas fa-tags me-1"></i>Categories
                 </router-link>
               </li>
               <li v-if="isAuthenticated && isAdmin" class="nav-item">
-                <router-link class="nav-link text-white" to="/orders" active-class="active">
+                <router-link class="nav-link text-white" to="/orders" :class="{ active: $route.path.startsWith('/orders') }">
                   <i class="fas fa-box-open me-1"></i>Orders
                 </router-link>
               </li>
               <li v-if="isAuthenticated && isAdmin" class="nav-item">
-                <router-link class="nav-link text-white" to="/coupons" active-class="active">
+                <router-link class="nav-link text-white" to="/coupons" :class="{ active: $route.path.startsWith('/coupons') }">
                   <i class="fas fa-ticket-alt me-1"></i>Coupons
                 </router-link>
               </li>
+              <li v-if="isAuthenticated && isAdmin" class="nav-item">
+                <router-link class="nav-link text-white" to="/sizes" :class="{ active: $route.path.startsWith('/sizes') }">
+                  <i class="fas fa-ruler me-1"></i>Sizes
+                </router-link>
+              </li>
+              <li v-if="isAuthenticated && isAdmin" class="nav-item">
+                <router-link class="nav-link text-white" to="/colors" :class="{ active: $route.path.startsWith('/colors') }">
+                  <i class="fas fa-palette me-1"></i>Colors
+                </router-link>
+              </li>
               <li v-if="isAuthenticated && !isAdmin" class="nav-item">
-                <router-link class="nav-link text-white" to="/product" active-class="active">
+                <router-link class="nav-link text-white" to="/product" :class="{ active: $route.path.startsWith('/product') }">
                   <i class="fas fa-shopping-bag me-1"></i>Products
                 </router-link>
               </li>
@@ -110,9 +120,7 @@
     
     <!-- Main Content -->
     <main class="main-content">
-      <div class="card border-0 rounded-0">
-        <router-view />
-      </div>
+      <router-view />
     </main>
   </div>
 </template>

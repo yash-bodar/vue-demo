@@ -25,6 +25,18 @@ const routes = [
         meta: { requiresGuest: true },
       },
       {
+        path: 'forgot-password',
+        component: () => import('./components/ForgotPassword.vue'),
+        name: 'forgot-password',
+        meta: { requiresGuest: true },
+      },
+      {
+        path: 'reset-password',
+        component: () => import('./components/ResetPassword.vue'),
+        name: 'reset-password',
+        meta: { requiresGuest: true },
+      },
+      {
         path: 'dashboard',
         component: () => import('./components/Dashboard.vue'),
         name: 'dashboard',
@@ -88,6 +100,18 @@ const routes = [
         path: 'categories/edit/:id',
         component: () => import('./components/CategoryForm.vue'),
         name: 'category-edit',
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+      {
+        path: 'sizes',
+        component: () => import('./components/Sizes.vue'),
+        name: 'sizes',
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+      {
+        path: 'colors',
+        component: () => import('./components/Colors.vue'),
+        name: 'colors',
         meta: { requiresAuth: true, requiresAdmin: true },
       },
       {
