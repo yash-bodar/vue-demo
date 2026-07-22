@@ -49,73 +49,94 @@
             </div>
             
             <!-- Variants Section -->
-            <div class="card bg-light border-0 mb-4">
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <h6 class="fw-bold mb-0">
-                    <i class="fas fa-tags me-2 text-primary"></i> Product Variants
+            <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden bg-white">
+              <div class="card-header bg-gradient-primary text-light bg-primary-linear py-3 px-4 d-flex justify-content-between align-items-center border-0">
+                <div>
+                  <h6 class="fw-bold mb-0 text-white">
+                    <i class="fas fa-layer-group me-2"></i>Product Variants
                   </h6>
-                  <button type="button" class="btn btn-outline-primary btn-sm" @click="addVariant">
-                    <i class="fas fa-plus me-1"></i> Add Variant
-                  </button>
+                  <small class="text-white-50">Manage size, color, SKU and stock variations</small>
+                </div>
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-3 shadow-sm text-primary fw-semibold" @click="addVariant">
+                  <i class="fas fa-plus me-1"></i> Add Variant
+                </button>
+              </div>
+
+              <div class="card-body p-4">
+                <div v-if="form.variants && form.variants.length === 0" class="text-center py-4 bg-light rounded-3 border border-dashed">
+                  <i class="fas fa-tags text-muted fa-2x mb-2 opacity-50"></i>
+                  <p class="mb-0 text-muted small fw-semibold">No variants added yet.</p>
+                  <small class="text-muted d-block mt-1">This product will sell as a single item using the base price & quantity above.</small>
                 </div>
 
-                <div v-if="form.variants && form.variants.length === 0" class="text-center py-3 text-muted small">
-                  No variants added. The product will be sold as a single item with base pricing and stock.
-                </div>
+                <div v-else class="d-flex flex-column gap-3">
+                  <div v-for="(variant, index) in form.variants" :key="index" class="p-3 bg-light rounded-4 border position-relative transition-all">
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-primary text-white px-3 py-2 rounded-pill fw-bold" style="font-size: 0.78rem;">
+                          Variant Option #{{ index + 1 }}
+                        </span>
+                        <span v-if="variant.sku" class="badge bg-white text-dark border rounded-pill px-2 py-1 small">
+                          SKU: {{ variant.sku }}
+                        </span>
+                      </div>
+                      <button type="button" class="btn btn-link text-danger p-0 border-0 fs-5 shadow-none" title="Delete Variant" @click="removeVariant(index)">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </div>
 
-                <div v-else class="table-responsive">
-                  <table class="table table-sm table-borderless align-middle mb-0">
-                    <thead>
-                      <tr class="text-muted small">
-                        <th>Size</th>
-                        <th>Color</th>
-                        <th>Variant Name</th>
-                        <th>SKU (Optional)</th>
-                        <th>Price Override (Optional)</th>
-                        <th>Stock Qty</th>
-                        <th></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="(variant, index) in form.variants" :key="index">
-                        <td>
-                          <select v-model="variant.size_id" class="form-select form-select-sm" @change="updateVariantName(variant)">
-                            <option value="">No Size</option>
-                            <option v-for="size in sizes" :key="size.id" :value="size.id">{{ size.name }}</option>
-                          </select>
-                        </td>
-                        <td>
-                          <select v-model="variant.color_id" class="form-select form-select-sm" @change="updateVariantName(variant)">
-                            <option value="">No Color</option>
-                            <option v-for="color in colors" :key="color.id" :value="color.id">
-                              {{ color.name }}
-                            </option>
-                          </select>
-                        </td>
-                        <td>
-                          <input v-model="variant.name" class="form-control form-control-sm" placeholder="Name" required>
-                        </td>
-                        <td>
-                          <input v-model="variant.sku" class="form-control form-control-sm" placeholder="SKU">
-                        </td>
-                        <td>
-                          <div class="input-group input-group-sm">
-                            <span class="input-group-text">{{ form.currency }}</span>
-                            <input v-model="variant.price" class="form-control form-control-sm" type="number" step="0.01" min="0" placeholder="Inherited">
-                          </div>
-                        </td>
-                        <td>
-                          <input v-model.number="variant.stock" class="form-control form-control-sm" type="number" min="0" required style="width: 80px;">
-                        </td>
-                        <td class="text-end">
-                          <button type="button" class="btn btn-sm btn-link text-danger p-0" @click="removeVariant(index)">
-                            <i class="fas fa-trash"></i>
-                          </button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                    <div class="row g-3 align-items-end">
+                      <div class="col-md-3 col-6">
+                        <label class="form-label small fw-bold text-dark mb-1">Size</label>
+                        <select v-model="variant.size_id" class="form-select variant-input-field rounded-3 shadow-none border" @change="updateVariantName(variant)">
+                          <option value="">No Size</option>
+                          <option v-for="size in sizes" :key="size.id" :value="size.id">{{ size.name }}</option>
+                        </select>
+                      </div>
+
+                      <div class="col-md-3 col-6">
+                        <label class="form-label small fw-bold text-dark mb-1">Color</label>
+                        <select v-model="variant.color_id" class="form-select variant-input-field rounded-3 shadow-none border" @change="updateVariantName(variant)">
+                          <option value="">No Color</option>
+                          <option v-for="color in colors" :key="color.id" :value="color.id">
+                            {{ color.name }}
+                          </option>
+                        </select>
+                      </div>
+
+                      <div class="col-md-6 col-12">
+                        <label class="form-label small fw-bold text-dark mb-1">Variant Name</label>
+                        <div class="input-group">
+                          <span class="input-group-text bg-white text-muted border-end-0 rounded-start-3"><i class="fas fa-tag"></i></span>
+                          <input v-model="variant.name" class="form-control variant-input-field rounded-end-3" placeholder="e.g. Black / XL" required>
+                        </div>
+                      </div>
+
+                      <div class="col-md-4 col-12">
+                        <label class="form-label small fw-bold text-dark mb-1">SKU Code</label>
+                        <div class="input-group">
+                          <span class="input-group-text bg-white text-muted border-end-0 rounded-start-3"><i class="fas fa-barcode"></i></span>
+                          <input v-model="variant.sku" class="form-control variant-input-field rounded-end-3" placeholder="Unique SKU">
+                        </div>
+                      </div>
+
+                      <div class="col-md-4 col-6">
+                        <label class="form-label small fw-bold text-dark mb-1">Price Override</label>
+                        <div class="input-group">
+                          <span class="input-group-text bg-white text-primary fw-bold border-end-0 rounded-start-3">{{ form.currency }}</span>
+                          <input v-model="variant.price" class="form-control variant-input-field rounded-end-3" type="number" step="0.01" min="0" placeholder="Base Price">
+                        </div>
+                      </div>
+
+                      <div class="col-md-4 col-6">
+                        <label class="form-label small fw-bold text-dark mb-1">Stock Quantity</label>
+                        <div class="input-group">
+                          <span class="input-group-text bg-white text-muted border-end-0 rounded-start-3"><i class="fas fa-boxes"></i></span>
+                          <input v-model.number="variant.stock" class="form-control variant-input-field rounded-end-3 fw-bold text-primary" type="number" min="0" required>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -126,9 +147,9 @@
               </label>
               <div class="border rounded p-3 bg-light">
                 <input class="form-control" type="file" @change="handleFileUpload" :required="!isEdit" accept="image/*" />
-                <div v-if="form.image && typeof form.image === 'string'" class="mt-3">
-                  <small class="text-muted">Current image:</small>
-                  <img :src="getImageUrl(form.image)" class="img-thumbnail mt-2" style="max-height: 100px;">
+                <div v-if="existingImage || (form.image && typeof form.image === 'string')" class="mt-3">
+                  <small class="text-muted d-block fw-semibold mb-1">Current Image Preview:</small>
+                  <img :src="getImageUrl(existingImage || form.image)" class="img-thumbnail mt-1 shadow-sm rounded-3" style="max-height: 120px; object-fit: cover;">
                 </div>
               </div>
             </div>
@@ -214,6 +235,7 @@ export default {
                 category_id: '',
                 variants: []
             },
+            existingImage: null,
             isEdit : false,
             categories: [],
             sizes: [],
@@ -226,6 +248,7 @@ export default {
         this.isEdit = true
         this.$axios.get(`/api/products/${id}`).then(res => {
           const productData = res.data.data;
+          this.existingImage = productData.image;
           this.form = productData;
           this.form.image = null;
           if (!this.form.variants) {
