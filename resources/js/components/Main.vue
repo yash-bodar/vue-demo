@@ -1,159 +1,48 @@
 <template>
-  <div class="main-container">
-    <!-- Modern Navigation Header -->
-    <header class="main-header shadow-sm">
-      <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid">
-          <!-- Brand/Logo -->
-          <router-link class="navbar-brand fw-bold text-white" to="/">
-            <i class="fas fa-store me-2 text-light"></i>
-            <!-- <span class="brand-text">VueShop</span> -->
-            <img :src="appLogo" alt="Vue Shop" width="77" height="33" style="object-fit:cover">
-          </router-link>
-          
-          <!-- Mobile Toggle Button -->
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          
-          <!-- Navigation Links -->
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-              <li v-if="isAuthenticated && isAdmin" class="nav-item">
-                <router-link class="nav-link text-white" to="/dashboard" :class="{ active: $route.path === '/dashboard' }">
-                  <i class="fas fa-chart-line me-1"></i>Dashboard
-                </router-link>
-              </li>
-              <li v-if="isAuthenticated && isAdmin" class="nav-item">
-                <router-link class="nav-link text-white" to="/users" :class="{ active: $route.path.startsWith('/users') }">
-                  <i class="fas fa-users me-1"></i>Users
-                </router-link>
-              </li>
-              <li v-if="isAuthenticated && isAdmin" class="nav-item">
-                <router-link class="nav-link text-white" to="/products" :class="{ active: $route.path.startsWith('/products') }">
-                  <i class="fas fa-box me-1"></i>Products
-                </router-link>
-              </li>
-              <li v-if="isAuthenticated && isAdmin" class="nav-item">
-                <router-link class="nav-link text-white" to="/categories" :class="{ active: $route.path.startsWith('/categories') }">
-                  <i class="fas fa-tags me-1"></i>Categories
-                </router-link>
-              </li>
-              <li v-if="isAuthenticated && isAdmin" class="nav-item">
-                <router-link class="nav-link text-white" to="/orders" :class="{ active: $route.path.startsWith('/orders') }">
-                  <i class="fas fa-box-open me-1"></i>Orders
-                </router-link>
-              </li>
-              <li v-if="isAuthenticated && isAdmin" class="nav-item">
-                <router-link class="nav-link text-white" to="/coupons" :class="{ active: $route.path.startsWith('/coupons') }">
-                  <i class="fas fa-ticket-alt me-1"></i>Coupons
-                </router-link>
-              </li>
-              <li v-if="isAuthenticated && isAdmin" class="nav-item">
-                <router-link class="nav-link text-white" to="/sizes" :class="{ active: $route.path.startsWith('/sizes') }">
-                  <i class="fas fa-ruler me-1"></i>Sizes
-                </router-link>
-              </li>
-              <li v-if="isAuthenticated && isAdmin" class="nav-item">
-                <router-link class="nav-link text-white" to="/colors" :class="{ active: $route.path.startsWith('/colors') }">
-                  <i class="fas fa-palette me-1"></i>Colors
-                </router-link>
-              </li>
-              <li v-if="isAuthenticated && !isAdmin" class="nav-item">
-                <router-link class="nav-link text-white" to="/product" :class="{ active: $route.path.startsWith('/product') }">
-                  <i class="fas fa-shopping-bag me-1"></i>Products
-                </router-link>
-              </li>
-              <li v-if="isAuthenticated && !isAdmin" class="nav-item">
-                <router-link class="nav-link text-white position-relative" to="/my-cart" active-class="active">
-                  <i class="fas fa-shopping-cart me-1"></i>My Cart
-                </router-link>
-              </li>
-              <li v-if="isAuthenticated && !isAdmin" class="nav-item">
-                <router-link class="nav-link text-white position-relative" to="/my-wishlist" active-class="active">
-                  <i class="fa fa-bookmark me-1"></i>My Wishlist
-                </router-link>
-              </li>
-              <li v-if="isAuthenticated && !isAdmin" class="nav-item">
-                <router-link class="nav-link text-white position-relative" to="/my-orders" active-class="active">
-                  <i class="fa fa-box-open me-1"></i>My Orders
-                </router-link>
-              </li>
-            </ul>
-            
-            <!-- User Actions -->
-            <div class="user-actions">
-              <template v-if="isAuthenticated">
-                <div class="user-profile-dropdown">
-                  <button class="btn btn-link text-white text-decoration-none dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport">
-                    <img :src="profileImage" alt="Profile" class="profile-image rounded-circle me-2">
-                    <span class="user-name d-none d-md-inline">{{ user?.name }}</span>
-                  </button>
-                  <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                      <router-link class="dropdown-item" to="/profile">
-                        <i class="fas fa-user me-2"></i>Profile
-                      </router-link>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                      <button class="dropdown-item text-danger" type="button" @click="handleLogout">
-                        <i class="fas fa-sign-out-alt me-2"></i>Logout
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              </template>
-              <template v-else>
-                <router-link class="btn btn-outline-light me-2" to="/login">
-                  <i class="fas fa-sign-in-alt me-1"></i>Login
-                </router-link>
-                <router-link class="btn btn-primary" to="/register">
-                  <i class="fas fa-user-plus me-1"></i>Register
-                </router-link>
-              </template>
-            </div>
-          </div>
-        </div>
-      </nav>
-    </header>
-    
-    <!-- Main Content -->
-    <main class="main-content">
-      <router-view />
-    </main>
-  </div>
+  <component :is="activeLayout">
+    <router-view v-slot="{ Component }">
+      <transition name="fade" mode="out-in">
+        <component :is="Component" />
+      </transition>
+    </router-view>
+  </component>
 </template>
 
 <script>
-import { mapState, mapActions } from 'pinia'
+import { mapState } from 'pinia'
 import { useAuthStore } from '../stores/auth'
+import AdminLayout from './admin/AdminLayout.vue'
+import CustomerLayout from './customer/CustomerLayout.vue'
 
 export default {
   name: 'Main',
+  components: {
+    AdminLayout,
+    CustomerLayout
+  },
   computed: {
-    ...mapState(useAuthStore, ['user', 'isAuthenticated', 'isAdmin']),
-    profileImage() {
-      return `https://ui-avatars.com/api/?name=${this.user?.name || 'User'}&background=0d6efd&color=fff&size=150`
-    },
-    appLogo() {
-      return import.meta.env.VITE_APP_LOGO
-    }
-  },
-  mounted() {
-    this.fetchUser()
-  },
-  methods: {
-    ...mapActions(useAuthStore, ['fetchUser', 'logout']),
-    async handleLogout() {
-      try {
-        await this.logout()
-        localStorage.removeItem('user')
-        window.location.href = '/vue-demo/public/login'
-      } catch (error) {
-        console.error('Logout error:', error)
+    ...mapState(useAuthStore, ['isAuthenticated', 'isAdmin']),
+    activeLayout() {
+      // If user is authenticated and is an admin, render AdminLayout
+      if (this.isAuthenticated && this.isAdmin) {
+        return 'AdminLayout'
       }
-    },
-  },
+      // Otherwise render CustomerLayout
+      return 'CustomerLayout'
+    }
+  }
 }
 </script>
+
+<style>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(4px);
+}
+</style>

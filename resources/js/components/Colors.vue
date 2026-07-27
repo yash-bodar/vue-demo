@@ -1,123 +1,102 @@
 <template>
-  <div>
-    <!-- Header/Filter Bar -->
-    <div class="card-header bg-gradient-primary text-light py-3 px-4 border-0 bg-primary-linear">
-      <div class="row align-items-center filter-header">
-        <div class="col-12 col-md-auto mt-1">
-          <h5 class="mb-0 fw-bold d-flex align-items-center">
-            <i class="fas fa-palette me-2"></i>Colors
-            <span class="badge bg-white color-primary ms-2 px-2 py-1 small fw-semibold">{{ colorsCount }}</span>
-          </h5>
+  <div class="card card-vuexy p-4">
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4 pb-3 border-bottom">
+      <div class="d-flex align-items-center gap-3">
+        <div class="badge bg-label-warning rounded-3 p-3">
+          <i class="fas fa-palette fs-3"></i>
         </div>
-        <div class="col-12 col-md-auto mt-1">
-          <div class="search-input-wrapper">
-            <i class="fas fa-search search-icon"></i>
-            <input type="search" class="form-control p-1 ps-5" v-model="filters.search" placeholder="Search colors...">
-          </div>
+        <div>
+          <h4 class="mb-0 fw-bold text-heading">Color Swatches</h4>
+          <small class="text-muted">Total {{ colorsCount }} color options</small>
         </div>
-        <div class="col-12 col-md-auto ms-auto mt-1">
-          <button class="btn btn-dark btn-sm p-2 shadow-sm" title="Add New Color" @click="openModal()"><i class="fa fa-plus"></i></button>
+      </div>
+
+      <button type="button" class="btn btn-primary rounded-pill px-4 shadow-primary" @click="openModal()">
+        <i class="fas fa-plus me-1"></i>Add Color
+      </button>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-6">
+        <div class="input-group">
+          <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="fas fa-search"></i></span>
+          <input type="search" class="form-control border-start-0 ps-0" v-model="filters.search" placeholder="Search color name or hex..." />
         </div>
       </div>
     </div>
 
-    <!-- Colors List -->
-    <div class="card-body p-0">
-      <div class="table-container overflow-y-auto">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="bg-primary-linear text-light sticky-top">
-            <tr>
-              <th @click="sortByField('name')" class="cursor-pointer ps-4">Color Name <i :class="getSortIcon('name')" class="ms-1"></i></th>
-              <th class="cursor-pointer">Color Swatch</th>
-              <th @click="sortByField('created_at')" class="cursor-pointer">Created At <i :class="getSortIcon('created_at')" class="ms-1"></i></th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-if="colorsList.length > 0" v-for="color in colorsList" :key="color.id" class="hover-row">
-              <td class="ps-4">
-                <div class="fw-semibold text-primary fs-6">{{ color.name }}</div>
-                <small class="text-muted">ID: #{{ color.id }}</small>
-              </td>
-              <td>
-                <div class="d-flex align-items-center gap-2">
-                  <span class="d-inline-block border shadow-sm" :style="{ backgroundColor: color.code || '#ccc', width: '24px', height: '24px' }"></span>
-                  <span class="font-monospace text-muted small">{{ color.code || 'N/A' }}</span>
-                </div>
-              </td>
-              <td>
-                <div class="d-flex align-items-center gap-2">
-                  <i class="fa fa-calendar text-muted"></i><span>{{ formatDate(color.created_at) }}</span>
-                </div>
-              </td>
-              <td>
-                <div class="btn-group gap-2">
-                  <button class="btn btn-sm btn-outline-primary fw-semibold rounded-1 p-2" @click="openModal(color)" title="Edit">
-                    <i class="fa fa-pencil"></i>
-                  </button>
-                  <button class="btn btn-sm btn-outline-danger fw-semibold rounded-1 p-2" type="button" @click="deleteColor(color.id)" title="Delete">
-                    <i class="fa fa-trash"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr v-else>
-              <td colspan="4" class="text-center py-5">
-                <div class="text-muted">
-                  <i class="fa fa-palette fs-1 d-block mb-3"></i>
-                  <h5>No colors found</h5>
-                  <p>Try adding a color or adjusting your search criteria.</p>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Pagination -->
-      <div class="card-footer bg-white border-0 p-3" v-if="lastPage > 1">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pagination-div">
-          <span class="text-muted small">Showing {{ (currentPage - 1) * perPage + 1 }} to {{ Math.min(currentPage * perPage, colorsCount) }} of {{ colorsCount }}</span>
-          <div class="d-flex gap-1">
-            <button class="btn btn-sm btn-outline-secondary rounded-2" :disabled="currentPage === 1" @click="fetchColors(currentPage - 1)"><i class="fa fa-chevron-left fa-xs"></i></button>
-            <button v-for="page in lastPage" :key="page" :disabled="page === currentPage" class="btn opacity-100 rounded-2 btn-sm"
-              :class="page === currentPage ? 'bg-primary btn-outline-primary text-white' : 'btn-outline-secondary'" @click="fetchColors(page)">
-              {{ page }}
-            </button>
-            <button class="btn btn-sm btn-outline-secondary rounded-2" :disabled="currentPage === lastPage" @click="fetchColors(currentPage + 1)">
-              <i class="fa fa-chevron-right fa-xs"></i>
-            </button>
-          </div>
-        </div>
-      </div>
+    <!-- Table -->
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th @click="sortByField('name')" class="cursor-pointer">Color Name</th>
+            <th>Color Swatch</th>
+            <th @click="sortByField('created_at')" class="cursor-pointer">Created Date</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-if="colorsList.length > 0" v-for="color in colorsList" :key="color.id">
+            <td>
+              <div class="fw-bold text-heading fs-7">{{ color.name }}</div>
+              <small class="text-muted fs-8">ID: #{{ color.id }}</small>
+            </td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <span class="rounded-circle border shadow-sm" :style="{ backgroundColor: color.code || '#ccc', width: '26px', height: '26px' }"></span>
+                <span class="font-monospace text-muted fs-8">{{ color.code || 'N/A' }}</span>
+              </div>
+            </td>
+            <td class="fs-8 text-muted">{{ formatDate(color.created_at) }}</td>
+            <td class="text-end">
+              <div class="d-inline-flex gap-1">
+                <button type="button" class="btn btn-sm btn-icon btn-label-primary" @click="openModal(color)" title="Edit">
+                  <i class="fas fa-pen-to-square fs-8"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-icon btn-label-danger" @click="deleteColor(color.id)" title="Delete">
+                  <i class="fas fa-trash-can fs-8"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr v-else>
+            <td colspan="4" class="text-center py-5 text-muted">
+              <i class="fas fa-palette fa-3x mb-3 opacity-50"></i>
+              <h6>No color swatches found</h6>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <!-- Color Modal -->
-    <div class="modal fade" id="colorModal" tabindex="-1" aria-labelledby="colorModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content border-0 shadow-lg">
-          <div class="modal-header border-light">
-            <h5 class="modal-title fw-bold" id="colorModalLabel">{{ editingId ? 'Edit Color' : 'Add Color' }}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <!-- Modal -->
+    <div class="modal fade" id="colorModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-vuexy-lg rounded-4">
+          <div class="modal-header border-bottom p-4">
+            <h5 class="modal-title fw-bold text-heading">{{ editingId ? 'Edit Color' : 'Add New Color' }}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body p-4">
             <form @submit.prevent="saveColor">
               <div class="mb-3">
-                <label for="colorName" class="form-label fw-bold text-muted small">Color Name *</label>
-                <input type="text" class="form-control" id="colorName" required placeholder="e.g. Red, Black, Blue" v-model="form.name">
+                <label class="form-label fs-7 fw-semibold">Color Name (e.g. Royal Blue, Crimson)</label>
+                <input type="text" class="form-control" required v-model="form.name" />
               </div>
               <div class="mb-3">
-                <label for="colorCode" class="form-label fw-bold text-muted small">Color Hex Code (Optional)</label>
-                <div class="d-flex gap-2">
-                  <input type="color" class="form-control form-control-color border" id="colorCodePicker" v-model="form.code" style="width: 50px; height: 38px;">
-                  <input type="text" class="form-control font-monospace" id="colorCode" placeholder="#ffffff" v-model="form.code">
+                <label class="form-label fs-7 fw-semibold">Hex Code</label>
+                <div class="input-group">
+                  <input type="color" class="form-control form-control-color" v-model="form.code" title="Choose color" />
+                  <input type="text" class="form-control" v-model="form.code" placeholder="#7367f0" />
                 </div>
               </div>
               <div class="d-flex justify-content-end gap-2 mt-4">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-primary" :disabled="submitting">
-                  <span v-if="submitting" class="spinner-border spinner-border-sm me-2"></span>
-                  <i class="fas fa-save me-2"></i>Save Color
+                <button type="button" class="btn btn-label-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-primary" :disabled="saving">
+                  {{ saving ? 'Saving...' : 'Save Color' }}
                 </button>
               </div>
             </form>
@@ -130,7 +109,6 @@
 
 <script>
 import { formatDate } from '../utils/formatDate'
-import { showToast } from '../utils/ui-toasts'
 
 export default {
   name: 'Colors',
@@ -141,110 +119,97 @@ export default {
       currentPage: 1,
       lastPage: 1,
       perPage: 10,
-      submitting: false,
+      filters: { search: '' },
       editingId: null,
-      filters: {
-        sort_by: 'id',
-        sort_order: 'desc',
-        search: ''
-      },
-      form: {
-        name: '',
-        code: '#000000'
-      }
+      form: { name: '', code: '#7367f0' },
+      saving: false,
+      searchTimeout: null,
+      sortField: 'name',
+      sortOrder: 'asc'
     }
   },
   watch: {
     'filters.search'() {
-      this.fetchColors(1);
+      if (this.searchTimeout) clearTimeout(this.searchTimeout)
+      this.searchTimeout = setTimeout(() => this.fetchColors(1), 300)
     }
   },
   mounted() {
-    this.fetchColors();
+    this.fetchColors(1)
   },
   methods: {
     formatDate,
-    fetchColors(page = 1) {
-      const params = new URLSearchParams({
-        page: page,
-        ...this.filters
-      });
-      this.$axios.get(`/api/colors?${params.toString()}`)
-        .then(res => {
-          this.colorsList = res.data.data.data;
-          this.colorsCount = res.data.data.total;
-          this.currentPage = res.data.data.current_page;
-          this.lastPage = res.data.data.last_page;
-          this.perPage = res.data.data.per_page;
-        })
-        .catch(err => {
-          console.error('Failed to fetch colors', err);
-          showToast('Failed to fetch colors', 'error');
-        });
+    sortByField(field) {
+      if (this.sortField === field) {
+        this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc'
+      } else {
+        this.sortField = field
+        this.sortOrder = 'asc'
+      }
+      this.fetchColors(1)
+    },
+    async fetchColors(page = 1) {
+      try {
+        const response = await this.$axios.get(`/api/colors?page=${page}&search=${this.filters.search}`)
+        if (response.data.success) {
+          const resData = response.data.data
+          this.colorsList = resData.data || resData || []
+          this.colorsCount = resData.total || this.colorsList.length
+        }
+      } catch (err) {
+        console.error('Fetch colors error:', err)
+      }
     },
     openModal(color = null) {
       if (color) {
-        this.editingId = color.id;
-        this.form.name = color.name;
-        this.form.code = color.code || '#000000';
+        this.editingId = color.id
+        this.form.name = color.name
+        this.form.code = color.code || '#7367f0'
       } else {
-        this.editingId = null;
-        this.form.name = '';
-        this.form.code = '#000000';
+        this.editingId = null
+        this.form.name = ''
+        this.form.code = '#7367f0'
       }
-      $('#colorModal').modal('show');
-    },
-    saveColor() {
-      this.submitting = true;
-      const url = this.editingId ? `/api/colors/${this.editingId}` : '/api/colors';
-      const method = this.editingId ? 'put' : 'post';
-      
-      this.$axios[method](url, this.form)
-        .then(res => {
-          if (res.data.success) {
-            showToast(this.editingId ? 'Color updated successfully!' : 'Color created successfully!', 'success');
-            $('#colorModal').modal('hide');
-            this.fetchColors(this.currentPage);
-          } else {
-            showToast(res.data.message || 'Error occurred', 'error');
-          }
-        })
-        .catch(err => {
-          console.error('Error saving color', err);
-          showToast(err.response?.data?.message || 'Error saving color', 'error');
-        })
-        .finally(() => {
-          this.submitting = false;
-        });
-    },
-    deleteColor(id) {
-      if (!confirm('Are you sure you want to delete this color?')) return;
-      this.$axios.delete(`/api/colors/${id}`)
-        .then(res => {
-          if (res.data.success) {
-            showToast('Color deleted successfully!', 'success');
-            this.fetchColors(this.currentPage);
-          } else {
-            showToast(res.data.message || 'Error occurred', 'error');
-          }
-        })
-        .catch(err => {
-          console.error('Error deleting color', err);
-          showToast('Error deleting color', 'error');
-        });
-    },
-    sortByField(field) {
-      if (this.filters.sort_by === field) {
-        this.filters.sort_order = this.filters.sort_order === 'asc' ? 'desc' : 'asc';
-      } else {
-        this.filters.sort_by = field;
-        this.filters.sort_order = 'asc';
+      const modalEl = document.getElementById('colorModal')
+      if (window.bootstrap) {
+        const bsModal = window.bootstrap.Modal.getOrCreateInstance(modalEl)
+        bsModal.show()
       }
-      this.fetchColors(1);
     },
-    getSortIcon(field) {
-      if (this.filters.sort_by !== field) return 'fas fa-sort text-muted';
-      return this.filters.sort_order === 'asc' ? 'fas fa-sort-up text-primary' : 'fas fa-sort-down text-primary';
+    async saveColor() {
+      if (!this.form.name.trim()) return
+      this.saving = true
+      try {
+        let response
+        if (this.editingId) {
+          response = await this.$axios.put(`/api/colors/${this.editingId}`, this.form)
+        } else {
+          response = await this.$axios.post('/api/colors', this.form)
+        }
+        if (response.data.success) {
+          const modalEl = document.getElementById('colorModal')
+          if (window.bootstrap) {
+            const bsModal = window.bootstrap.Modal.getInstance(modalEl)
+            if (bsModal) bsModal.hide()
+          }
+          await this.fetchColors(1)
+        }
+      } catch (err) {
+        console.error('Save color error:', err)
+      } finally {
+        this.saving = false
+      }
+    },
+    async deleteColor(id) {
+      if (!confirm('Are you sure you want to delete this color swatch?')) return
+      try {
+        const response = await this.$axios.delete(`/api/colors/${id}`)
+        if (response.data.success) {
+          await this.fetchColors(this.currentPage)
+        }
+      } catch (err) {
+        console.error('Delete color error:', err)
+      }
     }
   }
 }
