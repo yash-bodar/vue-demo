@@ -1,139 +1,149 @@
 <template>
-    <div class="card-header bg-gradient-primary text-light py-3 px-4 border-0 bg-primary-linear">
-        <div class="row align-items-center filter-header">
-            <div class="col-12 col-md-auto mt-1">
-                <h5 class="mb-0 fw-bold d-flex align-items-center">
-                    <i class="fas fa-box me-2"></i>Products<span class="badge bg-white color-primary ms-2 px-2 py-1 small fw-semibold">{{ productCount }}</span>
-                </h5>
-            </div>
-            <div class="col-12 col-md-auto mt-1">
-                <div class="search-input-wrapper">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="search" class="form-control p-1 ps-5" v-model="filters.search" placeholder="Search...">
-                </div>
-            </div>
-            <div class="col-12 col-md-auto mt-1">
-                <select class="form-select form-select-sm py-1 pe-5 w-auto" v-model="filters.category_id"
-                    @change="fetchProducts(1)">
-                    <option value="">All Categories</option>
-                    <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}
-                    </option>
-                </select>
-            </div>
-            <div class="col-12 col-md-auto mt-1">
-                <select class="form-select form-select-sm py-1 pe-5 w-auto" v-model="filters.currency"
-                    @change="fetchProducts(1)">
-                    <option value="">All Currencies</option>
-                    <option value="USD">USD - US Dollar ($)</option>
-                    <option value="EUR">EUR - Euro (€)</option>
-                    <option value="GBP">GBP - British Pound (£)</option>
-                    <option value="CAD">CAD - Canadian Dollar (C$)</option>
-                    <option value="AUD">AUD - Australian Dollar (A$)</option>
-                    <option value="INR">INR - Indian Rupee (₹)</option>
-                    <option value="AED">AED - UAE Dirham (د.إ)</option>
-                </select>
-            </div>
-            <div class="col-12 col-md-auto mt-1">
-                <select class="form-select form-select-sm py-1 pe-5 w-auto" v-model="filters.status"
-                    @change="fetchProducts(1)">
-                    <option value="">All Status</option>
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                </select>
-            </div>
-            <div class="col-12 col-md-auto ms-auto mt-1">
-                <button class="btn btn-outline-light btn-sm p-2 shadow-sm me-2" @click="exportData('pdf')" title="Export PDF" ><i class="fa fa-file-pdf"></i></button>
-                <button class="btn btn-outline-light btn-sm p-2 shadow-sm me-2" @click="exportData('csv')" title="Export CSV" ><i class="fa fa-file-csv"></i></button>
-                <router-link class="btn btn-dark btn-sm p-2 shadow-sm me-2" to="/products/create" title="Add New Product" ><i class="fa fa-plus"></i></router-link>
-            </div>
+  <div class="card card-vuexy p-4">
+    <!-- Header Controls -->
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4 pb-3 border-bottom">
+      <div class="d-flex align-items-center gap-3">
+        <div class="badge bg-label-primary rounded-3 p-3">
+          <i class="fas fa-box fs-3"></i>
         </div>
+        <div>
+          <h4 class="mb-0 fw-bold text-heading">Products Management</h4>
+          <small class="text-muted">Total {{ productCount }} products in store catalog</small>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <button class="btn btn-sm btn-label-secondary" @click="exportData('pdf')" title="Export PDF">
+          <i class="fas fa-file-pdf text-danger me-1"></i> PDF
+        </button>
+        <button class="btn btn-sm btn-label-secondary" @click="exportData('csv')" title="Export CSV">
+          <i class="fas fa-file-csv text-success me-1"></i> CSV
+        </button>
+        <router-link to="/products/create" class="btn btn-primary rounded-pill px-4 shadow-primary">
+          <i class="fas fa-plus me-1"></i>Add Product
+        </router-link>
+      </div>
     </div>
-    <div class="card-body p-0">
-        <div class="table-container overflow-y-auto">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="text-light bg-primary-linear sticky-top">
-                    <tr>
-                        <th @click="sortByField('name', 'fetchProducts')" class="cursor-pointer ps-4">Name <i :class="getSortIcon('name')" class="ms-1"></i></th>
-                        <th @click="sortByField('price', 'fetchProducts')" class="cursor-pointer">Price <i :class="getSortIcon('price')" class="ms-1"></i></th>
-                        <th @click="sortByField('stock', 'fetchProducts')" class="cursor-pointer">Qty Available <i :class="getSortIcon('stock')" class="ms-1"></i></th>
-                        <th @click="sortByField('category_id', 'fetchProducts')" class="cursor-pointer">Category <i :class="getSortIcon('category_id')" class="ms-1"></i></th>
-                        <th @click="sortByField('currency', 'fetchProducts')" class="cursor-pointer">Currency <i :class="getSortIcon('currency')" class="ms-1"></i></th>
-                        <th @click="sortByField('status', 'fetchProducts')" class="cursor-pointer">Status <i :class="getSortIcon('status')" class="ms-1"></i></th>
-                        <th @click="sortByField('created_at','fetchProducts')" class="cursor-pointer">Created At <i :class="getSortIcon('created_at')" class="ms-1"></i></th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-if="productsList.length > 0" v-for="product in productsList" :key="product.id" class="hover-row">
-                        <td class="cursor-pointer ps-4" @click="$router.push(`/product/detail/${product.id}`)">
-                            <div class="d-flex align-items-center gap-3">
-                                <img class="rounded shadow-sm border" width="40" height="40" :src="getImageUrl(product.image)" :alt="product.name">
-                                <div>
-                                    <div class="fw-semibold text-primary">{{ product.name }}</div>
-                                    <small class="text-muted">ID: #{{ product.id }}</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="fw-bold text-primary">{{ product.currency_sign }} {{ product.price }}</span>
-                        </td>
-                        <td>
-                            <span class="badge" :class="product.stock <= 0 ? 'bg-danger' : product.stock > 0 && product.stock <= 10 ? 'bg-warning' : 'bg-success'">{{ product.stock }}</span>
-                        </td>
-                        <td>
-                            <div class="d-flex align-items-center gap-2"><i class="fa fa-tag text-muted"></i><span>{{product.category?.name || 'N/A' }}</span></div>
-                        </td>
-                        <td>
-                            <span class="badge bg-secondary">{{ product.currency }}</span>
-                        </td>
-                        <td>
-                            <span class="badge" :class="product.status === 'Active' ? 'bg-success' : 'bg-secondary'">{{product.status }}</span>
-                        </td>
-                        <td>
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="fa fa-calendar text-muted"></i><span>{{ formatDate(product.created_at) }}</span>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="btn-group gap-2">
-                                <router-link class="btn btn-sm btn-outline-primary p-2 fw-semibold rounded-1" :to="`/products/edit/${product.id}`" title="Edit">
-                                    <i class="fa fa-pencil"></i>
-                                </router-link>
-                                <button class="btn btn-sm btn-outline-danger p-2 fw-semibold rounded-1" type="button" @click="deleteProduct(product.id)" title="Delete">
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr v-else>
-                        <td colspan="9" class="text-center py-5">
-                            <div class="text-muted">
-                                <i class="fa fa-box fs-1 d-block mb-3"></i>
-                                <h5>No products found</h5>
-                                <p>Try adjusting your filters or add a new product.</p>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+
+    <!-- Filter Toolbar -->
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-4">
+        <div class="input-group">
+          <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="fas fa-search"></i></span>
+          <input type="search" class="form-control border-start-0 ps-0" v-model="filters.search" placeholder="Search product name..." />
         </div>
-        <div class="card-footer bg-white border-0 p-3" v-if="lastPage > 1">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pagination-div">
-                <span class="text-muted small">Showing {{ (currentPage - 1) * perPage + 1 }} to {{ Math.min(currentPage * perPage, productCount) }} of {{ productCount }}</span>
-                <div class="d-flex gap-1">
-                    <button class="btn btn-sm btn-outline-secondary rounded-2" :disabled="currentPage === 1" @click="fetchProducts(currentPage - 1)"><i class="fa fa-chevron-left fa-xs"></i></button>
-                    <button v-for="page in lastPage" :key="page" :disabled="page === currentPage" class="btn opacity-100 rounded-2 btn-sm"
-                        :class="page === currentPage ? 'bg-primary btn-outline-primary text-white' : 'btn-outline-secondary'" @click="fetchProducts(page)">
-                        {{ page }}
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary rounded-2" :disabled="currentPage === lastPage"
-                        @click="fetchProducts(currentPage + 1)">
-                        <i class="fa fa-chevron-right fa-xs"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <select class="form-select" v-model="filters.category_id" @change="fetchProducts(1)">
+          <option value="">All Categories</option>
+          <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>
+        </select>
+      </div>
+      <div class="col-6 col-md-3">
+        <select class="form-select" v-model="filters.status" @change="fetchProducts(1)">
+          <option value="">All Status</option>
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+        </select>
+      </div>
+      <div class="col-6 col-md-2">
+        <select class="form-select" v-model="filters.currency" @change="fetchProducts(1)">
+          <option value="">All Currencies</option>
+          <option value="USD">USD ($)</option>
+          <option value="EUR">EUR (€)</option>
+          <option value="GBP">GBP (£)</option>
+          <option value="INR">INR (₹)</option>
+        </select>
+      </div>
     </div>
+
+    <!-- Table Section -->
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th @click="sortByField('name', 'fetchProducts')" class="cursor-pointer">Product</th>
+            <th @click="sortByField('price', 'fetchProducts')" class="cursor-pointer">Price</th>
+            <th @click="sortByField('stock', 'fetchProducts')" class="cursor-pointer">Stock</th>
+            <th @click="sortByField('category_id', 'fetchProducts')" class="cursor-pointer">Category</th>
+            <th @click="sortByField('status', 'fetchProducts')" class="cursor-pointer">Status</th>
+            <th @click="sortByField('created_at', 'fetchProducts')" class="cursor-pointer">Created</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-if="productsList.length > 0" v-for="product in productsList" :key="product.id">
+            <td class="cursor-pointer" @click="$router.push(`/product/detail/${product.id}`)">
+              <div class="d-flex align-items-center gap-3">
+                <img class="rounded-3 border" width="44" height="44" style="object-fit: cover;" :src="getImageUrl(product.image)" :alt="product.name" />
+                <div>
+                  <div class="fw-bold text-heading fs-7">{{ product.name }}</div>
+                  <small class="text-muted fs-8">ID: #{{ product.id }}</small>
+                </div>
+              </div>
+            </td>
+            <td class="fw-bold text-primary fs-7">
+              {{ product.currency_sign }} {{ product.price }}
+            </td>
+            <td>
+              <span class="badge" :class="product.stock <= 0 ? 'bg-label-danger' : product.stock <= 10 ? 'bg-label-warning' : 'bg-label-success'">
+                {{ product.stock }} Units
+              </span>
+            </td>
+            <td>
+              <span class="badge bg-label-info fs-8">{{ product.category?.name || 'General' }}</span>
+            </td>
+            <td>
+              <span class="badge" :class="product.status === 'Active' ? 'bg-label-success' : 'bg-label-secondary'">
+                {{ product.status }}
+              </span>
+            </td>
+            <td class="fs-8 text-muted">{{ formatDate(product.created_at) }}</td>
+            <td class="text-end">
+              <div class="d-inline-flex gap-1">
+                <router-link :to="`/products/edit/${product.id}`" class="btn btn-sm btn-icon btn-label-primary" title="Edit">
+                  <i class="fas fa-pen-to-square fs-8"></i>
+                </router-link>
+                <button type="button" class="btn btn-sm btn-icon btn-label-danger" @click="deleteProduct(product.id)" title="Delete">
+                  <i class="fas fa-trash-can fs-8"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr v-else>
+            <td colspan="7" class="text-center py-5 text-muted">
+              <i class="fas fa-box-open fa-3x mb-3 opacity-50"></i>
+              <h6>No products found matching filters</h6>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-4 border-top mt-3" v-if="lastPage > 1">
+      <small class="text-muted fs-8">Showing {{ (currentPage - 1) * perPage + 1 }} to {{ Math.min(currentPage * perPage, productCount) }} of {{ productCount }} entries</small>
+      <nav>
+        <ul class="pagination mb-0 gap-1">
+          <li class="page-item" :class="{ disabled: currentPage === 1 }">
+            <button class="page-link rounded-circle border-0 text-primary" :disabled="currentPage === 1" @click="fetchProducts(currentPage - 1)">
+              <i class="fas fa-chevron-left fs-8"></i>
+            </button>
+          </li>
+          <li v-for="page in lastPage" :key="page" class="page-item" :class="{ active: page === currentPage }">
+            <button class="page-link rounded-circle border-0 fw-bold" :class="page === currentPage ? 'bg-primary text-white' : 'text-primary'" @click="fetchProducts(page)">
+              {{ page }}
+            </button>
+          </li>
+          <li class="page-item" :class="{ disabled: currentPage === lastPage }">
+            <button class="page-link rounded-circle border-0 text-primary" :disabled="currentPage === lastPage" @click="fetchProducts(currentPage + 1)">
+              <i class="fas fa-chevron-right fs-8"></i>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -144,96 +154,86 @@ import { formatDate } from '../utils/formatDate'
 import { showSwalMessage, confirmAction } from '../utils/showMessage'
 
 export default {
-    data() {
-        return {
-            productsList: [],
-            productCount: 0,
-            currentPage: 1,
-            lastPage: 1,
-            perPage: 3,
-            categories: [],
-            filters: {
-                status: '',
-                category_id: '',
-                currency: '',
-                sort_by: 'id',
-                sort_order: 'desc',
-                search: ''
-            },
-        }
-    },
-    watch: {
-        'filters.search'(newSearch, oldSearch) {
-            this.fetchProducts(1);
-        }
-    },
-    mounted() {
-        this.fetchCategories();
-        this.fetchProducts();
-    },
-    methods: {
-        exportData(type = 'pdf'){
-            const params = new URLSearchParams({
-                type: type,
-                ...this.filters
-            });
-            this.$axios.get(`/api/export-products?${params.toString()}`, {
-                responseType: 'blob'
-            }).then(res => {
-                const url = window.URL.createObjectURL(new Blob([res.data]));
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', `products.${type}`);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
-            }).catch(err => console.error('Failed to export products', err));
-        },
-        fetchCategories() {
-            this.$axios.get('/api/get-categories').then(res => {
-                this.categories = res.data.data
-            }).catch(err => console.error('Failed to fetch categories', err));
-        },
-        fetchProducts(page = 1) {
-            const params = new URLSearchParams({
-                page: page,
-                ...this.filters
-            });
-            this.$axios.get(`/api/products?${params.toString()}`)
-                .then(res => {
-                    this.productsList = res.data.data.data
-                    this.productCount = res.data.data.total
-                    this.currentPage = res.data.data.current_page
-                    this.lastPage = res.data.data.last_page
-                    this.perPage = res.data.data.per_page
-                })
-                .catch(err => console.error('Failed to fetch products', err))
-
-        },
-        deleteProduct(id) {
-            confirmAction(
-                'Are you sure you want to delete this product?',
-                '',
-                (productId) => {
-                    this.$axios.delete(`/api/products/${productId}`)
-                        .then(res => {
-                            if (res.data.success === true) {
-                                showSwalMessage('Success', 'Product Deleted')
-                                this.fetchProducts(this.currentPage)
-                            } else {
-                                showSwalMessage('Error', 'Delete failed')
-                            }
-                        })
-                        .catch(err => showSwalMessage('Error', 'Error deleting product'))
-                },
-                id
-            );
-        },
-        sortByField,
-        getSortIcon,
-        getImageUrl,
-        formatDate
+  name: 'Products',
+  data() {
+    return {
+      productsList: [],
+      productCount: 0,
+      categories: [],
+      currentPage: 1,
+      lastPage: 1,
+      perPage: 10,
+      filters: {
+        search: '',
+        category_id: '',
+        currency: '',
+        status: ''
+      },
+      sort_field: 'id',
+      sort_direction: 'desc',
+      searchTimeout: null
     }
+  },
+  watch: {
+    'filters.search'() {
+      if (this.searchTimeout) clearTimeout(this.searchTimeout)
+      this.searchTimeout = setTimeout(() => this.fetchProducts(1), 300)
+    }
+  },
+  mounted() {
+    this.fetchProducts(1)
+    this.fetchCategories()
+  },
+  methods: {
+    getImageUrl,
+    formatDate,
+    sortByField,
+    getSortIcon,
+    async fetchProducts(page = 1) {
+      try {
+        const params = new URLSearchParams({
+          page: page,
+          sort_field: this.sort_field,
+          sort_direction: this.sort_direction,
+          ...this.filters
+        })
+        const response = await this.$axios.get(`/api/products?${params.toString()}`)
+        const data = response.data.data
+        this.productsList = data.data || []
+        this.productCount = data.total || 0
+        this.currentPage = data.current_page || 1
+        this.lastPage = data.last_page || 1
+        this.perPage = data.per_page || 10
+      } catch (err) {
+        console.error('Fetch products error:', err)
+      }
+    },
+    async fetchCategories() {
+      try {
+        const response = await this.$axios.get('/api/get-categories')
+        if (response.data.success) {
+          this.categories = response.data.data || []
+        }
+      } catch (err) {
+        console.error('Fetch categories error:', err)
+      }
+    },
+    async deleteProduct(id) {
+      const confirmed = await confirmAction('Delete Product', 'Are you sure you want to delete this product?')
+      if (!confirmed) return
+      try {
+        const response = await this.$axios.delete(`/api/products/${id}`)
+        if (response.data.success) {
+          showSwalMessage('Product deleted successfully', 'success')
+          await this.fetchProducts(this.currentPage)
+        }
+      } catch (err) {
+        showSwalMessage('Failed to delete product', 'error')
+      }
+    },
+    exportData(type) {
+      window.open(`/api/products/export?type=${type}`, '_blank')
+    }
+  }
 }
 </script>

@@ -1,62 +1,52 @@
 <template>
-  <div class="checkout-container bg-light min-vh-100 py-2">
-    <div class="container">
-      <!-- Checkout Header / Stepper -->
-      <div class="cart-header bg-white m-0 border-bottom shadow-sm p-3 mb-4 rounded-3">
-        <div class="row align-items-center g-3">
-          <div class="col-12 col-md-6">
-            <div class="d-flex align-items-center">
-              <div class="me-3">
-                <i class="fas fa-credit-card fa-2x text-primary p-1"></i>
-              </div>
-              <div>
-                <h5 class="mb-0 fw-bold text-dark">Secure Checkout</h5>
-                <p class="mb-0 text-muted small">Your transaction is safe and fully encrypted</p>
-              </div>
-            </div>
+  <div class="container-xl py-4">
+    <!-- Header Card -->
+    <div class="card card-vuexy p-4 mb-4">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3">
+          <div class="badge bg-label-success rounded-3 p-3">
+            <i class="fas fa-shield-check fs-3"></i>
+          </div>
+          <div>
+            <h4 class="mb-0 fw-bold text-heading">Express Checkout</h4>
+            <small class="text-muted">256-Bit SSL Encrypted Secure Gateway</small>
           </div>
         </div>
+        <router-link to="/my-cart" class="btn btn-outline-primary rounded-pill px-4">
+          <i class="fas fa-arrow-left me-2"></i>Back to Cart
+        </router-link>
       </div>
+    </div>
 
-      <div class="row g-4">
-        <!-- Left Column - Order Items & Delivery Info -->
-        <div class="col-lg-8">
-          <!-- Order Summary Card -->
-          <div class="card border-0 shadow-sm rounded-3 mb-4">
-            <div class="card-header bg-white border-0 py-3 d-flex align-items-center justify-content-between">
-              <h5 class="mb-0 fw-bold text-dark">
-                <i class="fas fa-shopping-bag me-2 text-primary"></i>Review Order Items
-              </h5>
-              <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill fw-semibold">
-                {{ orderItems.length }} {{ orderItems.length === 1 ? 'Item' : 'Items' }}
-              </span>
-            </div>
-            <div class="card-body px-4">
-              <!-- Loading State -->
-              <div v-if="loading" class="text-center py-5">
-                <div class="spinner-border text-primary" role="status">
-                  <span class="visually-hidden">Loading...</span>
+    <!-- Main Checkout Grid -->
+    <div class="row g-4">
+      <!-- Left Column: Items & Shipping Address -->
+      <div class="col-lg-8">
+        <!-- Order Items Breakdown -->
+        <div class="card card-vuexy p-4 mb-4">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <h5 class="fw-bold text-heading m-0"><i class="fas fa-bag-shopping me-2 text-primary"></i>Review Order Items</h5>
+            <span class="badge bg-label-primary fs-8">{{ orderItems.length }} Item(s)</span>
+          </div>
+
+          <div v-if="loading" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status"></div>
+          </div>
+
+          <div v-else class="d-flex flex-column gap-3">
+            <div v-for="item in orderItems" :key="item.id" class="p-3 rounded-3 bg-light border-subtle border">
+              <div class="row align-items-center g-3">
+                <div class="col-3 col-sm-2">
+                  <img :src="getImageUrl(item.product.image)" class="rounded-3 img-fluid border" style="aspect-ratio: 1/1; object-fit: cover;" :alt="item.product.name" />
                 </div>
-                <p class="mt-3 text-muted">Loading your items...</p>
-              </div>
-
-              <!-- Order Items List -->
-              <div v-else>
-                <div v-for="item in orderItems" :key="item.id" class="order-item-row py-3 border-bottom">
-                  <div class="row align-items-center">
-                    <div class="col-3 col-md-2">
-                      <div class="product-thumb-container bg-light rounded-3 p-1">
-                        <img :src="getImageUrl(item.product.image)" class="img-fluid rounded-3" :alt="item.product.name">
-                      </div>
+                <div class="col-9 col-sm-10">
+                  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+                    <div>
+                      <h6 class="fw-bold text-heading mb-1">{{ item.product.name }}</h6>
+                      <small class="text-muted fs-8 text-truncate d-block" style="max-width: 320px;">{{ item.product.description || 'No description' }}</small>
                     </div>
-                    <div class="col-9 col-md-6">
-                      <h6 class="fw-bold text-dark mb-1">{{ item.product.name }}</h6>
-                      <p class="text-muted small mb-0 text-truncate-2">{{ item.product.description || 'No description available' }}</p>
-                    </div>
-                    <div class="col-6 col-md-2 mt-2 mt-md-0 text-start text-md-center">
-                      <span class="badge bg-light text-dark px-3 py-2 rounded-3">Qty: {{ item.quantity }}</span>
-                    </div>
-                    <div class="col-6 col-md-2 mt-2 mt-md-0 text-end">
+                    <div class="d-flex align-items-center gap-3">
+                      <span class="badge bg-label-secondary fs-8">Qty: {{ item.quantity }}</span>
                       <span class="fw-bold text-primary fs-6">
                         {{ user?.currency_sign || '$' }}{{ (item.product.converted_price * item.quantity).toFixed(2) }}
                       </span>
@@ -66,162 +56,103 @@
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Delivery Address Card -->
-          <div class="card border-0 shadow-sm rounded-3 mb-4">
-            <div class="card-header bg-white border-0 py-3 d-flex align-items-center justify-content-between">
-              <h5 class="mb-0 fw-bold text-dark">
-                <i class="fas fa-map-marker-alt me-2 text-primary"></i>Shipping Address
-              </h5>
-              <router-link to="/my-cart" class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                <i class="fas fa-edit me-1"></i>Change Address
-              </router-link>
+        <!-- Shipping Address Card -->
+        <div class="card card-vuexy p-4 mb-4">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <h5 class="fw-bold text-heading m-0"><i class="fas fa-location-dot me-2 text-primary"></i>Shipping Address</h5>
+            <router-link to="/my-cart" class="btn btn-sm btn-label-primary rounded-pill">Change Address</router-link>
+          </div>
+
+          <div v-if="loading" class="text-center py-3">
+            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+          </div>
+
+          <div v-else-if="selectedAddress" class="p-3 rounded-3 bg-label-primary border border-primary">
+            <h6 class="fw-bold text-heading mb-1">{{ selectedAddress.full_name }}</h6>
+            <p class="text-muted fs-7 mb-1">{{ selectedAddress.address_line1 }} {{ selectedAddress.address_line2 }}</p>
+            <p class="text-muted fs-7 mb-1">{{ selectedAddress.city }}, {{ selectedAddress.state }} {{ selectedAddress.postal_code }}</p>
+            <small class="text-primary fw-semibold"><i class="fas fa-phone me-1"></i>{{ selectedAddress.phone_number }}</small>
+          </div>
+
+          <div v-else class="text-center py-4 bg-light rounded-3">
+            <i class="fas fa-triangle-exclamation text-warning fs-3 mb-2"></i>
+            <h6 class="fw-bold text-heading mb-1">No Delivery Address Selected</h6>
+            <router-link to="/my-cart" class="btn btn-sm btn-primary rounded-pill mt-2">Select Address in Cart</router-link>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Summary & Stripe Payment -->
+      <div class="col-lg-4">
+        <!-- Order Summary Card -->
+        <div class="card card-vuexy p-4 mb-4">
+          <h5 class="fw-bold text-heading mb-3">Payment Breakdown</h5>
+
+          <!-- Promo Code -->
+          <div class="mb-3">
+            <div class="input-group input-group-sm">
+              <input v-model="couponCode" type="text" class="form-control" placeholder="Promo Code" :disabled="couponLoading || !!appliedCoupon" />
+              <button v-if="!appliedCoupon" class="btn btn-primary" type="button" @click="applyCoupon" :disabled="couponLoading || !couponCode.trim()">
+                Apply
+              </button>
+              <button v-else class="btn btn-danger" type="button" @click="removeCoupon">Remove</button>
             </div>
-            <div class="card-body px-4 py-3">
-              <div v-if="loading" class="text-center py-3">
-                <div class="spinner-border spinner-border-sm text-primary" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div>
-              </div>
-              <div v-else-if="selectedAddress" class="d-flex align-items-start">
-                <div class="address-icon-box bg-primary-soft text-primary rounded-3 p-3 me-3">
-                  <i class="fas fa-truck fs-4"></i>
-                </div>
-                <div>
-                  <h6 class="fw-bold text-dark mb-1">{{ selectedAddress.full_name }}</h6>
-                  <p class="mb-1 text-secondary">{{ selectedAddress.address_line1 }}</p>
-                  <p v-if="selectedAddress.address_line2" class="mb-1 text-secondary">{{ selectedAddress.address_line2 }}</p>
-                  <p class="mb-1 text-secondary">{{ selectedAddress.city }}, {{ selectedAddress.state }} {{ selectedAddress.postal_code }}</p>
-                  <p class="mb-2 text-secondary fw-semibold">{{ selectedAddress.country }}</p>
-                  <span class="text-muted small d-block"><i class="fas fa-phone me-2"></i>{{ selectedAddress.phone_number }}</span>
-                </div>
-              </div>
-              <div v-else class="text-center py-4">
-                <div class="text-warning mb-3">
-                  <i class="fas fa-exclamation-triangle fa-3x"></i>
-                </div>
-                <h6 class="fw-bold text-dark">No Shipping Address Selected</h6>
-                <p class="text-muted small px-3">Please choose or add a delivery address to complete your checkout.</p>
-                <router-link to="/my-cart" class="btn btn-primary rounded-pill px-4 mt-2">
-                  <i class="fas fa-plus me-2"></i>Select Address in Cart
-                </router-link>
-              </div>
+            <small v-if="couponError" class="text-danger fs-9 mt-1 d-block fw-semibold">{{ couponError }}</small>
+            <small v-if="appliedCoupon" class="text-success fs-9 mt-1 d-block fw-semibold">
+              <i class="fas fa-check-circle me-1"></i>Applied: -{{ user?.currency_sign || '$' }}{{ appliedCoupon.discount_amount }}
+            </small>
+          </div>
+
+          <div class="d-flex flex-column gap-2 border-bottom pb-3 mb-3 fs-7">
+            <div class="d-flex justify-content-between">
+              <span class="text-muted">Subtotal</span>
+              <span class="fw-bold text-heading">{{ user?.currency_sign || '$' }}{{ subtotal }}</span>
             </div>
+            <div v-if="appliedCoupon" class="d-flex justify-content-between text-success">
+              <span>Coupon Discount</span>
+              <span class="fw-bold">-{{ user?.currency_sign || '$' }}{{ appliedCoupon.discount_amount }}</span>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span class="text-muted">Shipping Fee</span>
+              <span class="fw-bold text-success">{{ parseFloat(shipping) === 0 ? 'FREE' : (user?.currency_sign || '$') + shipping }}</span>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <span class="fw-bold text-heading fs-6">Total Amount</span>
+            <span class="fw-bold text-primary fs-4">{{ user?.currency_sign || '$' }}{{ finalTotal }}</span>
           </div>
         </div>
 
-        <!-- Right Column - Pricing Summary & Stripe Payment -->
-        <div class="col-lg-4">
-          <!-- Order Pricing Summary -->
-          <div class="card border-0 shadow-sm rounded-3 mb-4">
-            <div class="card-header bg-white border-0 py-3">
-              <h5 class="mb-0 fw-bold text-dark">Order Summary</h5>
-            </div>
-            <div class="card-body px-4">
-              <!-- Coupon Code Card -->
-              <div class="coupon-section mb-4 p-3 bg-light rounded-3">
-                <label class="form-label small fw-bold text-muted mb-2">PROMO CODE</label>
-                <div class="input-group">
-                  <input 
-                    v-model="couponCode" 
-                    type="text" 
-                    class="form-control border-end-0 bg-white" 
-                    placeholder="Enter code..."
-                    :disabled="couponLoading"
-                    style="border-radius: 12px 0 0 12px;"
-                  >
-                  <button 
-                    class="btn btn-primary px-4 fw-bold" 
-                    type="button" 
-                    @click="applyCoupon"
-                    :disabled="couponLoading || !couponCode.trim()"
-                    style="border-radius: 0 12px 12px 0;"
-                  >
-                    <span v-if="!couponLoading">Apply</span>
-                    <span v-else><i class="fas fa-spinner fa-spin"></i></span>
-                  </button>
-                </div>
-                
-                <div v-if="couponError" class="alert alert-danger-soft alert-dismissible fade show small mt-2 mb-0 py-2 px-3 border-0 rounded-3">
-                  <i class="fas fa-exclamation-circle me-1"></i>{{ couponError }}
-                </div>
-                
-                <div v-if="appliedCoupon" class="alert alert-success-soft small mt-2 mb-0 py-2 px-3 border-0 rounded-3">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <span>
-                      <i class="fas fa-check-circle me-1 text-success"></i>
-                      <strong>{{ appliedCoupon.code }}</strong> applied! (-{{ user?.currency_sign || '$' }}{{ appliedCoupon.discount_amount }})
-                    </span>
-                    <button class="btn btn-link text-danger p-0 border-0" @click="removeCoupon" type="button">
-                      <i class="fas fa-times-circle"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
+        <!-- Stripe Card Payment Card -->
+        <div class="card card-vuexy p-4">
+          <h5 class="fw-bold text-heading mb-3"><i class="fas fa-credit-card me-2 text-primary"></i>Credit / Debit Card</h5>
 
-              <!-- Price Breakdown -->
-              <div class="price-breakdown mb-4">
-                <div class="d-flex justify-content-between mb-3 text-secondary">
-                  <span>Subtotal</span>
-                  <span class="fw-semibold">{{ user?.currency_sign || '$' }}{{ subtotal }}</span>
-                </div>
-                <div v-if="appliedCoupon" class="d-flex justify-content-between mb-3 text-success fw-semibold">
-                  <span>Coupon Discount</span>
-                  <span>-{{ user?.currency_sign || '$' }}{{ appliedCoupon.discount_amount }}</span>
-                </div>
-                <div class="d-flex justify-content-between mb-3 text-secondary">
-                  <span>Shipping</span>
-                  <span class="text-success fw-semibold">{{ parseFloat(shipping) === 0 ? 'FREE' : (user?.currency_sign || '$') + shipping }}</span>
-                </div>
-                <hr class="my-3 opacity-10">
-                <div class="d-flex justify-content-between align-items-center">
-                  <span class="fw-bold text-dark fs-5">Total due</span>
-                  <span class="fw-extrabold text-primary fs-4">{{ user?.currency_sign || '$' }}{{ finalTotal }}</span>
-                </div>
-              </div>
-            </div>
+          <div class="mb-4">
+            <div id="card-element" class="p-3 bg-card border rounded-3"></div>
+            <div id="card-errors" class="text-danger fs-8 mt-2 fw-semibold" role="alert"></div>
           </div>
 
-          <!-- Stripe Secure Payment Card -->
-          <div class="card border-0 shadow-sm rounded-3 secure-card overflow-hidden">
-            <div class="card-header bg-dark text-white py-3 border-0 d-flex align-items-center">
-              <i class="fas fa-shield-alt text-success me-2 fs-5"></i>
-              <div>
-                <h6 class="mb-0 fw-bold">Secure Card Payment</h6>
-                <span class="small text-muted font-xs">SSL Encrypted Checkout</span>
-              </div>
-            </div>
-            <div class="card-body px-4 py-4">
-              <!-- Stripe Card Input -->
-              <div class="mb-4">
-                <label class="form-label fw-bold text-secondary mb-2 small">CREDIT OR DEBIT CARD</label>
-                <div class="stripe-card-wrapper">
-                  <div id="card-element" class="p-3 bg-white border rounded-3"></div>
-                </div>
-                <div id="card-errors" class="text-danger small mt-2 fw-semibold" role="alert"></div>
-              </div>
+          <button 
+            class="btn btn-primary w-100 rounded-pill py-2.5 fw-bold shadow-primary" 
+            :disabled="processing || !stripe || !elements || !selectedAddress"
+            @click="processPayment"
+          >
+            <span v-if="processing">
+              <i class="fas fa-spinner fa-spin me-2"></i>Processing Payment...
+            </span>
+            <span v-else>
+              <i class="fas fa-lock me-2"></i>Pay {{ user?.currency_sign || '$' }}{{ finalTotal }}
+            </span>
+          </button>
 
-              <!-- Submit Payment Button -->
-              <button 
-                class="btn btn-primary btn-lg w-100 py-3 rounded-3 shadow-sm bg-primary-linear border-0 d-flex align-items-center justify-content-center" 
-                :disabled="processing || !stripe || !elements || !selectedAddress"
-                @click="processPayment"
-              >
-                <span v-if="processing">
-                  <i class="fas fa-circle-notch fa-spin me-2"></i>Processing Security Payment...
-                </span>
-                <span v-else class="fw-bold">
-                  <i class="fas fa-lock me-2"></i>Pay {{ user?.currency_sign || '$' }}{{ finalTotal }}
-                </span>
-              </button>
-
-              <div class="d-flex justify-content-center gap-3 mt-4 text-muted small align-items-center">
-                <i class="fab fa-cc-stripe fs-3"></i>
-                <i class="fab fa-cc-visa fs-3"></i>
-                <i class="fab fa-cc-mastercard fs-3"></i>
-                <i class="fab fa-cc-amex fs-3"></i>
-              </div>
-            </div>
+          <div class="d-flex justify-content-center gap-3 mt-4 text-muted fs-4">
+            <i class="fab fa-cc-stripe"></i>
+            <i class="fab fa-cc-visa"></i>
+            <i class="fab fa-cc-mastercard"></i>
+            <i class="fab fa-cc-apple-pay"></i>
           </div>
         </div>
       </div>
@@ -232,7 +163,7 @@
 <script>
 import { mapState } from 'pinia'
 import { useAuthStore } from '../stores/auth'
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe } from '@stripe/stripe-js'
 import { getImageUrl } from '../utils/ImageUrl'
 
 export default {
@@ -261,110 +192,102 @@ export default {
   computed: {
     ...mapState(useAuthStore, ['user']),
     finalTotal() {
-      const total = parseFloat(this.total) + parseFloat(this.shipping);
-      const finalAmount = total - this.discountAmount;
-      return finalAmount.toFixed(2);
+      const total = parseFloat(this.total) + parseFloat(this.shipping)
+      const finalAmount = total - this.discountAmount
+      return finalAmount.toFixed(2)
     }
   },
   async mounted() {
-    await this.loadCheckoutData();
-    await this.initializeStripe();
+    await this.loadCheckoutData()
+    await this.initializeStripe()
   },
   methods: {
+    getImageUrl,
     async loadCheckoutData() {
-      this.loading = true;
+      this.loading = true
       try {
-        const response = await this.$axios.get('/api/checkout-data');
-        const data = response.data;
+        const response = await this.$axios.get('/api/checkout-data')
+        const data = response.data
         if (data.success) {
-          this.orderItems = data.data.cart_items;
-          this.selectedAddress = data.data.address;
-          this.shippingRules = data.data.shipping_rules || null;
-          this.calculateTotals();
+          this.orderItems = data.data.cart_items || []
+          this.selectedAddress = data.data.address || null
+          this.shippingRules = data.data.shipping_rules || null
+          this.calculateTotals()
         }
       } catch (error) {
-        console.error('Error loading checkout data:', error);
-        alert('Error loading checkout data');
+        console.error('Error loading checkout data:', error)
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
     calculateTotals() {
       const subtotalVal = this.orderItems.reduce((sum, item) => {
-        return sum + (item.product.converted_price * item.quantity);
-      }, 0);
-      this.subtotal = subtotalVal.toFixed(2);
+        return sum + (item.product.converted_price * item.quantity)
+      }, 0)
+      this.subtotal = subtotalVal.toFixed(2)
 
-      let shippingVal = 0.00;
+      let shippingVal = 0.00
       if (this.shippingRules) {
         for (const [range, fee] of Object.entries(this.shippingRules)) {
-          const limits = range.split('-');
+          const limits = range.split('-')
           if (limits.length === 2) {
-            const min = parseFloat(limits[0]);
-            const max = limits[1] === '*' ? Infinity : parseFloat(limits[1]);
+            const min = parseFloat(limits[0])
+            const max = limits[1] === '*' ? Infinity : parseFloat(limits[1])
             if (subtotalVal >= min && subtotalVal < max) {
-              shippingVal = parseFloat(fee);
-              break;
+              shippingVal = parseFloat(fee)
+              break
             }
           }
         }
       }
 
-      this.shipping = shippingVal.toFixed(2);
-      this.total = this.subtotal;
+      this.shipping = shippingVal.toFixed(2)
+      this.total = this.subtotal
     },
     async initializeStripe() {
       try {
-        const publishable_key = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
-        this.stripe = await loadStripe(publishable_key);
+        const publishable_key = import.meta.env.VITE_STRIPE_PUBLIC_KEY
+        this.stripe = await loadStripe(publishable_key)
         
         const elementsResponse = await this.$axios.post('/api/create-payment-intent', {
           amount: Math.round(parseFloat(this.finalTotal) * 100)
-        });
+        })
         
         if (elementsResponse.data.success) {
-          this.clientSecret = elementsResponse.data.clientSecret;
+          this.clientSecret = elementsResponse.data.clientSecret
           this.elements = this.stripe.elements({
             clientSecret: this.clientSecret
-          });
+          })
           
           this.cardElement = this.elements.create('card', {
             style: {
               base: {
-                fontSize: '16px',
-                color: '#2c3e50',
-                fontFamily: '"Outfit", "Inter", -apple-system, BlinkMacSystemFont, sans-serif',
-                fontSmoothing: 'antialiased',
-                '::placeholder': {
-                  color: '#aab7c4',
-                },
+                fontSize: '15px',
+                color: '#4b465c',
+                fontFamily: '"Inter", sans-serif',
+                '::placeholder': { color: '#82868b' }
               },
-              invalid: {
-                color: '#dc3545',
-                iconColor: '#dc3545'
-              }
+              invalid: { color: '#ea5455' }
             }
-          });
+          })
           
-          this.cardElement.mount('#card-element');
+          this.cardElement.mount('#card-element')
           
           this.cardElement.on('change', (event) => {
-            const displayError = document.getElementById('card-errors');
-            displayError.textContent = event.error ? event.error.message : '';
-          });
-        } else {
-          console.error('Error creating payment intent:', elementsResponse.data.message);
+            const displayError = document.getElementById('card-errors')
+            displayError.textContent = event.error ? event.error.message : ''
+          })
         }
       } catch (error) {
-        console.error('Error initializing Stripe:', error);
+        console.error('Error initializing Stripe:', error)
       }
     },
     async processPayment() {
       if (!this.selectedAddress) {
-        alert('Please specify a delivery address.');
-        return;
+        alert('Please specify a delivery address.')
+        return
       }
-      this.processing = true;
+      this.processing = true
       try {
         const { error, paymentIntent } = await this.stripe.confirmCardPayment(
           this.clientSecret,
@@ -377,18 +300,18 @@ export default {
               }
             }
           }
-        );
+        )
 
         if (error) {
-          document.getElementById('card-errors').textContent = error.message;
+          document.getElementById('card-errors').textContent = error.message
         } else if (paymentIntent.status === 'succeeded') {
-          await this.placeOrder(paymentIntent.id);
+          await this.placeOrder(paymentIntent.id)
         }
       } catch (error) {
-        console.error('Payment error:', error);
-        alert('Payment failed. Please try again.');
+        console.error('Payment error:', error)
+        alert('Payment failed. Please try again.')
       } finally {
-        this.processing = false;
+        this.processing = false
       }
     },
     async placeOrder(paymentIntentId) {
@@ -397,56 +320,46 @@ export default {
           payment_intent_id: paymentIntentId,
           address_id: this.selectedAddress.id,
           coupon_code: this.couponCode || null
-        });
-        const data = response.data;
-        if (data.success) {
-          alert('Order placed successfully!');
-          this.$router.push('/my-orders');
+        })
+        if (response.data.success) {
+          alert('Order placed successfully!')
+          this.$router.push('/my-orders')
         } else {
-          alert('Failed to place order. Please contact support.');
+          alert('Failed to place order.')
         }
       } catch (error) {
-        console.error('Error placing order:', error);
-        alert('Failed to place order. Please try again.');
+        console.error('Error placing order:', error)
+        alert('Failed to place order.')
       }
     },
     async applyCoupon() {
-      if (!this.couponCode.trim()) {
-        this.couponError = 'Please enter a coupon code';
-        return;
-      }
-
-      this.couponLoading = true;
-      this.couponError = '';
-
+      if (!this.couponCode.trim()) return
+      this.couponLoading = true
+      this.couponError = ''
       try {
         const response = await this.$axios.post('/api/coupons/validate', {
           coupon_code: this.couponCode.toUpperCase(),
           cart_total: parseFloat(this.subtotal)
-        });
-
+        })
         if (response.data.success) {
-          this.appliedCoupon = response.data.data;
-          this.discountAmount = response.data.data.discount_amount;
-          this.couponCode = response.data.data.code;
-          this.couponError = '';
+          this.appliedCoupon = response.data.data
+          this.discountAmount = response.data.data.discount_amount
+          this.couponCode = response.data.data.code
         }
       } catch (error) {
-        const message = error.response?.data?.message || 'Invalid coupon code';
-        this.couponError = message;
-        this.appliedCoupon = null;
-        this.discountAmount = 0;
+        this.couponError = error.response?.data?.message || 'Invalid coupon code'
+        this.appliedCoupon = null
+        this.discountAmount = 0
       } finally {
-        this.couponLoading = false;
+        this.couponLoading = false
       }
     },
     removeCoupon() {
-      this.appliedCoupon = null;
-      this.couponCode = '';
-      this.discountAmount = 0;
-      this.couponError = '';
-    },
-    getImageUrl
+      this.appliedCoupon = null
+      this.couponCode = ''
+      this.discountAmount = 0
+      this.couponError = ''
+    }
   }
 }
 </script>
