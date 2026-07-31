@@ -1,7 +1,9 @@
 <template>
   <div class="card card-vuexy p-4">
     <!-- Header -->
-    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4 pb-3 border-bottom">
+    <div
+      class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4 pb-3 border-bottom"
+    >
       <div class="d-flex align-items-center gap-3">
         <div class="badge bg-label-info rounded-3 p-3">
           <i class="fas fa-ruler-combined fs-3"></i>
@@ -12,7 +14,11 @@
         </div>
       </div>
 
-      <button type="button" class="btn btn-primary rounded-pill px-4 shadow-primary" @click="openModal()">
+      <button
+        type="button"
+        class="btn btn-primary rounded-pill px-4 shadow-primary"
+        @click="openModal()"
+      >
         <i class="fas fa-plus me-1"></i>Add Size
       </button>
     </div>
@@ -21,8 +27,15 @@
     <div class="row g-3 mb-4">
       <div class="col-12 col-md-6">
         <div class="input-group">
-          <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="fas fa-search"></i></span>
-          <input type="search" class="form-control border-start-0 ps-0" v-model="filters.search" placeholder="Search size name..." />
+          <span class="input-group-text bg-transparent border-end-0 text-muted"
+            ><i class="fas fa-search"></i
+          ></span>
+          <input
+            type="search"
+            class="form-control border-start-0 ps-0"
+            v-model="filters.search"
+            placeholder="Search size name..."
+          />
         </div>
       </div>
     </div>
@@ -45,10 +58,20 @@
             <td class="fs-8 text-muted">{{ formatDate(size.created_at) }}</td>
             <td class="text-end">
               <div class="d-inline-flex gap-1">
-                <button type="button" class="btn btn-sm btn-icon btn-label-primary" @click="openModal(size)" title="Edit">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-icon btn-label-primary"
+                  @click="openModal(size)"
+                  title="Edit"
+                >
                   <i class="fas fa-pen-to-square fs-8"></i>
                 </button>
-                <button type="button" class="btn btn-sm btn-icon btn-label-danger" @click="deleteSize(size.id)" title="Delete">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-icon btn-label-danger"
+                  @click="deleteSize(size.id)"
+                  title="Delete"
+                >
                   <i class="fas fa-trash-can fs-8"></i>
                 </button>
               </div>
@@ -64,13 +87,20 @@
       </table>
     </div>
 
-    <!-- Modal -->
-    <div class="modal fade" id="sizeModal" tabindex="-1">
+    <!-- Vue Reactive Modal Popup -->
+    <div
+      v-if="showModal"
+      class="modal fade show d-block modal-backdrop-dark"
+      tabindex="-1"
+      style="z-index: 1060"
+    >
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-vuexy-lg rounded-4">
           <div class="modal-header border-bottom p-4">
-            <h5 class="modal-title fw-bold text-heading">{{ editingId ? 'Edit Size' : 'Add New Size' }}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <h5 class="modal-title fw-bold text-heading">
+              {{ editingId ? 'Edit Size' : 'Add New Size' }}
+            </h5>
+            <button type="button" class="btn-close" @click="closeModal"></button>
           </div>
           <div class="modal-body p-4">
             <form @submit.prevent="saveSize">
@@ -79,8 +109,18 @@
                 <input type="text" class="form-control" required v-model="form.name" />
               </div>
               <div class="d-flex justify-content-end gap-2 mt-4">
-                <button type="button" class="btn btn-label-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-primary" :disabled="saving">
+                <button
+                  type="button"
+                  class="btn btn-label-secondary rounded-pill px-4"
+                  @click="closeModal"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  class="btn btn-primary rounded-pill px-4 fw-bold shadow-primary"
+                  :disabled="saving"
+                >
                   {{ saving ? 'Saving...' : 'Save Option' }}
                 </button>
               </div>
@@ -106,18 +146,19 @@ export default {
       perPage: 10,
       filters: { search: '' },
       editingId: null,
+      showModal: false,
       form: { name: '' },
       saving: false,
       searchTimeout: null,
       sortField: 'name',
-      sortOrder: 'asc'
+      sortOrder: 'asc',
     }
   },
   watch: {
     'filters.search'() {
       if (this.searchTimeout) clearTimeout(this.searchTimeout)
       this.searchTimeout = setTimeout(() => this.fetchSizes(1), 300)
-    }
+    },
   },
   mounted() {
     this.fetchSizes(1)
@@ -135,7 +176,9 @@ export default {
     },
     async fetchSizes(page = 1) {
       try {
-        const response = await this.$axios.get(`/api/sizes?page=${page}&search=${this.filters.search}`)
+        const response = await this.$axios.get(
+          `/api/sizes?page=${page}&search=${this.filters.search}`
+        )
         if (response.data.success) {
           const resData = response.data.data
           this.sizesList = resData.data || resData || []
@@ -153,11 +196,12 @@ export default {
         this.editingId = null
         this.form.name = ''
       }
-      const modalEl = document.getElementById('sizeModal')
-      if (window.bootstrap) {
-        const bsModal = window.bootstrap.Modal.getOrCreateInstance(modalEl)
-        bsModal.show()
-      }
+      this.showModal = true
+    },
+    closeModal() {
+      this.showModal = false
+      this.editingId = null
+      this.form.name = ''
     },
     async saveSize() {
       if (!this.form.name.trim()) return
@@ -170,11 +214,7 @@ export default {
           response = await this.$axios.post('/api/sizes', this.form)
         }
         if (response.data.success) {
-          const modalEl = document.getElementById('sizeModal')
-          if (window.bootstrap) {
-            const bsModal = window.bootstrap.Modal.getInstance(modalEl)
-            if (bsModal) bsModal.hide()
-          }
+          this.closeModal()
           await this.fetchSizes(1)
         }
       } catch (err) {
@@ -193,7 +233,7 @@ export default {
       } catch (err) {
         console.error('Delete size error:', err)
       }
-    }
-  }
+    },
+  },
 }
 </script>

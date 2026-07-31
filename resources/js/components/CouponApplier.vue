@@ -1,9 +1,7 @@
 <template>
   <div class="coupon-section card bg-light p-3 mb-3">
-    <h5 class="mb-3">
-      <i class="fas fa-tag me-2"></i>Apply Coupon Code
-    </h5>
-    
+    <h5 class="mb-3"><i class="fas fa-tag me-2"></i>Apply Coupon Code</h5>
+
     <div v-if="appliedCoupon" class="alert alert-success mb-3">
       <div class="d-flex justify-content-between align-items-center">
         <div>
@@ -27,7 +25,7 @@
         placeholder="Enter coupon code..."
         :disabled="loading"
         @keyup.enter="validateCoupon"
-      >
+      />
       <button
         class="btn btn-primary"
         type="button"
@@ -35,9 +33,7 @@
         :disabled="loading || !couponCode.trim()"
       >
         <span v-if="!loading">Apply</span>
-        <span v-else>
-          <i class="fas fa-spinner fa-spin me-1"></i>Validating...
-        </span>
+        <span v-else> <i class="fas fa-spinner fa-spin me-1"></i>Validating... </span>
       </button>
     </div>
 

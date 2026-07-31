@@ -11,7 +11,7 @@ export const useWishlistStore = defineStore('wishlist', () => {
     loading.value = true
     try {
       const axios = (await import('axios')).default
-      const response = await axios.get('/api/wishlist')
+      const response = await axios.get('/api/fetch-wishlist')
       items.value = response.data.data || []
     } catch (error) {
       console.error('Failed to fetch wishlist:', error)
@@ -24,7 +24,8 @@ export const useWishlistStore = defineStore('wishlist', () => {
     loading.value = true
     try {
       const axios = (await import('axios')).default
-      const response = await axios.post('/api/wishlist/add', { product_id: productId })
+      // YB - 31-07-2026: Use update-wishlist route with action 'add'
+      await axios.post('/api/update-wishlist', { product_id: productId, action: 'add' })
       await fetchWishlist()
       return { success: true }
     } catch (error) {
@@ -37,11 +38,16 @@ export const useWishlistStore = defineStore('wishlist', () => {
   async function removeFromWishlist(wishlistItemId) {
     loading.value = true
     try {
+      // Find the item in local state to retrieve the product ID
+      const item = items.value.find((i) => i.id === wishlistItemId)
+      const productId = item ? item.product_id : wishlistItemId
+
       const axios = (await import('axios')).default
-      await axios.delete(`/api/wishlist/${wishlistItemId}`)
-      items.value = items.value.filter((item) => item.id !== wishlistItemId)
+      // YB - 31-07-2026: Use update-wishlist route with action 'remove'
+      await axios.post('/api/update-wishlist', { product_id: productId, action: 'remove' })
+      await fetchWishlist()
       return { success: true }
-    } catch (error) {
+    } catch {
       return { success: false, error: 'Failed to remove from wishlist' }
     } finally {
       loading.value = false

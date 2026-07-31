@@ -4,7 +4,7 @@
     <div class="auth-bg-blob auth-bg-blob-1"></div>
     <div class="auth-bg-blob auth-bg-blob-2"></div>
 
-    <div class="auth-card-container" style="max-width: 900px;">
+    <div class="auth-card-container auth-card-wrapper">
       <div class="auth-glass-card">
         <div class="row g-0">
           <!-- Left Side - Brand Banner -->
@@ -16,9 +16,13 @@
             <p class="text-white-50 px-4 mb-4">
               Enter your new credentials below to secure your account and recover login access.
             </p>
-            <img :src="'images/login-page-bg-image.png'" class="card-img-login" alt="Background Graphic">
+            <img
+              :src="'images/login-page-bg-image.png'"
+              class="card-img-login"
+              alt="Background Graphic"
+            />
           </div>
-          
+
           <!-- Right Side - Reset Password Form -->
           <div class="col-lg-6 auth-right-form">
             <div class="d-flex flex-column h-100 justify-content-center">
@@ -39,18 +43,18 @@
                 <div class="mb-3">
                   <label for="password" class="premium-label">New Password</label>
                   <div class="premium-input-group">
-                    <input 
-                      v-model="form.password" 
-                      :type="showPassword ? 'text' : 'password'" 
-                      class="premium-input" 
-                      id="password" 
-                      placeholder="••••••••" 
+                    <input
+                      v-model="form.password"
+                      :type="showPassword ? 'text' : 'password'"
+                      class="premium-input"
+                      id="password"
+                      placeholder="••••••••"
                       required
-                    >
+                    />
                     <i class="fas fa-lock input-icon"></i>
-                    <button 
-                      type="button" 
-                      class="password-toggle-btn" 
+                    <button
+                      type="button"
+                      class="password-toggle-btn"
                       @click="showPassword = !showPassword"
                     >
                       <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
@@ -61,18 +65,18 @@
                 <div class="mb-4">
                   <label for="password_confirmation" class="premium-label">Confirm Password</label>
                   <div class="premium-input-group">
-                    <input 
-                      v-model="form.password_confirmation" 
-                      :type="showConfirmPassword ? 'text' : 'password'" 
-                      class="premium-input" 
-                      id="password_confirmation" 
-                      placeholder="••••••••" 
+                    <input
+                      v-model="form.password_confirmation"
+                      :type="showConfirmPassword ? 'text' : 'password'"
+                      class="premium-input"
+                      id="password_confirmation"
+                      placeholder="••••••••"
                       required
-                    >
+                    />
                     <i class="fas fa-lock input-icon"></i>
-                    <button 
-                      type="button" 
-                      class="password-toggle-btn" 
+                    <button
+                      type="button"
+                      class="password-toggle-btn"
                       @click="showConfirmPassword = !showConfirmPassword"
                     >
                       <i :class="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
@@ -80,19 +84,21 @@
                   </div>
                 </div>
 
-                <button 
-                  type="submit" 
-                  class="btn auth-btn-glow w-100 mb-3" 
+                <button
+                  type="submit"
+                  class="btn auth-btn-glow w-100 mb-3"
                   :disabled="loading || !!error"
                 >
-                  <span v-if="loading"><i class="fas fa-circle-notch fa-spin me-2"></i>Resetting...</span>
+                  <span v-if="loading"
+                    ><i class="fas fa-circle-notch fa-spin me-2"></i>Resetting...</span
+                  >
                   <span v-else><i class="fas fa-key me-2"></i>Update Password</span>
                 </button>
               </form>
 
               <div class="text-center mt-3">
                 <p class="mb-0 text-muted">
-                  Remembered your password? 
+                  Remembered your password?
                   <router-link to="/login" class="text-link-premium">Back to Login</router-link>
                 </p>
               </div>
@@ -119,43 +125,43 @@ export default {
       showConfirmPassword: false,
       loading: false,
       error: '',
-      successMessage: ''
+      successMessage: '',
     }
   },
   created() {
-    this.form.token = this.$route.query.token || '';
-    this.form.email = this.$route.query.email || '';
-    
+    this.form.token = this.$route.query.token || ''
+    this.form.email = this.$route.query.email || ''
+
     if (!this.form.token || !this.form.email) {
-      this.error = 'Invalid reset password link. Please request a new one.';
+      this.error = 'Invalid reset password link. Please request a new one.'
     }
   },
   methods: {
     async submitForm() {
       if (this.form.password !== this.form.password_confirmation) {
-        this.error = 'Passwords do not match';
-        return;
+        this.error = 'Passwords do not match'
+        return
       }
-      
-      this.loading = true;
-      this.error = '';
-      this.successMessage = '';
+
+      this.loading = true
+      this.error = ''
+      this.successMessage = ''
       try {
-        const response = await this.$axios.post('/reset-password', this.form);
-        this.successMessage = response.data.message;
-        this.form.password = '';
-        this.form.password_confirmation = '';
-        
+        const response = await this.$axios.post('/reset-password', this.form)
+        this.successMessage = response.data.message
+        this.form.password = ''
+        this.form.password_confirmation = ''
+
         setTimeout(() => {
-          this.$router.push('/login');
-        }, 3000);
+          this.$router.push('/login')
+        }, 3000)
       } catch (error) {
-        this.error = error.response?.data?.message || 'Failed to reset password';
-        console.error('Reset password error:', error);
+        this.error = error.response?.data?.message || 'Failed to reset password'
+        console.error('Reset password error:', error)
       } finally {
-        this.loading = false;
+        this.loading = false
       }
-    }
-  }
+    },
+  },
 }
 </script>

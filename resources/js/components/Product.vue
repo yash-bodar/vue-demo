@@ -20,13 +20,15 @@
         <div class="col-12 col-lg-8">
           <div class="d-flex align-items-center gap-2 justify-content-lg-end flex-wrap">
             <!-- Search Autocomplete Input -->
-            <div class="position-relative flex-grow-1" style="max-width: 320px; min-width: 220px;">
+            <div class="position-relative flex-grow-1 search-wrapper-max-320">
               <div class="input-group">
-                <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="fas fa-search"></i></span>
-                <input 
-                  type="search" 
-                  class="form-control border-start-0 ps-0" 
-                  :value="filters.searchQuery" 
+                <span class="input-group-text bg-transparent border-end-0 text-muted"
+                  ><i class="fas fa-search"></i
+                ></span>
+                <input
+                  type="search"
+                  class="form-control border-start-0 ps-0"
+                  :value="filters.searchQuery"
                   @input="handleSearchInput"
                   @blur="closeSuggestions"
                   @focus="showSuggestions = suggestions.length > 0"
@@ -36,21 +38,29 @@
               </div>
 
               <!-- Floating Autocomplete Suggestions -->
-              <div v-if="showSuggestions" class="position-absolute w-100 bg-card rounded-3 shadow-lg border border-light mt-1 py-1" style="z-index: 1000; top: 100%; left: 0; max-height: 280px; overflow-y: auto;">
+              <div
+                v-if="showSuggestions"
+                class="position-absolute w-100 bg-card rounded-3 shadow-lg border border-light mt-1 py-1 search-suggest-popover"
+              >
                 <div v-if="autocompleteLoading" class="text-center py-3 text-muted fs-8">
                   <i class="fas fa-circle-notch fa-spin me-1 text-primary"></i>Searching catalog...
                 </div>
                 <template v-else>
-                  <div 
-                    v-for="item in suggestions" 
-                    :key="item.id" 
+                  <div
+                    v-for="item in suggestions"
+                    :key="item.id"
                     class="d-flex align-items-center gap-2 p-2 hover-bg-light cursor-pointer border-bottom border-light"
                     @mousedown="selectSuggestion(item.id)"
                   >
-                    <img :src="getImageUrl(item.image)" class="rounded-2" style="width: 36px; height: 36px; object-fit: cover;">
+                    <img :src="getImageUrl(item.image)" class="rounded-2 product-thumb-36" />
                     <div class="flex-grow-1 min-w-0">
-                      <div class="text-heading fw-bold fs-7 text-truncate mb-0">{{ item.name }}</div>
-                      <div class="text-primary fw-bold fs-8">{{ user?.currency_sign }}{{ item.converted_price.toFixed(2) }}</div>
+                      <div class="text-heading fw-bold fs-7 text-truncate mb-0">
+                        {{ item.name }}
+                      </div>
+                      <div class="text-primary fw-bold fs-8">
+                        {{ user?.currency_sign
+                        }}{{ (item.converted_price || item.price || 0).toFixed(2) }}
+                      </div>
                     </div>
                   </div>
                 </template>
@@ -58,23 +68,33 @@
             </div>
 
             <!-- Sort By Select -->
-            <div style="min-width: 180px;">
+            <div class="dropdown-menu-200">
               <select class="form-select" v-model="selectedSort">
                 <option value="">Sort By</option>
-                <option v-for="sort in sortingList" :key="sort.value" :value="sort.value">{{ sort.label }}</option>
+                <option v-for="sort in sortingList" :key="sort.value" :value="sort.value">
+                  {{ sort.label }}
+                </option>
               </select>
             </div>
 
             <!-- Toggle Filter Panel Button -->
-            <button 
-              type="button" 
+            <button
+              type="button"
               class="btn px-3"
-              :class="showAdvancedFilters || activeFiltersCount > 0 ? 'btn-primary' : 'btn-outline-primary'"
+              :class="
+                showAdvancedFilters || activeFiltersCount > 0
+                  ? 'btn-primary'
+                  : 'btn-outline-primary'
+              "
               @click="showAdvancedFilters = !showAdvancedFilters"
             >
               <i class="fas fa-sliders me-1"></i>
               <span>Filters</span>
-              <span v-if="activeFiltersCount > 0" class="badge bg-white text-primary rounded-pill ms-1">{{ activeFiltersCount }}</span>
+              <span
+                v-if="activeFiltersCount > 0"
+                class="badge bg-white text-primary rounded-pill ms-1"
+                >{{ activeFiltersCount }}</span
+              >
             </button>
           </div>
         </div>
@@ -91,20 +111,22 @@
               </span>
             </div>
             <div class="col-12 col-md-9 d-flex flex-wrap gap-2">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 class="btn btn-sm rounded-pill px-3"
                 :class="!filters.selectedCategory ? 'btn-primary' : 'btn-label-secondary'"
                 @click="filters.selectedCategory = ''"
               >
                 All Categories
               </button>
-              <button 
-                v-for="category in categories" 
-                :key="category.id" 
-                type="button" 
+              <button
+                v-for="category in categories"
+                :key="category.id"
+                type="button"
                 class="btn btn-sm rounded-pill px-3"
-                :class="filters.selectedCategory === category.id ? 'btn-primary' : 'btn-label-secondary'"
+                :class="
+                  filters.selectedCategory === category.id ? 'btn-primary' : 'btn-label-secondary'
+                "
                 @click="filters.selectedCategory = category.id"
               >
                 {{ category.name }}
@@ -121,18 +143,30 @@
             </div>
             <div class="col-12 col-md-9">
               <div class="d-flex align-items-center gap-3 flex-wrap">
-                <div class="input-group input-group-sm" style="max-width: 130px;">
+                <div class="input-group input-group-sm input-group-max-130">
                   <span class="input-group-text bg-light text-muted fs-8">Min</span>
-                  <input type="number" class="form-control" v-model.number="filters.minPrice" placeholder="0" min="0" />
+                  <input
+                    type="number"
+                    class="form-control"
+                    v-model.number="filters.minPrice"
+                    placeholder="0"
+                    min="0"
+                  />
                 </div>
                 <span class="text-muted">—</span>
-                <div class="input-group input-group-sm" style="max-width: 130px;">
+                <div class="input-group input-group-sm input-group-max-130">
                   <span class="input-group-text bg-light text-muted fs-8">Max</span>
-                  <input type="number" class="form-control" v-model.number="filters.maxPrice" placeholder="Max" min="0" />
+                  <input
+                    type="number"
+                    class="form-control"
+                    v-model.number="filters.maxPrice"
+                    placeholder="Max"
+                    min="0"
+                  />
                 </div>
-                <button 
-                  type="button" 
-                  class="btn btn-sm btn-label-danger" 
+                <button
+                  type="button"
+                  class="btn btn-sm btn-label-danger"
                   @click="resetPriceFilter"
                   :disabled="!filters.minPrice && !filters.maxPrice"
                 >
@@ -151,7 +185,7 @@
       <div v-if="loading" class="row g-4">
         <div v-for="n in 8" :key="n" class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
           <div class="card card-vuexy p-3">
-            <div class="skeleton-box mb-3" style="height: 220px;"></div>
+            <div class="skeleton-box mb-3 skeleton-h-220"></div>
             <div class="skeleton-box py-2 mb-2 w-75"></div>
             <div class="skeleton-box py-2 w-50"></div>
           </div>
@@ -168,34 +202,54 @@
       <!-- Product Cards Grid -->
       <div v-else>
         <div class="row g-4">
-          <div v-for="(product, index) in products" :key="index" class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
+          <div
+            v-for="(product, index) in products"
+            :key="index"
+            class="col-sm-6 col-md-6 col-lg-4 col-xl-3"
+          >
             <div class="card card-vuexy h-100 d-flex flex-column">
               <!-- Image Container -->
               <div class="product-card-img-wrapper">
-                <img :src="getImageUrl(product.image)" class="product-card-img" :alt="product.name">
+                <img
+                  :src="getImageUrl(product.image)"
+                  class="product-card-img"
+                  :alt="product.name"
+                />
                 <div class="product-card-overlay">
-                  <router-link :to="`/product/detail/${product.id}`" class="btn btn-sm btn-light rounded-circle btn-icon shadow">
+                  <router-link
+                    :to="`/product/detail/${product.id}`"
+                    class="btn btn-sm btn-light rounded-circle btn-icon shadow"
+                  >
                     <i class="fas fa-eye text-primary"></i>
                   </router-link>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     class="btn btn-sm btn-light rounded-circle btn-icon shadow"
                     :disabled="loadingProductId == product.id"
                     @click="updateWishlist(product.id, product.wishlist ? 'remove' : 'add')"
                   >
-                    <i class="fas fa-heart" :class="product.wishlist ? 'text-danger' : 'text-muted'"></i>
+                    <i
+                      class="fas fa-heart"
+                      :class="product.wishlist ? 'text-danger' : 'text-muted'"
+                    ></i>
                   </button>
                 </div>
-                <span v-if="product.stock <= 0" class="position-absolute top-0 start-0 m-2 badge bg-danger rounded-pill fs-9">
+                <span
+                  v-if="product.stock <= 0"
+                  class="position-absolute top-0 start-0 m-2 badge bg-danger rounded-pill fs-9"
+                >
                   Out of Stock
                 </span>
               </div>
 
               <!-- Product Info Body -->
               <div class="p-3 d-flex flex-column flex-grow-1">
-                <div class="cursor-pointer mb-2" @click="$router.push(`/product/detail/${product.id}`)">
+                <div
+                  class="cursor-pointer mb-2"
+                  @click="$router.push(`/product/detail/${product.id}`)"
+                >
                   <h6 class="fw-bold text-heading mb-1 text-truncate">{{ product.name }}</h6>
-                  <p class="text-muted fs-8 mb-0 text-truncate" style="max-height: 38px;">
+                  <p class="text-muted fs-8 mb-0 text-truncate">
                     {{ product.description || 'No description available' }}
                   </p>
                 </div>
@@ -212,44 +266,58 @@
                 </div>
 
                 <!-- Price & Cart Action -->
-                <div class="mt-auto pt-2 border-top border-light d-flex align-items-center justify-content-between">
+                <div
+                  class="mt-auto pt-2 border-top border-light d-flex align-items-center justify-content-between"
+                >
                   <span class="fw-bold text-primary fs-5">
-                    {{ user?.currency_sign }}{{ product.converted_price.toFixed(2) }}
+                    {{ user?.currency_sign || '$'
+                    }}{{ (product.converted_price || product.price || 0).toFixed(2) }}
                   </span>
 
                   <!-- Cart Controls -->
-                  <div style="min-width: 110px;">
-                    <div v-if="getCartQuantity(product.id) > 0" class="d-flex align-items-center justify-content-between border rounded-pill p-1 bg-light">
-                      <button 
-                        type="button" 
-                        class="btn btn-sm btn-icon border-0 p-0 text-primary" 
-                        :disabled="loadingProductId == product.id" 
+                  <div>
+                    <div
+                      v-if="getCartQuantity(product.id) > 0"
+                      class="d-flex align-items-center justify-content-between border rounded-pill p-1 bg-light"
+                    >
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-icon border-0 p-0 text-primary"
+                        :disabled="loadingProductId == product.id"
                         @click="updateCart(product.id, 'decrease')"
                       >
                         <i class="fas fa-minus fs-9"></i>
                       </button>
                       <span class="fw-bold fs-7">{{ getCartQuantity(product.id) }}</span>
-                      <button 
-                        type="button" 
-                        class="btn btn-sm btn-icon border-0 p-0 text-primary" 
-                        :disabled="getCartQuantity(product.id) >= product.stock || loadingProductId === product.id" 
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-icon border-0 p-0 text-primary"
+                        :disabled="
+                          getCartQuantity(product.id) >= product.stock ||
+                          loadingProductId === product.id
+                        "
                         @click="updateCart(product.id, 'increase')"
                       >
                         <i class="fas fa-plus fs-9"></i>
                       </button>
                     </div>
 
-                    <button 
+                    <button
                       v-else-if="product.stock > 0"
-                      type="button" 
-                      :disabled="loadingProductId == product.id" 
-                      class="btn btn-sm btn-primary rounded-pill w-100" 
+                      type="button"
+                      :disabled="loadingProductId == product.id"
+                      class="btn btn-sm btn-primary rounded-pill w-100"
                       @click="updateCart(product.id, 'increase')"
                     >
                       <i class="fas fa-cart-plus me-1"></i>Add
                     </button>
 
-                    <button v-else type="button" class="btn btn-sm btn-secondary rounded-pill w-100 fs-8" disabled>
+                    <button
+                      v-else
+                      type="button"
+                      class="btn btn-sm btn-secondary rounded-pill w-100 fs-8"
+                      disabled
+                    >
                       Sold Out
                     </button>
                   </div>
@@ -264,26 +332,41 @@
           <div class="card card-vuexy p-3 px-4">
             <div class="d-flex flex-column align-items-center gap-2">
               <span class="text-muted fs-8">
-                Showing <strong>{{ (currentPage - 1) * perPage + 1 }}</strong> to <strong>{{ Math.min(currentPage * perPage, productCount) }}</strong> of <strong>{{ productCount }}</strong> items
+                Showing <strong>{{ (currentPage - 1) * perPage + 1 }}</strong> to
+                <strong>{{ Math.min(currentPage * perPage, productCount) }}</strong> of
+                <strong>{{ productCount }}</strong> items
               </span>
               <nav>
                 <ul class="pagination mb-0 gap-2">
                   <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                    <button class="page-link rounded-circle border-0 text-primary" :disabled="currentPage === 1" @click="loadProducts(currentPage - 1)">
+                    <button
+                      class="page-link rounded-circle border-0 text-primary"
+                      :disabled="currentPage === 1"
+                      @click="loadProducts(currentPage - 1)"
+                    >
                       <i class="fas fa-chevron-left"></i>
                     </button>
                   </li>
-                  <li v-for="page in lastPage" :key="page" class="page-item" :class="{ active: page === currentPage }">
-                    <button 
-                      class="page-link rounded-circle border-0 fw-bold" 
-                      :class="page === currentPage ? 'bg-primary text-white' : 'text-primary'" 
+                  <li
+                    v-for="page in lastPage"
+                    :key="page"
+                    class="page-item"
+                    :class="{ active: page === currentPage }"
+                  >
+                    <button
+                      class="page-link rounded-circle border-0 fw-bold"
+                      :class="page === currentPage ? 'bg-primary text-white' : 'text-primary'"
                       @click="loadProducts(page)"
                     >
                       {{ page }}
                     </button>
                   </li>
                   <li class="page-item" :class="{ disabled: currentPage === lastPage }">
-                    <button class="page-link rounded-circle border-0 text-primary" :disabled="currentPage === lastPage" @click="loadProducts(currentPage + 1)">
+                    <button
+                      class="page-link rounded-circle border-0 text-primary"
+                      :disabled="currentPage === lastPage"
+                      @click="loadProducts(currentPage + 1)"
+                    >
                       <i class="fas fa-chevron-right"></i>
                     </button>
                   </li>
@@ -300,6 +383,7 @@
 <script>
 import { mapState } from 'pinia'
 import { useAuthStore } from '../stores/auth'
+import { useWishlistStore } from '../stores/wishlist'
 import { getImageUrl } from '../utils/ImageUrl'
 
 export default {
@@ -337,8 +421,8 @@ export default {
         { value: 'price_asc', label: 'Price (Low to High)' },
         { value: 'price_desc', label: 'Price (High to Low)' },
         { value: 'created_at_asc', label: 'Created At (Oldest)' },
-        { value: 'created_at_desc', label: 'Created At (Newest)' }
-      ]
+        { value: 'created_at_desc', label: 'Created At (Newest)' },
+      ],
     }
   },
   computed: {
@@ -349,7 +433,7 @@ export default {
       if (this.filters.minPrice) count++
       if (this.filters.maxPrice) count++
       return count
-    }
+    },
   },
   watch: {
     'filters.selectedCategory'() {
@@ -370,7 +454,7 @@ export default {
         this.filters.sort_order = this.selectedSort.split('_')[1]
       }
       this.loadProducts(1)
-    }
+    },
   },
   mounted() {
     if (this.$route.query.category) {
@@ -391,9 +475,9 @@ export default {
       try {
         const params = new URLSearchParams({
           page: page,
-          ...this.filters
+          ...this.filters,
         })
-        const response = await this.$axios.get(`/api/get-products/?${params.toString()}`)
+        const response = await this.$axios.get(`/api/get-products?${params.toString()}`)
         const data = response.data
         if (data.success) {
           this.products = data.data.data
@@ -424,7 +508,7 @@ export default {
       this.autocompleteLoading = true
       this.showSuggestions = true
       try {
-        const response = await this.$axios.get(`/api/get-products/?searchQuery=${query}&perPage=5`)
+        const response = await this.$axios.get(`/api/get-products?searchQuery=${query}&perPage=5`)
         if (response.data.success) {
           this.suggestions = response.data.data.data
         }
@@ -439,7 +523,9 @@ export default {
       this.$router.push(`/product/detail/${id}`)
     },
     closeSuggestions() {
-      setTimeout(() => { this.showSuggestions = false }, 200)
+      setTimeout(() => {
+        this.showSuggestions = false
+      }, 200)
     },
     triggerPriceFilter() {
       if (this.priceTimeout) clearTimeout(this.priceTimeout)
@@ -462,7 +548,7 @@ export default {
     },
     async loadCart() {
       try {
-        const response = await this.$axios.get('/api/get-cart')
+        const response = await this.$axios.get('/api/cart')
         if (response.data.success) {
           this.cart = response.data.data
         }
@@ -481,15 +567,15 @@ export default {
       }
     },
     getCartQuantity(productId) {
-      const item = this.cart.find(c => c.product_id === productId)
+      const item = this.cart.find((c) => c.product_id === productId)
       return item ? item.quantity : 0
     },
     async updateCart(productId, action) {
       this.loadingProductId = productId
       try {
-        const response = await this.$axios.post('/api/add-to-cart', {
+        const response = await this.$axios.post('/api/update-cart', {
           product_id: productId,
-          action: action
+          action: action,
         })
         if (response.data.success) {
           await this.loadCart()
@@ -505,17 +591,25 @@ export default {
       try {
         const response = await this.$axios.post('/api/update-wishlist', {
           product_id: productId,
-          action: action
+          action: action,
         })
         if (response.data.success) {
+          // YB - 31-07-2026: Mutate local product wishlist state for instant UI reflection
+          const product = this.products.find((p) => p.id === productId)
+          if (product) {
+            product.wishlist = action === 'add' ? { id: productId } : null
+          }
           await this.loadWishlist()
+          // YB - 31-07-2026: Refresh global wishlist store to update header count badge
+          const wishlistStore = useWishlistStore()
+          await wishlistStore.fetchWishlist()
         }
       } catch (err) {
         console.error('Wishlist update error:', err)
       } finally {
         this.loadingProductId = null
       }
-    }
-  }
+    },
+  },
 }
 </script>
