@@ -19,33 +19,56 @@
               <label class="form-label fw-semibold">
                 <i class="fas fa-user me-2 text-primary"></i> Name
               </label>
-              <input v-model="form.name" class="form-control form-control-lg" placeholder="Enter user name" required>
+              <input
+                v-model="form.name"
+                class="form-control form-control-lg"
+                placeholder="Enter user name"
+                required
+              />
             </div>
-            
+
             <div class="mb-4">
               <label class="form-label fw-semibold">
                 <i class="fas fa-envelope me-2 text-primary"></i> Email
               </label>
-              <input v-model="form.email" class="form-control form-control-lg" type="email" placeholder="Enter email address" required>
+              <input
+                v-model="form.email"
+                class="form-control form-control-lg"
+                type="email"
+                placeholder="Enter email address"
+                required
+              />
             </div>
-            
+
             <div class="row" v-if="!isEdit">
               <div class="col-md-6 mb-4">
                 <label class="form-label fw-semibold">
                   <i class="fas fa-lock me-2 text-primary"></i> Password
                 </label>
-                <input v-model="form.password" type="password" class="form-control" placeholder="Enter password" required>
+                <input
+                  v-model="form.password"
+                  type="password"
+                  class="form-control"
+                  placeholder="Enter password"
+                  required
+                />
               </div>
-              
+
               <div class="col-md-6 mb-4">
                 <label class="form-label fw-semibold">
                   <i class="fas fa-lock me-2 text-primary"></i> Confirm Password
                 </label>
-                <input v-model="form.password_confirmation" type="password" class="form-control" placeholder="Confirm password" required>
+                <input
+                  v-model="form.password_confirmation"
+                  type="password"
+                  class="form-control"
+                  placeholder="Confirm password"
+                  required
+                />
               </div>
             </div>
           </div>
-          
+
           <!-- Right Column -->
           <div class="col-lg-4">
             <div class="card bg-light border-0">
@@ -53,7 +76,7 @@
                 <h6 class="card-title fw-bold mb-4">
                   <i class="fas fa-cog me-1 text-primary"></i> User Settings
                 </h6>
-                
+
                 <div class="mb-4">
                   <label class="form-label fw-semibold">
                     <i class="fas fa-toggle-on me-2 text-primary"></i> Status
@@ -63,7 +86,7 @@
                     <option value="Inactive">Inactive</option>
                   </select>
                 </div>
-                
+
                 <div class="mb-4">
                   <label class="form-label fw-semibold">
                     <i class="fas fa-money-bill-wave me-2 text-primary"></i> Currency
@@ -78,7 +101,7 @@
                     <option value="AED">AED - UAE Dirham (د.إ)</option>
                   </select>
                 </div>
-                
+
                 <div class="d-grid gap-2">
                   <router-link class="btn btn-outline-secondary" to="/users">
                     <i class="fas fa-arrow-left me-1"></i> Back to Users
@@ -107,17 +130,17 @@ export default {
         password: '',
         password_confirmation: '',
         status: 'Active',
-        currency: 'USD'
+        currency: 'USD',
       },
-      isEdit: false
+      isEdit: false,
     }
   },
   mounted() {
     const id = this.$route.params.id
     console.log('UserForm mounted with id:', id)
-    if(id) {
+    if (id) {
       this.isEdit = true
-      this.$axios.get(`/api/users/${id}`).then(res => {
+      this.$axios.get(`/api/users/${id}`).then((res) => {
         this.form = res.data.data
       })
     }
@@ -126,14 +149,12 @@ export default {
     submitForm() {
       if (!this.isEdit) {
         if (this.form.password !== this.form.password_confirmation) {
-          alert('Passwords do not match');
-          return;
+          alert('Passwords do not match')
+          return
         }
       }
-      this.$axios.post('/api/users', this.form).then(
-        () => this.$router.push('/users')
-      )
-    }
-  }
+      this.$axios.post('/api/users', this.form).then(() => this.$router.push('/users'))
+    },
+  },
 }
 </script>

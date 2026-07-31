@@ -35,7 +35,7 @@
           <span>{{ currencySymbol }}{{ taxAmount.toFixed(2) }}</span>
         </div>
 
-        <hr>
+        <hr />
 
         <div class="summary-row total">
           <span>Total:</span>
@@ -46,7 +46,8 @@
       <!-- Savings Badge -->
       <div v-if="discountAmount > 0" class="alert alert-success mt-3 mb-0">
         <i class="fas fa-check-circle me-2"></i>
-        You save <strong>{{ currencySymbol }}{{ discountAmount.toFixed(2) }}</strong> with this coupon!
+        You save <strong>{{ currencySymbol }}{{ discountAmount.toFixed(2) }}</strong> with this
+        coupon!
       </div>
     </div>
   </div>
@@ -87,13 +88,13 @@ export default {
   computed: {
     currencySymbol() {
       const symbols = {
-        'USD': '$',
-        'EUR': '€',
-        'INR': '₹',
-        'GBP': '£',
-        'CAD': 'C$',
-        'AUD': 'A$',
-        'AED': 'د.إ',
+        USD: '$',
+        EUR: '€',
+        INR: '₹',
+        GBP: '£',
+        CAD: 'C$',
+        AUD: 'A$',
+        AED: 'د.إ',
       }
       return symbols[this.currencyCode] || '$'
     },

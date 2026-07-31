@@ -18,7 +18,7 @@ export default {
   name: 'Main',
   components: {
     AdminLayout,
-    CustomerLayout
+    CustomerLayout,
   },
   computed: {
     ...mapState(useAuthStore, ['isAuthenticated', 'isAdmin']),
@@ -29,15 +29,17 @@ export default {
       }
       // Otherwise render CustomerLayout
       return 'CustomerLayout'
-    }
-  }
+    },
+  },
 }
 </script>
 
 <style>
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .fade-enter-from,

@@ -33,11 +33,13 @@
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="!order || (order.length === 0)" class="text-center py-5">
+      <div v-else-if="!order || order.length === 0" class="text-center py-5">
         <div class="empty-state-icon"><i class="fas fa-box-open fa-5x text-muted mb-3"></i></div>
         <h5 class="text-muted">Order not found</h5>
         <p class="text-muted mb-4">The order you're looking for doesn't exist.</p>
-        <button class="btn btn-primary bg-primary-linear" @click="$router.push('/orders')"><i class="fas fa-arrow-left me-2"></i>Back to Orders</button>
+        <button class="btn btn-primary bg-primary-linear" @click="$router.push('/orders')">
+          <i class="fas fa-arrow-left me-2"></i>Back to Orders
+        </button>
       </div>
 
       <!-- Orders List -->
@@ -51,10 +53,16 @@
                 <div class="text-muted">Placed on {{ formatDate(order.created_at) }}</div>
               </div>
               <div>
-                <span class="badge rounded-3 px-3 py-2 me-2" :class="getOrderStatusBadgeClass(order.status)">
+                <span
+                  class="badge rounded-3 px-3 py-2 me-2"
+                  :class="getOrderStatusBadgeClass(order.status)"
+                >
                   {{ order.status }}
                 </span>
-                <span class="badge rounded-3 px-3 py-2" :class="getOrderStatusBadgeClass(order.payment_status)">
+                <span
+                  class="badge rounded-3 px-3 py-2"
+                  :class="getOrderStatusBadgeClass(order.payment_status)"
+                >
                   {{ order.payment_status }}
                 </span>
               </div>
@@ -67,7 +75,9 @@
             <div class="card shadow-sm border-0 text-center">
               <div class="card-body">
                 <small class="text-muted">Total Amount</small>
-                <h3 class="text-primary mt-2 fw-bold">{{ order.currency_sign }}{{ order.final_amount }}</h3>
+                <h3 class="text-primary mt-2 fw-bold">
+                  {{ order.currency_sign }}{{ order.final_amount }}
+                </h3>
               </div>
             </div>
           </div>
@@ -105,28 +115,46 @@
             <h5 class="fw-bold mb-0">Ordered Items</h5>
           </div>
           <div class="card-body pt-4">
-            <div v-for="item in order.order_items" :key="item.id" class="row align-items-center review-item mx-0 mb-3 p-3 bg-light rounded-3">
+            <div
+              v-for="item in order.order_items || order.items || []"
+              :key="item.id"
+              class="row align-items-center review-item mx-0 mb-3 p-3 bg-light rounded-3"
+            >
               <div class="col-3 col-md-2 text-center">
-                <img :src="getImageUrl(item.product?.image)" class="img-fluid rounded" style="width:60px;height:60px;object-fit:cover;">
+                <img
+                  :src="getImageUrl(item.product?.image || item.image)"
+                  class="img-fluid rounded product-thumb-60"
+                />
               </div>
               <div class="col-9 col-md-7">
-                <h5 class="fw-semibold cursor-pointer mb-1" @click="$router.push('/product/detail/' + item.product_id)">
-                  {{ item.product?.name }}
-                  <span v-if="item.variant" class="badge bg-secondary-soft text-muted small ms-2" style="font-size: 0.65rem;">
-                    {{ item.variant.name }}
+                <h5
+                  class="fw-semibold cursor-pointer mb-1"
+                  @click="item.product_id && $router.push('/product/detail/' + item.product_id)"
+                >
+                  {{
+                    item.product?.name ||
+                    item.product_name ||
+                    item.name ||
+                    'Product #' + (item.product_id || item.id)
+                  }}
+                  <span
+                    v-if="item.variant || item.variant_name"
+                    class="badge bg-secondary-soft text-muted small ms-2 fs-9"
+                  >
+                    {{ item.variant?.name || item.variant_name }}
                   </span>
                 </h5>
-                <div class="text-muted">
-                  {{ order.currency_sign }}{{ item.price }} × {{ item.quantity }}
+                <div class="text-muted fs-8">
+                  {{ order.currency_sign || '$' }}{{ item.price }} × {{ item.quantity }}
                 </div>
-                <div class="d-md-none fw-bold text-primary mt-1 fs-5">
-                  {{ order.currency_sign }}{{ (item.price * item.quantity).toFixed(2) }}
+                <div class="d-md-none fw-bold text-primary mt-1 fs-6">
+                  {{ order.currency_sign || '$' }}{{ (item.price * item.quantity).toFixed(2) }}
                 </div>
               </div>
 
               <div class="col-md-3 text-end d-none d-md-block">
-                <div class="fw-bold fs-4 text-primary">
-                  {{ order.currency_sign }}{{ (item.price * item.quantity).toFixed(2) }}
+                <div class="fw-bold fs-5 text-primary">
+                  {{ order.currency_sign || '$' }}{{ (item.price * item.quantity).toFixed(2) }}
                 </div>
               </div>
             </div>
@@ -163,30 +191,22 @@
           <div class="col-lg-6 mb-4">
             <div class="card shadow-sm border-0">
               <div class="card-header bg-white p-3">
-                <h5 class="mb-0">
-                  Payment Summary
-                </h5>
+                <h5 class="mb-0">Payment Summary</h5>
               </div>
               <div class="card-body">
                 <div class="d-flex justify-content-between mb-3">
                   <span>Subtotal</span>
-                  <strong>
-                    {{ order.currency_sign }}{{ order.total_amount }}
-                  </strong>
+                  <strong> {{ order.currency_sign }}{{ order.total_amount }} </strong>
                 </div>
                 <div class="d-flex justify-content-between mb-3">
                   <span>Shipping</span>
-                  <strong>
-                    {{ order.currency_sign }}{{ order.shipping }}
-                  </strong>
+                  <strong> {{ order.currency_sign }}{{ order.shipping }} </strong>
                 </div>
                 <div class="d-flex justify-content-between mb-3 text-danger">
                   <span>Discount</span>
-                  <strong>
-                    -{{ order.currency_sign }}{{ order.discount_amount }}
-                  </strong>
+                  <strong> -{{ order.currency_sign }}{{ order.discount_amount }} </strong>
                 </div>
-                <hr>
+                <hr />
                 <div class="d-flex justify-content-between">
                   <h5 class="fw-bold">Total</h5>
                   <h3 class="text-primary fw-bold">
@@ -216,28 +236,28 @@ export default {
     }
   },
   mounted() {
-    this.loadOrder();
+    this.loadOrder()
   },
   methods: {
     async loadOrder() {
-      this.loading = true;
+      this.loading = true
       try {
-        const id = this.$route.params.id;
-        const response = await this.$axios.get(`/api/order-detail/${id}`);
-        const data = response.data;
-        console.log(data);
+        const id = this.$route.params.id
+        const response = await this.$axios.get(`/api/order-detail/${id}`)
+        const data = response.data
+        console.log(data)
         if (data.success) {
-          this.order = data.data;
+          this.order = data.data
         }
       } catch (error) {
-        console.error('Error loading cart:', error);
+        console.error('Error loading cart:', error)
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
     getImageUrl,
     formatDate,
-    getOrderStatusBadgeClass
-  }
+    getOrderStatusBadgeClass,
+  },
 }
 </script>

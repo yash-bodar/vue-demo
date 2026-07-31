@@ -22,7 +22,7 @@
     <div v-if="loading" class="row g-4">
       <div v-for="n in 4" :key="n" class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
         <div class="card card-vuexy p-3">
-          <div class="skeleton-box mb-3" style="height: 200px;"></div>
+          <div class="skeleton-box mb-3 skeleton-h-200"></div>
           <div class="skeleton-box py-2 mb-2 w-75"></div>
           <div class="skeleton-box py-2 w-50"></div>
         </div>
@@ -33,7 +33,9 @@
     <div v-else-if="products.length === 0" class="card card-vuexy p-5 text-center">
       <i class="far fa-heart fa-4x text-muted mb-3 opacity-50"></i>
       <h4 class="fw-bold text-heading">Your Wishlist is Empty</h4>
-      <p class="text-muted fs-7 mb-4">Browse our collection and click the heart icon on any item to save it here.</p>
+      <p class="text-muted fs-7 mb-4">
+        Browse our collection and click the heart icon on any item to save it here.
+      </p>
       <router-link to="/product" class="btn btn-primary rounded-pill px-4 py-2 mx-auto">
         <i class="fas fa-bag-shopping me-2"></i>Browse Products
       </router-link>
@@ -42,13 +44,17 @@
     <!-- Wishlist Cards Grid -->
     <div v-else>
       <div class="row g-4 mb-4">
-        <div v-for="(product, index) in products" :key="index" class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
+        <div
+          v-for="(product, index) in products"
+          :key="index"
+          class="col-sm-6 col-md-6 col-lg-4 col-xl-3"
+        >
           <div class="card card-vuexy h-100 d-flex flex-column">
             <!-- Image & Wishlist Float Remove -->
             <div class="product-card-img-wrapper">
               <img :src="getImageUrl(product.image)" class="product-card-img" :alt="product.name" />
-              <button 
-                type="button" 
+              <button
+                type="button"
                 class="btn btn-sm btn-light rounded-circle btn-icon shadow position-absolute top-0 end-0 m-2"
                 :disabled="loadingProductId == product.id"
                 @click="updateWishlist(product.id, 'remove')"
@@ -59,14 +65,26 @@
             </div>
 
             <div class="p-3 d-flex flex-column flex-grow-1">
-              <div class="cursor-pointer mb-2" @click="$router.push(`/product/detail/${product.id}`)">
+              <div
+                class="cursor-pointer mb-2"
+                @click="$router.push(`/product/detail/${product.id}`)"
+              >
                 <h6 class="fw-bold text-heading mb-1 text-truncate">{{ product.name }}</h6>
-                <p class="text-muted fs-8 mb-0 text-truncate">{{ product.description || 'No description available' }}</p>
+                <p class="text-muted fs-8 mb-0 text-truncate">
+                  {{ product.description || 'No description available' }}
+                </p>
               </div>
 
-              <div class="mt-auto pt-2 border-top d-flex align-items-center justify-content-between">
-                <span class="fw-bold text-primary fs-5">${{ parseFloat(product.price || 0).toFixed(2) }}</span>
-                <button class="btn btn-sm btn-primary rounded-pill px-3" @click="moveToCart(product)">
+              <div
+                class="mt-auto pt-2 border-top d-flex align-items-center justify-content-between"
+              >
+                <span class="fw-bold text-primary fs-5"
+                  >${{ parseFloat(product.price || 0).toFixed(2) }}</span
+                >
+                <button
+                  class="btn btn-sm btn-primary rounded-pill px-3"
+                  @click="moveToCart(product)"
+                >
                   <i class="fas fa-cart-plus me-1"></i>Move to Cart
                 </button>
               </div>
@@ -81,17 +99,34 @@
           <nav>
             <ul class="pagination mb-0 gap-2">
               <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                <button class="page-link rounded-circle border-0 text-primary" :disabled="currentPage === 1" @click="loadWishlist(currentPage - 1)">
+                <button
+                  class="page-link rounded-circle border-0 text-primary"
+                  :disabled="currentPage === 1"
+                  @click="loadWishlist(currentPage - 1)"
+                >
                   <i class="fas fa-chevron-left"></i>
                 </button>
               </li>
-              <li v-for="page in lastPage" :key="page" class="page-item" :class="{ active: page === currentPage }">
-                <button class="page-link rounded-circle border-0 fw-bold" :class="page === currentPage ? 'bg-primary text-white' : 'text-primary'" @click="loadWishlist(page)">
+              <li
+                v-for="page in lastPage"
+                :key="page"
+                class="page-item"
+                :class="{ active: page === currentPage }"
+              >
+                <button
+                  class="page-link rounded-circle border-0 fw-bold"
+                  :class="page === currentPage ? 'bg-primary text-white' : 'text-primary'"
+                  @click="loadWishlist(page)"
+                >
                   {{ page }}
                 </button>
               </li>
               <li class="page-item" :class="{ disabled: currentPage === lastPage }">
-                <button class="page-link rounded-circle border-0 text-primary" :disabled="currentPage === lastPage" @click="loadWishlist(currentPage + 1)">
+                <button
+                  class="page-link rounded-circle border-0 text-primary"
+                  :disabled="currentPage === lastPage"
+                  @click="loadWishlist(currentPage + 1)"
+                >
                   <i class="fas fa-chevron-right"></i>
                 </button>
               </li>
@@ -119,7 +154,7 @@ export default {
       currentPage: 1,
       perPage: 8,
       lastPage: 1,
-      filters: {}
+      filters: {},
     }
   },
   mounted() {
@@ -132,17 +167,17 @@ export default {
       try {
         const params = new URLSearchParams({
           page: page,
-          ...this.filters
+          ...this.filters,
         })
         const response = await this.$axios.get(`/api/get-wishlist?${params.toString()}`)
         const data = response.data
         if (data.success) {
-          this.wishlist = data.data.data
-          this.productCount = data.data.total
-          this.currentPage = data.data.current_page
-          this.lastPage = data.data.last_page
-          this.perPage = data.data.per_page
-          this.products = this.wishlist.map(w => w.product).filter(Boolean)
+          this.wishlist = data.data.data || data.data || []
+          this.productCount = data.data.total || this.wishlist.length
+          this.currentPage = data.data.current_page || 1
+          this.lastPage = data.data.last_page || 1
+          this.perPage = data.data.per_page || 8
+          this.products = this.wishlist.map((w) => w.product || w).filter(Boolean)
         }
       } catch (error) {
         console.error('Error loading wishlist:', error)
@@ -155,7 +190,7 @@ export default {
       try {
         const response = await this.$axios.post('/api/update-wishlist', {
           product_id: productId,
-          action: action
+          action: action,
         })
         if (response.data.success) {
           await this.loadWishlist()
@@ -171,10 +206,10 @@ export default {
       if (cartStore.addToCart) {
         await cartStore.addToCart({ product_id: product.id, quantity: 1 })
       } else {
-        await this.$axios.post('/api/add-to-cart', { product_id: product.id, action: 'increase' })
+        await this.$axios.post('/api/update-cart', { product_id: product.id, action: 'increase' })
       }
       await this.updateWishlist(product.id, 'remove')
-    }
-  }
+    },
+  },
 }
 </script>

@@ -1,7 +1,8 @@
-<html>
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
 
 <head>
-    <title>Laravel + Vue</title>
+    <title>{{ config('app.name') }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link

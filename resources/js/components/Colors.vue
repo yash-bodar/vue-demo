@@ -1,7 +1,9 @@
 <template>
   <div class="card card-vuexy p-4">
     <!-- Header -->
-    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4 pb-3 border-bottom">
+    <div
+      class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4 pb-3 border-bottom"
+    >
       <div class="d-flex align-items-center gap-3">
         <div class="badge bg-label-warning rounded-3 p-3">
           <i class="fas fa-palette fs-3"></i>
@@ -12,7 +14,11 @@
         </div>
       </div>
 
-      <button type="button" class="btn btn-primary rounded-pill px-4 shadow-primary" @click="openModal()">
+      <button
+        type="button"
+        class="btn btn-primary rounded-pill px-4 shadow-primary"
+        @click="openModal()"
+      >
         <i class="fas fa-plus me-1"></i>Add Color
       </button>
     </div>
@@ -21,8 +27,15 @@
     <div class="row g-3 mb-4">
       <div class="col-12 col-md-6">
         <div class="input-group">
-          <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="fas fa-search"></i></span>
-          <input type="search" class="form-control border-start-0 ps-0" v-model="filters.search" placeholder="Search color name or hex..." />
+          <span class="input-group-text bg-transparent border-end-0 text-muted"
+            ><i class="fas fa-search"></i
+          ></span>
+          <input
+            type="search"
+            class="form-control border-start-0 ps-0"
+            v-model="filters.search"
+            placeholder="Search color name or hex..."
+          />
         </div>
       </div>
     </div>
@@ -46,17 +59,30 @@
             </td>
             <td>
               <div class="d-flex align-items-center gap-2">
-                <span class="rounded-circle border shadow-sm" :style="{ backgroundColor: color.code || '#ccc', width: '26px', height: '26px' }"></span>
+                <span
+                  class="swatch-26 border shadow-sm"
+                  :style="{ backgroundColor: color.code || '#ccc' }"
+                ></span>
                 <span class="font-monospace text-muted fs-8">{{ color.code || 'N/A' }}</span>
               </div>
             </td>
             <td class="fs-8 text-muted">{{ formatDate(color.created_at) }}</td>
             <td class="text-end">
               <div class="d-inline-flex gap-1">
-                <button type="button" class="btn btn-sm btn-icon btn-label-primary" @click="openModal(color)" title="Edit">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-icon btn-label-primary"
+                  @click="openModal(color)"
+                  title="Edit"
+                >
                   <i class="fas fa-pen-to-square fs-8"></i>
                 </button>
-                <button type="button" class="btn btn-sm btn-icon btn-label-danger" @click="deleteColor(color.id)" title="Delete">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-icon btn-label-danger"
+                  @click="deleteColor(color.id)"
+                  title="Delete"
+                >
                   <i class="fas fa-trash-can fs-8"></i>
                 </button>
               </div>
@@ -72,30 +98,59 @@
       </table>
     </div>
 
-    <!-- Modal -->
-    <div class="modal fade" id="colorModal" tabindex="-1">
+    <!-- Vue Reactive Modal Popup -->
+    <div
+      v-if="showModal"
+      class="modal fade show d-block modal-backdrop-dark"
+      tabindex="-1"
+      style="z-index: 1060"
+    >
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-vuexy-lg rounded-4">
           <div class="modal-header border-bottom p-4">
-            <h5 class="modal-title fw-bold text-heading">{{ editingId ? 'Edit Color' : 'Add New Color' }}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <h5 class="modal-title fw-bold text-heading">
+              {{ editingId ? 'Edit Color' : 'Add New Color' }}
+            </h5>
+            <button type="button" class="btn-close" @click="closeModal"></button>
           </div>
           <div class="modal-body p-4">
             <form @submit.prevent="saveColor">
               <div class="mb-3">
-                <label class="form-label fs-7 fw-semibold">Color Name (e.g. Royal Blue, Crimson)</label>
+                <label class="form-label fs-7 fw-semibold"
+                  >Color Name (e.g. Royal Blue, Crimson)</label
+                >
                 <input type="text" class="form-control" required v-model="form.name" />
               </div>
               <div class="mb-3">
                 <label class="form-label fs-7 fw-semibold">Hex Code</label>
                 <div class="input-group">
-                  <input type="color" class="form-control form-control-color" v-model="form.code" title="Choose color" />
-                  <input type="text" class="form-control" v-model="form.code" placeholder="#7367f0" />
+                  <input
+                    type="color"
+                    class="form-control form-control-color"
+                    v-model="form.code"
+                    title="Choose color"
+                  />
+                  <input
+                    type="text"
+                    class="form-control"
+                    v-model="form.code"
+                    placeholder="#7367f0"
+                  />
                 </div>
               </div>
               <div class="d-flex justify-content-end gap-2 mt-4">
-                <button type="button" class="btn btn-label-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-primary" :disabled="saving">
+                <button
+                  type="button"
+                  class="btn btn-label-secondary rounded-pill px-4"
+                  @click="closeModal"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  class="btn btn-primary rounded-pill px-4 fw-bold shadow-primary"
+                  :disabled="saving"
+                >
                   {{ saving ? 'Saving...' : 'Save Color' }}
                 </button>
               </div>
@@ -121,18 +176,19 @@ export default {
       perPage: 10,
       filters: { search: '' },
       editingId: null,
+      showModal: false,
       form: { name: '', code: '#7367f0' },
       saving: false,
       searchTimeout: null,
       sortField: 'name',
-      sortOrder: 'asc'
+      sortOrder: 'asc',
     }
   },
   watch: {
     'filters.search'() {
       if (this.searchTimeout) clearTimeout(this.searchTimeout)
       this.searchTimeout = setTimeout(() => this.fetchColors(1), 300)
-    }
+    },
   },
   mounted() {
     this.fetchColors(1)
@@ -150,7 +206,9 @@ export default {
     },
     async fetchColors(page = 1) {
       try {
-        const response = await this.$axios.get(`/api/colors?page=${page}&search=${this.filters.search}`)
+        const response = await this.$axios.get(
+          `/api/colors?page=${page}&search=${this.filters.search}`
+        )
         if (response.data.success) {
           const resData = response.data.data
           this.colorsList = resData.data || resData || []
@@ -170,11 +228,13 @@ export default {
         this.form.name = ''
         this.form.code = '#7367f0'
       }
-      const modalEl = document.getElementById('colorModal')
-      if (window.bootstrap) {
-        const bsModal = window.bootstrap.Modal.getOrCreateInstance(modalEl)
-        bsModal.show()
-      }
+      this.showModal = true
+    },
+    closeModal() {
+      this.showModal = false
+      this.editingId = null
+      this.form.name = ''
+      this.form.code = '#7367f0'
     },
     async saveColor() {
       if (!this.form.name.trim()) return
@@ -187,11 +247,7 @@ export default {
           response = await this.$axios.post('/api/colors', this.form)
         }
         if (response.data.success) {
-          const modalEl = document.getElementById('colorModal')
-          if (window.bootstrap) {
-            const bsModal = window.bootstrap.Modal.getInstance(modalEl)
-            if (bsModal) bsModal.hide()
-          }
+          this.closeModal()
           await this.fetchColors(1)
         }
       } catch (err) {
@@ -210,7 +266,7 @@ export default {
       } catch (err) {
         console.error('Delete color error:', err)
       }
-    }
-  }
+    },
+  },
 }
 </script>

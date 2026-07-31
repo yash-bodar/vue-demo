@@ -20,14 +20,14 @@
               <label class="form-label fw-semibold">
                 <i class="fas fa-barcode me-2 text-primary"></i> Coupon Code
               </label>
-              <input 
-                v-model="form.code" 
-                class="form-control form-control-lg" 
-                placeholder="e.g., SAVE20" 
+              <input
+                v-model="form.code"
+                class="form-control form-control-lg"
+                placeholder="e.g., SAVE20"
                 @input="form.code = form.code.toUpperCase()"
                 :readonly="isEdit"
                 required
-              >
+              />
               <small class="text-muted">Unique code customers will use</small>
             </div>
 
@@ -36,10 +36,10 @@
               <label class="form-label fw-semibold">
                 <i class="fas fa-align-left me-2 text-primary"></i> Description
               </label>
-              <textarea 
-                v-model="form.description" 
-                class="form-control" 
-                rows="3" 
+              <textarea
+                v-model="form.description"
+                class="form-control"
+                rows="3"
                 placeholder="e.g., 20% off on all products"
               ></textarea>
             </div>
@@ -61,15 +61,15 @@
                   <i class="fas fa-dollar-sign me-2 text-primary"></i> Discount Value
                 </label>
                 <div class="input-group input-group-lg">
-                  <input 
-                    v-model.number="form.discount_value" 
-                    class="form-control" 
-                    type="number" 
-                    step="0.01" 
-                    min="0" 
+                  <input
+                    v-model.number="form.discount_value"
+                    class="form-control"
+                    type="number"
+                    step="0.01"
+                    min="0"
                     placeholder="0"
                     required
-                  >
+                  />
                   <span class="input-group-text">
                     {{ form.discount_type === 'percentage' ? '%' : '$' }}
                   </span>
@@ -84,16 +84,18 @@
               </label>
               <div class="input-group">
                 <span class="input-group-text">$</span>
-                <input 
-                  v-model.number="form.min_purchase_amount" 
-                  class="form-control" 
-                  type="number" 
-                  step="0.01" 
+                <input
+                  v-model.number="form.min_purchase_amount"
+                  class="form-control"
+                  type="number"
+                  step="0.01"
                   min="0"
                   placeholder="Leave empty for no minimum"
-                >
+                />
               </div>
-              <small class="text-muted">Minimum amount customer must spend to use this coupon</small>
+              <small class="text-muted"
+                >Minimum amount customer must spend to use this coupon</small
+              >
             </div>
 
             <!-- Usage Limits -->
@@ -102,13 +104,13 @@
                 <label class="form-label fw-semibold">
                   <i class="fas fa-repeat me-2 text-primary"></i> Max Total Uses
                 </label>
-                <input 
-                  v-model.number="form.max_uses" 
-                  class="form-control" 
-                  type="number" 
+                <input
+                  v-model.number="form.max_uses"
+                  class="form-control"
+                  type="number"
                   min="1"
                   placeholder="Leave empty for unlimited"
-                >
+                />
                 <small class="text-muted">Total times this coupon can be used</small>
               </div>
 
@@ -116,13 +118,13 @@
                 <label class="form-label fw-semibold">
                   <i class="fas fa-user-check me-2 text-primary"></i> Max Uses Per User
                 </label>
-                <input 
-                  v-model.number="form.max_uses_per_user" 
-                  class="form-control" 
-                  type="number" 
+                <input
+                  v-model.number="form.max_uses_per_user"
+                  class="form-control"
+                  type="number"
                   min="1"
                   placeholder="Leave empty for unlimited"
-                >
+                />
                 <small class="text-muted">Times a single user can use this coupon</small>
               </div>
             </div>
@@ -133,11 +135,7 @@
                 <label class="form-label fw-semibold">
                   <i class="fas fa-calendar-check me-2 text-primary"></i> Valid From
                 </label>
-                <input 
-                  v-model="form.valid_from" 
-                  class="form-control" 
-                  type="datetime-local"
-                >
+                <input v-model="form.valid_from" class="form-control" type="datetime-local" />
                 <small class="text-muted">Leave empty to start immediately</small>
               </div>
 
@@ -145,11 +143,7 @@
                 <label class="form-label fw-semibold">
                   <i class="fas fa-calendar-times me-2 text-primary"></i> Valid Until
                 </label>
-                <input 
-                  v-model="form.valid_until" 
-                  class="form-control" 
-                  type="datetime-local"
-                >
+                <input v-model="form.valid_until" class="form-control" type="datetime-local" />
                 <small class="text-muted">Leave empty for no expiry date</small>
               </div>
             </div>
@@ -181,13 +175,15 @@
                   </h6>
                   <ul class="list-unstyled mb-0 small">
                     <li>
-                      <strong>Type:</strong> 
+                      <strong>Type:</strong>
                       {{ form.discount_type === 'percentage' ? 'Percentage' : 'Fixed Amount' }}
                     </li>
                     <li class="mt-1">
-                      <strong>Discount:</strong> 
+                      <strong>Discount:</strong>
                       <span class="text-success fw-bold">
-                        <span v-if="form.discount_type === 'percentage'">{{ form.discount_value }}%</span>
+                        <span v-if="form.discount_type === 'percentage'"
+                          >{{ form.discount_value }}%</span
+                        >
                         <span v-else>${{ form.discount_value }}</span>
                       </span>
                     </li>
@@ -215,17 +211,16 @@
 
                 <!-- Form Actions -->
                 <div class="d-grid gap-2">
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     class="btn btn-primary btn-lg fw-semibold"
                     :disabled="loading"
                   >
                     <span v-if="!loading">
-                      <i class="fas fa-save me-1"></i>{{ isEdit ? 'Update Coupon' : 'Create Coupon' }}
+                      <i class="fas fa-save me-1"></i
+                      >{{ isEdit ? 'Update Coupon' : 'Create Coupon' }}
                     </span>
-                    <span v-else>
-                      <i class="fas fa-spinner fa-spin me-1"></i>Saving...
-                    </span>
+                    <span v-else> <i class="fas fa-spinner fa-spin me-1"></i>Saving... </span>
                   </button>
                   <router-link to="/coupons" class="btn btn-outline-secondary btn-lg fw-semibold">
                     <i class="fas fa-arrow-left me-1"></i>Cancel
@@ -306,11 +301,11 @@ export default {
         const formData = new FormData()
 
         Object.keys(this.form).forEach((key) => {
-        const value = this.form[key]
+          const value = this.form[key]
 
-        if (value !== null && value !== undefined && value !== '') {
+          if (value !== null && value !== undefined && value !== '') {
             formData.append(key, value)
-        }
+          }
         })
         console.log('formData', formData)
         // Convert boolean properly
@@ -319,10 +314,10 @@ export default {
 
         let response
         if (this.isEdit) {
-            formData.append('_method', 'PUT') // if Laravel
-            response = await axios.post(`/api/coupons/${this.couponId}`, formData)
+          formData.append('_method', 'PUT') // if Laravel
+          response = await axios.post(`/api/coupons/${this.couponId}`, formData)
         } else {
-            response = await axios.post('/api/coupons', formData)
+          response = await axios.post('/api/coupons', formData)
         }
 
         if (response.data.success) {
@@ -330,7 +325,10 @@ export default {
           this.$router.push('/coupons')
         }
       } catch (error) {
-        const message = error.response?.data?.message || error.response?.data?.errors?.[Object.keys(error.response?.data?.errors)[0]][0] || 'Failed to save coupon'
+        const message =
+          error.response?.data?.message ||
+          error.response?.data?.errors?.[Object.keys(error.response?.data?.errors)[0]][0] ||
+          'Failed to save coupon'
         alert(message)
       } finally {
         this.loading = false

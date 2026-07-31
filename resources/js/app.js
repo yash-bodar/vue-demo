@@ -45,7 +45,7 @@ app.directive('select2', {
       allowClear: binding.value?.allowClear !== false,
       dropdownParent: binding.value?.dropdownParent || null,
       selectionCssClass: 'form-select',
-      ...binding.value
+      ...binding.value,
     }
 
     $(el).select2(options)
@@ -66,8 +66,7 @@ app.directive('select2', {
   unmounted(el) {
     // Destroy Select2 instance
     $(el).select2('destroy')
-  }
+  },
 })
 
 app.mount('#app')
-

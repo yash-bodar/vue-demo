@@ -1,7 +1,9 @@
 <template>
   <div class="card card-vuexy p-4">
     <!-- Header -->
-    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4 pb-3 border-bottom">
+    <div
+      class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4 pb-3 border-bottom"
+    >
       <div class="d-flex align-items-center gap-3">
         <div class="badge bg-label-warning rounded-3 p-3">
           <i class="fas fa-ticket-alt fs-3"></i>
@@ -21,8 +23,15 @@
     <div class="row g-3 mb-4">
       <div class="col-12 col-md-6">
         <div class="input-group">
-          <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="fas fa-search"></i></span>
-          <input type="search" class="form-control border-start-0 ps-0" v-model="filters.search" placeholder="Search coupon code..." />
+          <span class="input-group-text bg-transparent border-end-0 text-muted"
+            ><i class="fas fa-search"></i
+          ></span>
+          <input
+            type="search"
+            class="form-control border-start-0 ps-0"
+            v-model="filters.search"
+            placeholder="Search coupon code..."
+          />
         </div>
       </div>
       <div class="col-6 col-md-3">
@@ -63,30 +72,57 @@
               <span class="badge bg-label-primary fs-7 fw-bold">{{ coupon.code }}</span>
             </td>
             <td>
-              <span class="badge" :class="coupon.discount_type === 'percentage' ? 'bg-label-info' : 'bg-label-warning'">
+              <span
+                class="badge"
+                :class="
+                  coupon.discount_type === 'percentage' ? 'bg-label-info' : 'bg-label-warning'
+                "
+              >
                 {{ coupon.discount_type === 'percentage' ? 'Percentage' : 'Fixed' }}
               </span>
             </td>
             <td class="fw-bold text-primary fs-7">
-              {{ coupon.discount_type === 'percentage' ? `${coupon.discount_value}%` : `$${coupon.discount_value}` }}
+              {{
+                coupon.discount_type === 'percentage'
+                  ? `${coupon.discount_value}%`
+                  : `$${coupon.discount_value}`
+              }}
             </td>
             <td class="fs-8 text-muted">
               {{ coupon.min_purchase_amount ? `$${coupon.min_purchase_amount}` : '-' }}
             </td>
-            <td><span class="badge bg-label-secondary">{{ coupon.max_uses ? coupon.max_uses : 'Unlimited' }}</span></td>
+            <td>
+              <span class="badge bg-label-secondary">{{
+                coupon.max_uses ? coupon.max_uses : 'Unlimited'
+              }}</span>
+            </td>
             <td class="fw-bold fs-7">{{ coupon.times_used || 0 }}</td>
             <td>
-              <span class="badge" :class="coupon.is_active ? 'bg-label-success' : 'bg-label-danger'">
+              <span
+                class="badge"
+                :class="coupon.is_active ? 'bg-label-success' : 'bg-label-danger'"
+              >
                 {{ coupon.is_active ? 'Active' : 'Inactive' }}
               </span>
             </td>
-            <td class="fs-8 text-muted">{{ coupon.valid_until ? formatDate(coupon.valid_until) : 'Never' }}</td>
+            <td class="fs-8 text-muted">
+              {{ coupon.valid_until ? formatDate(coupon.valid_until) : 'Never' }}
+            </td>
             <td class="text-end">
               <div class="d-inline-flex gap-1">
-                <router-link :to="`/coupons/edit/${coupon.id}`" class="btn btn-sm btn-icon btn-label-primary" title="Edit">
+                <router-link
+                  :to="`/coupons/edit/${coupon.id}`"
+                  class="btn btn-sm btn-icon btn-label-primary"
+                  title="Edit"
+                >
                   <i class="fas fa-pen-to-square fs-8"></i>
                 </router-link>
-                <button type="button" class="btn btn-sm btn-icon btn-label-danger" @click="deleteCoupon(coupon.id)" title="Delete">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-icon btn-label-danger"
+                  @click="deleteCoupon(coupon.id)"
+                  title="Delete"
+                >
                   <i class="fas fa-trash-can fs-8"></i>
                 </button>
               </div>
@@ -118,18 +154,20 @@ export default {
         search: '',
         discount_type: '',
         status: '',
-      }
+      },
     }
   },
   computed: {
     filteredCoupons() {
-      return this.couponsList.filter(c => {
+      return this.couponsList.filter((c) => {
         const matchSearch = c.code.toLowerCase().includes(this.filters.search.toLowerCase())
-        const matchType = !this.filters.discount_type || c.discount_type === this.filters.discount_type
-        const matchStatus = !this.filters.status || (this.filters.status === 'active' ? c.is_active : !c.is_active)
+        const matchType =
+          !this.filters.discount_type || c.discount_type === this.filters.discount_type
+        const matchStatus =
+          !this.filters.status || (this.filters.status === 'active' ? c.is_active : !c.is_active)
         return matchSearch && matchType && matchStatus
       })
-    }
+    },
   },
   mounted() {
     this.fetchCoupons()
@@ -161,7 +199,7 @@ export default {
       } catch (err) {
         console.error('Delete coupon error:', err)
       }
-    }
-  }
+    },
+  },
 }
 </script>

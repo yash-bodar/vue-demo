@@ -29,7 +29,8 @@ class CartController extends Controller
     public function updateCart(Request $request)
     {
         $productId = $request->input('product_id');
-        $variantId = $request->input('product_variant_id');
+        // YB - 31-07-2026: Support both variant_id and product_variant_id for frontend compatibility
+        $variantId = $request->input('product_variant_id') ?? $request->input('variant_id');
         $userId = Auth::id();
 
         if(!$userId) {

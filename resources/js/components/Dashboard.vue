@@ -1,14 +1,21 @@
 <template>
   <div class="admin-dashboard">
     <!-- Header & Welcome Banner -->
-    <div class="card card-vuexy bg-primary text-white p-4 mb-4 border-0 position-relative overflow-hidden shadow-primary">
-      <div class="row align-items-center position-relative" style="z-index: 2;">
+    <div
+      class="card card-vuexy bg-primary text-white p-4 mb-4 border-0 position-relative overflow-hidden shadow-primary"
+    >
+      <div class="row align-items-center position-relative">
         <div class="col-md-8">
           <h3 class="fw-bold mb-1 text-white">Welcome back, {{ user?.name || 'Admin' }}! 👋</h3>
-          <p class="mb-0 text-white-50 fs-6">Here is what is happening with your eCommerce store performance today.</p>
+          <p class="mb-0 text-white-50 fs-6">
+            Here is what is happening with your eCommerce store performance today.
+          </p>
         </div>
         <div class="col-md-4 text-md-end mt-3 mt-md-0">
-          <router-link to="/products/create" class="btn btn-light text-primary fw-bold shadow-sm rounded-pill">
+          <router-link
+            to="/products/create"
+            class="btn btn-light text-primary fw-bold shadow-sm rounded-pill"
+          >
             <i class="fas fa-plus me-1"></i> Add New Product
           </router-link>
         </div>
@@ -97,7 +104,9 @@
             <div class="d-flex align-items-center justify-content-between mb-3">
               <div>
                 <span class="fs-8 fw-semibold text-muted text-uppercase">Total Revenue</span>
-                <h3 class="fw-bold m-0 mt-1 text-primary">{{ formatCurrency(stats.total_revenue) }}</h3>
+                <h3 class="fw-bold m-0 mt-1 text-primary">
+                  {{ formatCurrency(stats.total_revenue) }}
+                </h3>
               </div>
               <div class="badge bg-label-warning rounded-3 p-3">
                 <i class="fas fa-wallet fs-4"></i>
@@ -115,32 +124,44 @@
       <!-- Quick Action Shortcuts -->
       <div class="row g-3 mb-4">
         <div class="col-md-3 col-6">
-          <router-link to="/products/create" class="card card-vuexy p-3 text-center text-decoration-none text-heading h-100">
-            <div class="badge bg-label-primary rounded-circle p-3 mx-auto mb-2" style="width: 48px; height: 48px;">
+          <router-link
+            to="/products/create"
+            class="card card-vuexy p-3 text-center text-decoration-none text-heading h-100"
+          >
+            <div class="badge bg-label-primary rounded-circle p-3 mx-auto mb-2 badge-icon-48">
               <i class="fas fa-plus fs-5"></i>
             </div>
             <div class="fw-bold fs-7">Add Product</div>
           </router-link>
         </div>
         <div class="col-md-3 col-6">
-          <router-link to="/orders" class="card card-vuexy p-3 text-center text-decoration-none text-heading h-100">
-            <div class="badge bg-label-success rounded-circle p-3 mx-auto mb-2" style="width: 48px; height: 48px;">
+          <router-link
+            to="/orders"
+            class="card card-vuexy p-3 text-center text-decoration-none text-heading h-100"
+          >
+            <div class="badge bg-label-success rounded-circle p-3 mx-auto mb-2 badge-icon-48">
               <i class="fas fa-receipt fs-5"></i>
             </div>
             <div class="fw-bold fs-7">Process Orders</div>
           </router-link>
         </div>
         <div class="col-md-3 col-6">
-          <router-link to="/coupons/create" class="card card-vuexy p-3 text-center text-decoration-none text-heading h-100">
-            <div class="badge bg-label-warning rounded-circle p-3 mx-auto mb-2" style="width: 48px; height: 48px;">
+          <router-link
+            to="/coupons/create"
+            class="card card-vuexy p-3 text-center text-decoration-none text-heading h-100"
+          >
+            <div class="badge bg-label-warning rounded-circle p-3 mx-auto mb-2 badge-icon-48">
               <i class="fas fa-ticket fs-5"></i>
             </div>
             <div class="fw-bold fs-7">Create Coupon</div>
           </router-link>
         </div>
         <div class="col-md-3 col-6">
-          <router-link to="/categories/create" class="card card-vuexy p-3 text-center text-decoration-none text-heading h-100">
-            <div class="badge bg-label-info rounded-circle p-3 mx-auto mb-2" style="width: 48px; height: 48px;">
+          <router-link
+            to="/categories/create"
+            class="card card-vuexy p-3 text-center text-decoration-none text-heading h-100"
+          >
+            <div class="badge bg-label-info rounded-circle p-3 mx-auto mb-2 badge-icon-48">
               <i class="fas fa-folder-plus fs-5"></i>
             </div>
             <div class="fw-bold fs-7">Add Category</div>
@@ -160,7 +181,7 @@
               </div>
               <span class="badge bg-label-primary">Year {{ new Date().getFullYear() }}</span>
             </div>
-            <div class="chart-container" style="position: relative; height: 260px;">
+            <div class="chart-container-260">
               <canvas ref="revenueChart"></canvas>
             </div>
           </div>
@@ -176,7 +197,7 @@
               </div>
               <span class="badge bg-label-success">Orders Growth</span>
             </div>
-            <div class="chart-container" style="position: relative; height: 260px;">
+            <div class="chart-container-260">
               <canvas ref="ordersChart"></canvas>
             </div>
           </div>
@@ -190,7 +211,9 @@
           <div class="card card-vuexy p-4 h-100">
             <div class="d-flex align-items-center justify-content-between mb-3">
               <h5 class="fw-bold m-0">Recent Customer Orders</h5>
-              <router-link to="/orders" class="btn btn-sm btn-label-primary">View All Orders</router-link>
+              <router-link to="/orders" class="btn btn-sm btn-label-primary"
+                >View All Orders</router-link
+              >
             </div>
 
             <div class="table-responsive">
@@ -215,14 +238,19 @@
                       <div class="fw-semibold">{{ order.user_name || 'Guest User' }}</div>
                     </td>
                     <td class="text-muted fs-8">{{ formatDate(order.created_at) }}</td>
-                    <td class="fw-bold">{{ formatCurrency(order.total_amount, order.currency) }}</td>
+                    <td class="fw-bold">
+                      {{ formatCurrency(order.total_amount, order.currency) }}
+                    </td>
                     <td>
                       <span :class="getStatusBadgeClass(order.status)" class="badge">
                         {{ order.status }}
                       </span>
                     </td>
                     <td class="text-end">
-                      <router-link :to="`/orders/detail/${order.id}`" class="btn btn-sm btn-icon btn-label-secondary">
+                      <router-link
+                        :to="`/orders/detail/${order.id}`"
+                        class="btn btn-sm btn-icon btn-label-secondary"
+                      >
                         <i class="fas fa-eye"></i>
                       </router-link>
                     </td>
@@ -238,24 +266,37 @@
           <div class="card card-vuexy p-4 h-100">
             <div class="d-flex align-items-center justify-content-between mb-3">
               <h5 class="fw-bold m-0">Latest Catalog Additions</h5>
-              <router-link to="/products" class="btn btn-sm btn-link p-0 text-primary fs-7">Catalog</router-link>
+              <router-link to="/products" class="btn btn-sm btn-link p-0 text-primary fs-7"
+                >Catalog</router-link
+              >
             </div>
 
             <div class="d-flex flex-column gap-3">
-              <div v-if="topProducts.length === 0" class="text-muted py-3">No products available</div>
-              <div v-for="prod in topProducts.slice(0, 5)" :key="prod.id" class="d-flex align-items-center justify-content-between p-2 rounded-3 border-subtle border">
+              <div v-if="topProducts.length === 0" class="text-muted py-3">
+                No products available
+              </div>
+              <div
+                v-for="prod in topProducts.slice(0, 5)"
+                :key="prod.id"
+                class="d-flex align-items-center justify-content-between p-2 rounded-3 border-subtle border"
+              >
                 <div class="d-flex align-items-center gap-3">
                   <div class="badge bg-label-primary rounded-3 p-2">
                     <i class="fas fa-box fs-5"></i>
                   </div>
                   <div>
-                    <div class="fw-bold fs-7 text-truncate" style="max-width: 140px;">{{ prod.name }}</div>
+                    <div class="fw-bold fs-7 text-truncate-140">{{ prod.name }}</div>
                     <div class="fs-8 text-muted">{{ prod.category || 'General' }}</div>
                   </div>
                 </div>
                 <div class="text-end">
-                  <div class="fw-bold text-primary fs-7">{{ formatCurrency(prod.price, prod.currency) }}</div>
-                  <span class="fs-8 badge" :class="prod.status === 'active' ? 'bg-label-success' : 'bg-label-secondary'">
+                  <div class="fw-bold text-primary fs-7">
+                    {{ formatCurrency(prod.price, prod.currency) }}
+                  </div>
+                  <span
+                    class="fs-8 badge"
+                    :class="prod.status === 'active' ? 'bg-label-success' : 'bg-label-secondary'"
+                  >
                     {{ prod.status }}
                   </span>
                 </div>
@@ -264,7 +305,6 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </template>
@@ -284,12 +324,12 @@ export default {
       topProducts: [],
       charts: {
         monthly_revenue: {},
-        monthly_orders: {}
-      }
+        monthly_orders: {},
+      },
     }
   },
   computed: {
-    ...mapState(useAuthStore, ['user'])
+    ...mapState(useAuthStore, ['user']),
   },
   async mounted() {
     await this.fetchDashboardData()
@@ -314,20 +354,24 @@ export default {
       }
     },
     formatCurrency(amount, currency = 'USD') {
-      const signs = { 'USD': '$', 'EUR': '€', 'GBP': '£', 'INR': '₹' }
+      const signs = { USD: '$', EUR: '€', GBP: '£', INR: '₹' }
       const sign = signs[currency] || '$'
       return `${sign}${parseFloat(amount || 0).toFixed(2)}`
     },
     formatDate(dateStr) {
       if (!dateStr) return 'N/A'
-      return new Date(dateStr).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+      return new Date(dateStr).toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      })
     },
     getStatusBadgeClass(status) {
       const mapping = {
         pending: 'bg-label-warning',
         completed: 'bg-label-success',
         processing: 'bg-label-info',
-        cancelled: 'bg-label-danger'
+        cancelled: 'bg-label-danger',
       }
       return mapping[status] || 'bg-label-secondary'
     },
@@ -343,10 +387,23 @@ export default {
       const ctx = canvas.getContext('2d')
 
       // Set resolution for high DPI screens
-      const width = canvas.width = canvas.parentElement.clientWidth || 400
-      const height = canvas.height = 240
+      const width = (canvas.width = canvas.parentElement.clientWidth || 400)
+      const height = (canvas.height = 240)
 
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      const months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ]
       const data = months.map((_, i) => this.charts.monthly_revenue[i + 1] || 0)
       const maxVal = Math.max(...data, 100)
 
@@ -356,7 +413,7 @@ export default {
       ctx.strokeStyle = '#e6e6e8'
       ctx.lineWidth = 0.5
       for (let i = 0; i <= 4; i++) {
-        const y = (height - 40) / 4 * i + 10
+        const y = ((height - 40) / 4) * i + 10
         ctx.beginPath()
         ctx.moveTo(35, y)
         ctx.lineTo(width - 10, y)
@@ -379,7 +436,9 @@ export default {
         ctx.beginPath()
         // Rounded bar top
         if (barHeight > 4) {
-          ctx.roundRect ? ctx.roundRect(x, y, barWidth, barHeight, [4, 4, 0, 0]) : ctx.fillRect(x, y, barWidth, barHeight)
+          ctx.roundRect
+            ? ctx.roundRect(x, y, barWidth, barHeight, [4, 4, 0, 0])
+            : ctx.fillRect(x, y, barWidth, barHeight)
         } else {
           ctx.fillRect(x, y, barWidth, Math.max(barHeight, 2))
         }
@@ -397,10 +456,23 @@ export default {
       if (!canvas) return
       const ctx = canvas.getContext('2d')
 
-      const width = canvas.width = canvas.parentElement.clientWidth || 400
-      const height = canvas.height = 240
+      const width = (canvas.width = canvas.parentElement.clientWidth || 400)
+      const height = (canvas.height = 240)
 
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      const months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ]
       const data = months.map((_, i) => this.charts.monthly_orders[i + 1] || 0)
       const maxVal = Math.max(...data, 10)
 
@@ -435,7 +507,7 @@ export default {
         ctx.textAlign = 'center'
         ctx.fillText(months[i], x, height - 10)
       })
-    }
-  }
+    },
+  },
 }
 </script>
